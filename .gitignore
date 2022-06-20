@@ -1,0 +1,10 @@
+
+/.gradle
+/kotlin-js-store
+/.idea/artifacts/*
+
+/build
+/core/build
+/quant/build
+
+/core/karma.config.d/karma.config.generated.js

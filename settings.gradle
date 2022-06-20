@@ -1,0 +1,6 @@
+
+rootProject.name = 'MarketData'
+include 'core'
+include 'quant'
+include 'quanttest'
+

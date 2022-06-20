@@ -1,0 +1,117 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.multiplatform'
+}
+
+group 'org.cerion.marketdata'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+apply plugin: 'maven-publish'
+apply from: 'other.gradle.kts'
+
+kotlin {
+    jvm {
+        withJava()
+    }
+    /*
+    jvm() {
+        compilations.create('integrationTest') {
+            defaultSourceSet {
+                dependencies {
+                    def main = compilations.main
+                    // Compile against the main compilation's compile classpath and outputs:
+                    implementation(main.compileDependencyFiles + main.output.classesDirs)
+                    implementation kotlin('test-junit')
+                }
+            }
+
+            // Create a test task to run the tests produced by this compilation:
+            tasks.create('jvmIntegrationTest', Test) {
+                // Run the tests with the classpath containing the compile dependencies (including 'main'),
+                // runtime dependencies, and the outputs of this compilation:
+                classpath = compileDependencyFiles + runtimeDependencyFiles + output.allOutputs
+
+                // Run only the tests from this compilation's outputs:
+                testClassesDirs = output.classesDirs
+            }
+        }
+    }
+     */
+
+    js {
+        browser {
+            webpackTask {
+                output.libraryTarget = "commonjs"
+            }
+            testTask {
+                useKarma {
+                    useFirefox()
+                    //useChromeHeadless()
+                    //webpackConfig.cssSupport.enabled = true
+                }
+            }
+        }
+
+        binaries.executable()
+        useCommonJs()
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation kotlin('stdlib-common')
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation kotlin('test-common')
+                implementation kotlin('test-annotations-common')
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9"
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation kotlin('stdlib-jdk8')
+                implementation "com.squareup.okhttp3:okhttp:4.2.1"
+                implementation "org.json:json:20190722"
+                implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.10"
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation kotlin('test')
+                implementation kotlin('test-junit')
+            }
+        }
+
+        /*
+        jvmIntegrationTest {
+            dependsOn jvmTest
+        }
+         */
+
+        jsMain {
+            dependencies {
+                implementation kotlin('stdlib-js')
+            }
+        }
+        jsTest {
+            dependencies {
+                implementation kotlin('test-js')
+            }
+        }
+    }
+}
+
+jsBrowserTest.onlyIf {
+    !System.getenv().containsKey('JITPACK')
+}
+
+jsBrowserTest {
+    dependsOn generateKarmaConfig
+}
