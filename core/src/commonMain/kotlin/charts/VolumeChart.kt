@@ -3,6 +3,7 @@ package org.cerion.marketdata.core.charts
 import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.functions.ISimpleOverlay
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class VolumeChart(colors: ChartColors = ChartColors()) : StockChart(colors) {
     var logScale = false
@@ -10,9 +11,9 @@ class VolumeChart(colors: ChartColors = ChartColors()) : StockChart(colors) {
     private val barColor: Int
         get() = _colors.volumneBlue
 
-    override fun getDataSets(priceList: PriceList): List<IDataSet> {
+    override fun getDataSets(table: OHLCVTable): List<IDataSet> {
         val result = mutableListOf<IDataSet>()
-        val volume = if(logScale) priceList.toLogScale().volume else priceList.volume
+        val volume = if(logScale) (table as PriceList).toLogScale().volume else table.volume
 
         val data = DataSet(volume, "Volume", barColor)
         data.lineType = LineType.BAR

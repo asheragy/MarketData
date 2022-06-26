@@ -1,13 +1,13 @@
 package org.cerion.marketdata.core.overlays
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.functions.types.PriceOverlay
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class ZigZag(percent: Double = 5.0) : PriceOverlayBase(PriceOverlay.ZIGZAG, percent) {
 
-    override fun eval(list: PriceList): FloatArray {
-        return zigzag(list, getFloat(0))
+    override fun eval(table: OHLCVTable): FloatArray {
+        return zigzag(table, getFloat(0))
     }
 
     override val name: String = "ZigZag"
@@ -16,19 +16,19 @@ class ZigZag(percent: Double = 5.0) : PriceOverlayBase(PriceOverlay.ZIGZAG, perc
         return 100 * (curr - prev) / prev
     }
 
-    private fun zigzag(list: PriceList, percent: Float): FloatArray {
-        val size = list.size
-        val result = FloatArray(list.size)
+    private fun zigzag(table: OHLCVTable, percent: Float): FloatArray {
+        val size = table.size
+        val result = FloatArray(table.size)
 
         // start=-1, down=0, up=1
         var direction = -1
         var currPos = 0
 
-        for (i in list.indices) {
-            val high = list.high[i]
-            val low = list.low[i]
-            val currHigh = list.high[currPos]
-            val currLow = list.low[currPos]
+        for (i in table.indices) {
+            val high = table.high[i]
+            val low = table.low[i]
+            val currHigh = table.high[currPos]
+            val currLow = table.low[currPos]
 
             if (direction == -1) {
                 if (zzPercent(high, currLow) > percent) {
@@ -62,16 +62,16 @@ class ZigZag(percent: Double = 5.0) : PriceOverlayBase(PriceOverlay.ZIGZAG, perc
 
         // Add current position as the last point
         if (direction == 0)
-            result[currPos] = list.low[currPos]
+            result[currPos] = table.low[currPos]
         else if (direction == 1)
-            result[currPos] = list.high[currPos]
+            result[currPos] = table.high[currPos]
 
         // Add last point as the reverse direction
         val last = size - 1
         if (direction == 0)
-            result[last] = list.high[last]
+            result[last] = table.high[last]
         else if (direction == 1)
-            result[last] = list.low[last]
+            result[last] = table.low[last]
 
         // Fix by adding straight lines to connect points
         var start = 0

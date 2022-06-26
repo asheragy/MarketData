@@ -1,13 +1,12 @@
 package org.cerion.marketdata.core.functions.conditions
 
-import org.cerion.marketdata.core.Price
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.BandArray
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.charts.PriceChart
 import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.functions.IPriceOverlay
 import org.cerion.marketdata.core.model.OHLCVRow
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class PriceCondition(private val condition: Condition, private val overlay: IPriceOverlay) : ICondition {
 
@@ -25,11 +24,11 @@ class PriceCondition(private val condition: Condition, private val overlay: IPri
             throw IllegalArgumentException("condition")
     }
 
-    override fun eval(list: PriceList): Boolean {
-        val arr = overlay.eval(list)
+    override fun eval(table: OHLCVTable): Boolean {
+        val arr = overlay.eval(table)
 
         return if (arr is FloatArray) {
-            evalFloatArray(arr, list.last())
+            evalFloatArray(arr, table.last())
         } else if (arr is BandArray) {
             evalBandArray(arr)
         } else
@@ -37,7 +36,7 @@ class PriceCondition(private val condition: Condition, private val overlay: IPri
     }
 
     override fun toString(): String {
-        return "Price " + condition.toString().toLowerCase() + " " + overlay.toString()
+        return "Price " + condition.toString().lowercase() + " " + overlay.toString()
     }
 
     private fun evalBandArray(arr: BandArray): Boolean {

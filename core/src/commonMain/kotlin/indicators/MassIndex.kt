@@ -1,19 +1,19 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.functions.types.Indicator
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class MassIndex(period: Int = 25) : IndicatorBase(Indicator.MASS_INDEX, period) {
 
     override val name: String = "Mass Index"
 
-    override fun eval(list: PriceList): FloatArray {
-        return massIndex(list, getInt(0))
+    override fun eval(table: OHLCVTable): FloatArray {
+        return massIndex(table, getInt(0))
     }
 
-    private fun massIndex(list: PriceList, period: Int): FloatArray {
-        val size = list.size
+    private fun massIndex(table: OHLCVTable, period: Int): FloatArray {
+        val size = table.size
         val result = FloatArray(size)
 
         //Single ExpMovingAverage = 9-period exponential moving average (ExpMovingAverage) of the high-low differential
@@ -23,7 +23,7 @@ class MassIndex(period: Int = 25) : IndicatorBase(Indicator.MASS_INDEX, period) 
 
         val highLowDiff = FloatArray(size)
         for (i in 0 until size) {
-            highLowDiff[i] = list.high[i] - list.low[i]
+            highLowDiff[i] = table.high[i] - table.low[i]
         }
 
         val ema = highLowDiff.ema(9)

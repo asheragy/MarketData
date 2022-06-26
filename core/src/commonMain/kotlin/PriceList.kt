@@ -13,48 +13,11 @@ class PriceList(symbol: String, list: List<OHLCVRow>) : OHLCVTable(symbol, list)
     private var logScale = false
     var lastUpdated: KMPTimeStamp? = null
 
-    fun getPrice(index: Int): Price = Price(this, index)
-
-    // Skip first instance
-    // the first month of a fund may only have a few days worth of arrays depending on its first trading date, example SPY
-    val interval: Interval
-        get() {
-            if (size > 1) {
-                val diff = dates[2].diff(dates[1])
-
-                if (diff > 200)
-                    return Interval.YEARLY
-                else if (diff > 45)
-                    return Interval.QUARTERLY
-                else if (diff > 10)
-                    return Interval.MONTHLY
-                else if (diff > 5)
-                    return Interval.WEEKLY
-            }
-
-            return Interval.DAILY
-        }
-
     val change: Float
         get() = close[size - 1] - close[size - 2]
 
     val percentChange: Float
         get() = close.getPercentChange(size - 2)
-
-    //Typical price
-    fun tp(pos: Int): Float = (close[pos] + high[pos] + low[pos]) / 3
-
-    //Money flow volume
-    fun mfv(pos: Int) : Float {
-        var mult = (close[pos] - low[pos] - (high[pos] - close[pos])) / (high[pos] - low[pos])
-        if (close[pos] == low[pos])
-            mult = -1f
-        if (low[pos] == high[pos])
-        //divide by zero
-            mult = 0f
-
-        return mult * volume[pos]
-    }
 
     //Rate of change
     fun roc(pos: Int, period: Int): Float {
@@ -78,11 +41,6 @@ class PriceList(symbol: String, list: List<OHLCVRow>) : OHLCVTable(symbol, list)
         val result = PriceList(symbol, logPrices)
         result.logScale = true
         return result
-    }
-
-    @Deprecated("unnecessary", ReplaceWith("this.symbol == symbol"))
-    fun `is`(symbol: String): Boolean {
-        return this.symbol == symbol
     }
 
     fun truncate(minStartDate: KMPDate): PriceList {
@@ -236,41 +194,8 @@ class PriceList(symbol: String, list: List<OHLCVRow>) : OHLCVTable(symbol, list)
         return PriceList(symbol, prices)
     }
 
-    fun getLast(prev: Int): Price {
-        return getPrice(size - 1 - prev)
-    }
-
-    fun tr(pos: Int): Float {
-        return if (pos > 0) max(high[pos], close[pos - 1]) - min(low[pos], close[pos - 1]) else high[0] - low[0]
-    }
-
     fun slope(period: Int, pos: Int): Float {
         return this.close.slope(period, pos)
-    }
-
-    fun averageYearlyGain(): Float {
-        val count = (size - 1).toFloat()
-        val years = count / pricesPerYear()
-
-        // Simple Return = (Current Price-Purchase Price) / Purchase Price
-        // Annual Return = (Simple Return +1) ^ (1 / Years Held)-1
-
-        val simpleReturn = last().getPercentDiff(first())
-        val a = (simpleReturn / 100 + 1).toDouble()
-        val b = (1 / years).toDouble()
-
-        val annualReturn = a.pow(b) - 1
-        return annualReturn.toFloat()
-    }
-
-    private fun pricesPerYear(): Int {
-        return when (interval) {
-            Interval.DAILY -> 252
-            Interval.WEEKLY -> 52
-            Interval.MONTHLY -> 12
-            Interval.QUARTERLY -> 4
-            else -> 1
-        }
     }
 
     companion object {

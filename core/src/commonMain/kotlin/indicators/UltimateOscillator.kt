@@ -1,8 +1,8 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.functions.types.Indicator
+import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.max
 import kotlin.math.min
 
@@ -12,17 +12,17 @@ class UltimateOscillator(p1: Int, p2: Int, p3: Int) : IndicatorBase(Indicator.UO
 
     override val name: String = "Ultimate Oscillator"
 
-    override fun eval(list: PriceList): FloatArray {
-        return ultimateOscillator(list, getInt(0), getInt(1), getInt(2))
+    override fun eval(table: OHLCVTable): FloatArray {
+        return ultimateOscillator(table, getInt(0), getInt(1), getInt(2))
     }
 
-    private fun ultimateOscillator(list: PriceList, p1: Int, p2: Int, p3: Int): FloatArray {
-        val size = list.size
+    private fun ultimateOscillator(table: OHLCVTable, p1: Int, p2: Int, p3: Int): FloatArray {
+        val size = table.size
         val result = FloatArray(size)
 
         val bp = kotlin.FloatArray(size)
         for (i in 1 until size)
-            bp[i] = list.close[i] - min(list.low[i], list.close[i - 1])
+            bp[i] = table.close[i] - min(table.low[i], table.close[i - 1])
 
         val average = Array(size) { kotlin.FloatArray(3) }
 
@@ -32,7 +32,7 @@ class UltimateOscillator(p1: Int, p2: Int, p3: Int) : IndicatorBase(Indicator.UO
             var trsum = 0f
             for (j in i - p1 + 1..i) {
                 bpsum += bp[j]
-                trsum += list.tr(j)
+                trsum += table.tr(j)
             }
             average[i][0] = bpsum / trsum
 
@@ -46,7 +46,7 @@ class UltimateOscillator(p1: Int, p2: Int, p3: Int) : IndicatorBase(Indicator.UO
             var trsum = 0f
             for (j in i - p2 + 1..i) {
                 bpsum += bp[j]
-                trsum += list.tr(j)
+                trsum += table.tr(j)
             }
             average[i][1] = bpsum / trsum
         }
@@ -56,7 +56,7 @@ class UltimateOscillator(p1: Int, p2: Int, p3: Int) : IndicatorBase(Indicator.UO
             var trsum = 0f
             for (j in i - p3 + 1..i) {
                 bpsum += bp[j]
-                trsum += list.tr(j)
+                trsum += table.tr(j)
             }
             average[i][2] = bpsum / trsum
         }

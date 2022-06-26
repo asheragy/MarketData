@@ -1,23 +1,23 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.arrays.ValueArray
 import org.cerion.marketdata.core.functions.types.Indicator
+import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.abs
 
 class AverageDirectionalIndex(period: Int = 14) : IndicatorBase(Indicator.ADX, period) {
 
     override val name: String = "Average Directional Index"
 
-    override fun eval(list: PriceList): FloatArray {
-        return averageDirectionalIndex(list, getInt(0))
+    override fun eval(table: OHLCVTable): FloatArray {
+        return averageDirectionalIndex(table, getInt(0))
     }
 
-    private fun averageDirectionalIndex(list: PriceList, period: Int): FloatArray {
-        val size = list.size
+    private fun averageDirectionalIndex(table: OHLCVTable, period: Int): FloatArray {
+        val size = table.size
         val result = FloatArray(size)
-        val di = DirectionalIndex(period).eval(list)
+        val di = DirectionalIndex(period).eval(table)
 
         for (i in 1 until size) {
             val count = ValueArray.maxPeriod(i, period)

@@ -1,9 +1,9 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.arrays.ValueArray
 import org.cerion.marketdata.core.functions.types.Indicator
+import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.max
 import kotlin.math.sqrt
 
@@ -11,8 +11,8 @@ class UlcerIndex(period: Int = 14) : IndicatorBase(Indicator.ULCER_INDEX, period
 
     override val name: String = "Ulcer Index"
 
-    override fun eval(list: PriceList): FloatArray {
-        return eval(list.close)
+    override fun eval(table: OHLCVTable): FloatArray {
+        return eval(table.close)
     }
 
     fun eval(arr: FloatArray): FloatArray {

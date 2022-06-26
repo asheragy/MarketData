@@ -1,6 +1,5 @@
 package org.cerion.marketdata.core.functions.conditions
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.charts.IndicatorChart
 import org.cerion.marketdata.core.charts.PriceChart
@@ -8,6 +7,7 @@ import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.functions.IFunction
 import org.cerion.marketdata.core.functions.IIndicator
 import org.cerion.marketdata.core.functions.IOverlay
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class IndicatorCondition
 /**
@@ -45,9 +45,9 @@ class IndicatorCondition
             throw IllegalArgumentException("condition must be above/below")
     }
 
-    override fun eval(list: PriceList): Boolean {
-        val arr1 = indicator1.eval(list) as FloatArray
-        val arr2 = indicator2.eval(list) as FloatArray
+    override fun eval(table: OHLCVTable): Boolean {
+        val arr1 = indicator1.eval(table) as FloatArray
+        val arr2 = indicator2.eval(table) as FloatArray
 
         return if (condition === Condition.ABOVE)
             arr1.last > arr2.last
@@ -56,6 +56,6 @@ class IndicatorCondition
     }
 
     override fun toString(): String {
-        return indicator1.toString() + " " + condition.toString().toLowerCase() + " " + indicator2.toString()
+        return indicator1.toString() + " " + condition.toString().lowercase() + " " + indicator2.toString()
     }
 }

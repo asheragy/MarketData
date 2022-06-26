@@ -1,11 +1,10 @@
 package org.cerion.marketdata.core.charts
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.*
-import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.functions.IIndicator
 import org.cerion.marketdata.core.functions.ISimpleOverlay
 import org.cerion.marketdata.core.functions.types.Indicator
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class IndicatorChart(indicator: IIndicator, colors: ChartColors = ChartColors()) : StockChart(colors) {
 
@@ -35,15 +34,15 @@ class IndicatorChart(indicator: IIndicator, colors: ChartColors = ChartColors())
         extra.add(extraIndicator)
     }
 
-    override fun getDataSets(priceList: PriceList): List<IDataSet> {
+    override fun getDataSets(table: OHLCVTable): List<IDataSet> {
         val result = mutableListOf<IDataSet>()
 
-        val arr = indicator.eval(priceList)
+        val arr = indicator.eval(table)
         result += getIndicatorDataSets(arr, indicator)
 
         // TODO set color on these
         for (indicator in extra) {
-            val va = indicator.eval(priceList)
+            val va = indicator.eval(table)
             result += getIndicatorDataSets(va, indicator)
         }
 
@@ -59,7 +58,7 @@ class IndicatorChart(indicator: IIndicator, colors: ChartColors = ChartColors())
         for (overlay in _overlays) {
             val ol = overlay as ISimpleOverlay
 
-            val temp = ol.eval(arr as FloatArray)
+            val temp = ol.eval(arr as org.cerion.marketdata.core.arrays.FloatArray)
             result += getDefaultOverlayDataSets(temp, ol, ignoreColor)
         }
 
@@ -74,7 +73,7 @@ class IndicatorChart(indicator: IIndicator, colors: ChartColors = ChartColors())
             is BandArray -> throw NotImplementedError() // No indicators seem to be using this
             is MACDArray -> arr.getDataSets(label, label, label, _colors.primaryPurple, _colors.orange, _colors.secondaryBlue)
             is PairArray -> arr.getDataSets(label, label, _colors.positiveGreen, _colors.negativeRed)
-            is FloatArray -> {
+            is org.cerion.marketdata.core.arrays.FloatArray -> {
                 // TODO add more special cases
                 var color = _colors.primary
                 if (indicator.id == Indicator.RSI)

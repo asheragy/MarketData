@@ -1,6 +1,5 @@
 package org.cerion.marketdata.core.functions.conditions
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.BandArray
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.charts.IndicatorChart
@@ -9,6 +8,7 @@ import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.functions.IFunction
 import org.cerion.marketdata.core.functions.IIndicator
 import org.cerion.marketdata.core.functions.IOverlay
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class ValueIndicatorCondition
 /**
@@ -35,10 +35,10 @@ class ValueIndicatorCondition
             throw IllegalArgumentException(Condition.INSIDE.toString() + " must be applied to " + BandArray::class.simpleName)
     }
 
-    override fun eval(list: PriceList): Boolean {
+    override fun eval(table: OHLCVTable): Boolean {
 
         // Value vs Indicator
-        val va = indicator.eval(list)
+        val va = indicator.eval(table)
         if (va is BandArray) {
             val last = va.size - 1
             when (condition) {
@@ -49,7 +49,7 @@ class ValueIndicatorCondition
         }
 
         // FloatArray
-        val arr = indicator.eval(list) as FloatArray
+        val arr = indicator.eval(table) as FloatArray
         return if (condition === Condition.ABOVE)
             value > arr.last
         else
@@ -57,6 +57,6 @@ class ValueIndicatorCondition
     }
 
     override fun toString(): String {
-        return value.toString() + " " + condition.toString().toLowerCase() + " " + indicator.toString()
+        return value.toString() + " " + condition.toString().lowercase() + " " + indicator.toString()
     }
 }

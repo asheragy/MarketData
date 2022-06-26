@@ -1,21 +1,21 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.arrays.PairArray
 import org.cerion.marketdata.core.functions.types.Indicator
+import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.max
 
 class DirectionalIndex(period: Int = 14) : IndicatorBase(Indicator.DI, period) {
 
     override val name: String = "Directional Index"
 
-    override fun eval(list: PriceList): PairArray {
-        return directionalIndex(list, getInt(0))
+    override fun eval(table: OHLCVTable): PairArray {
+        return directionalIndex(table, getInt(0))
     }
 
-    private fun directionalIndex(list: PriceList, period: Int): PairArray {
-        val size = list.size
+    private fun directionalIndex(table: OHLCVTable, period: Int): PairArray {
+        val size = table.size
         val mDI = FloatArray(size) //-DI
         val pDI = FloatArray(size) //+DI
 
@@ -25,17 +25,17 @@ class DirectionalIndex(period: Int = 14) : IndicatorBase(Indicator.DI, period) {
             val prev = i - 1
 
             //TODO, add DM function to PriceList so this can be calculated directly
-            if (list.high[i] - list.high[prev] > list.low[prev] - list.low[i])
-                trdm[i][0] = max(list.high[i] - list.high[prev], 0f)
+            if (table.high[i] - table.high[prev] > table.low[prev] - table.low[i])
+                trdm[i][0] = max(table.high[i] - table.high[prev], 0f)
 
-            if (list.low[prev] - list.low[i] > list.high[i] - list.high[prev])
-                trdm[i][1] = max(list.low[prev] - list.low[i], 0f)
+            if (table.low[prev] - table.low[i] > table.high[i] - table.high[prev])
+                trdm[i][1] = max(table.low[prev] - table.low[i], 0f)
         }
 
         val trdm14 = Array(size) { kotlin.FloatArray(3) } //TR14 / +DM14 / -DM14
 
         for (i in 1 until size) {
-            trdm14[i][0] = trdm14[i - 1][0] - trdm14[i - 1][0] / period + list.tr(i)
+            trdm14[i][0] = trdm14[i - 1][0] - trdm14[i - 1][0] / period + table.tr(i)
             trdm14[i][1] = trdm14[i - 1][1] - trdm14[i - 1][1] / period + trdm[i][0]
             trdm14[i][2] = trdm14[i - 1][2] - trdm14[i - 1][2] / period + trdm[i][1]
 

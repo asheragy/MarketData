@@ -1,21 +1,21 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.arrays.ValueArray
 import org.cerion.marketdata.core.functions.types.Indicator
+import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.abs
 
 class RSI(period: Int = 14) : IndicatorBase(Indicator.RSI, period) {
 
     override val name: String = "RSI"
 
-    override fun eval(list: PriceList): FloatArray {
-        return rsi(list, getInt(0))
+    override fun eval(table: OHLCVTable): FloatArray {
+        return rsi(table, getInt(0))
     }
 
-    private fun rsi(list: PriceList, period: Int): FloatArray {
-        val arr = list.close
+    private fun rsi(table: OHLCVTable, period: Int): FloatArray {
+        val arr = table.close
         val size = arr.size
         val result = FloatArray(size)
 

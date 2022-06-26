@@ -109,6 +109,15 @@ open class FloatArray(length: Int) : ValueArray() {
         return result
     }
 
+    //Rate of change
+    fun roc(pos: Int, period: Int): Float {
+        var x = 0 //If period goes beyond start then set to first element
+        if (pos >= period)
+            x = pos - period
+
+        return (this[pos] - this[x]) * 100 / this[x]
+    }
+
     /**
      * Standard deviation of period
      * @param period The period to use for the average

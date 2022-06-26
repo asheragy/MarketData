@@ -1,8 +1,8 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.MACDArray
 import org.cerion.marketdata.core.functions.types.Indicator
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class PercentageVolumeOscillator(p1: Int, p2: Int, signal: Int) : IndicatorBase(Indicator.PVO, p1, p2, signal) {
 
@@ -10,7 +10,7 @@ class PercentageVolumeOscillator(p1: Int, p2: Int, signal: Int) : IndicatorBase(
 
     override val name: String = "Percentage Volume Oscillator"
 
-    override fun eval(list: PriceList): MACDArray {
-        return PercentagePriceOscillator.getPercentMACD(list.volume, getInt(0), getInt(1), getInt(2))
+    override fun eval(table: OHLCVTable): MACDArray {
+        return PercentagePriceOscillator.getPercentMACD(table.volume, getInt(0), getInt(1), getInt(2))
     }
 }

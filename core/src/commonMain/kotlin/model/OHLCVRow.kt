@@ -31,4 +31,17 @@ data class OHLCVRow(
         val diff = close - old.close
         return 100 * (diff / old.close)
     }
+
+    //Money flow volume
+    val mfv: Float
+        get() {
+            var mult = (close - low - (high - close)) / (high - low)
+            if (close == low)
+                mult = -1f
+            if (low == high)
+            //divide by zero
+                mult = 0f
+
+            return mult * volume
+        }
 }

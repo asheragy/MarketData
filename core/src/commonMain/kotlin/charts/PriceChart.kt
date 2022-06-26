@@ -5,6 +5,7 @@ import org.cerion.marketdata.core.functions.IOverlay
 import org.cerion.marketdata.core.functions.types.IFunctionEnum
 import org.cerion.marketdata.core.functions.types.PriceOverlay
 import org.cerion.marketdata.core.model.Interval
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class PriceChart(colors: ChartColors = ChartColors()) : StockChart(colors) {
     var candleData = false
@@ -14,9 +15,9 @@ class PriceChart(colors: ChartColors = ChartColors()) : StockChart(colors) {
     private val lineColor: Int
         get() = _colors.primaryBlue
 
-    override fun getDataSets(priceList: PriceList): List<IDataSet> {
+    override fun getDataSets(table: OHLCVTable): List<IDataSet> {
         val result = mutableListOf<IDataSet>()
-        val list = if(logScale) priceList.toLogScale() else priceList
+        val list = if(logScale) (table as PriceList).toLogScale() else table
 
         if (!showPrice) {
             // Don't add price data
@@ -47,12 +48,12 @@ class PriceChart(colors: ChartColors = ChartColors()) : StockChart(colors) {
         showPrice = (params["showPrice"] ?: "true").toBoolean()
     }
 
-    private fun getOverlayDataSets(list: PriceList): List<DataSet> {
+    private fun getOverlayDataSets(table: OHLCVTable): List<DataSet> {
         resetNextColor()
         val result = mutableListOf<DataSet>()
 
         for (overlay in _overlays) {
-            val arr = overlay.eval(list)
+            val arr = overlay.eval(table)
             result += getDefaultOverlayDataSets(arr, overlay, lineColor)
         }
 
@@ -75,13 +76,13 @@ class PriceChart(colors: ChartColors = ChartColors()) : StockChart(colors) {
      * Determines if this chart is able to display candle data, mutual funds on daily interval don't have high/low variation so candles shouldn't be used
      * @return true if this chart can display candle data properly
      */
-    fun canShowCandleData(list: PriceList): Boolean {
+    fun canShowCandleData(table: OHLCVTable): Boolean {
         // Only daily has this problem with high/low values
-        if (list.interval != Interval.DAILY)
+        if (table.interval != Interval.DAILY)
             return true
 
-        for (i in list.indices) {
-            if (list.high[i] != list.low[i])
+        for (i in table.indices) {
+            if (table.high[i] != table.low[i])
                 return true
         }
 

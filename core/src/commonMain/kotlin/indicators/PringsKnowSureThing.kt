@@ -1,8 +1,8 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.functions.types.Indicator
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class PringsKnowSureThing(p1: Int, p2: Int, p3: Int, p4: Int, p5: Int, p6: Int, p7: Int, p8: Int)
     : IndicatorBase(Indicator.KST, p1, p2, p3, p4, p5, p6, p7, p8) {
@@ -11,8 +11,8 @@ class PringsKnowSureThing(p1: Int, p2: Int, p3: Int, p4: Int, p5: Int, p6: Int, 
 
     override val name: String = "Pring's Know Sure Thing"
 
-    override fun eval(list: PriceList): FloatArray {
-        return knowSureThing(list, getInt(0), getInt(1), getInt(2), getInt(3),
+    override fun eval(table: OHLCVTable): FloatArray {
+        return knowSureThing(table.close, getInt(0), getInt(1), getInt(2), getInt(3),
                 getInt(4), getInt(5), getInt(6), getInt(7))
     }
 
@@ -22,8 +22,8 @@ class PringsKnowSureThing(p1: Int, p2: Int, p3: Int, p4: Int, p5: Int, p6: Int, 
     Long-term Monthly = KST(9,12,18,24,6,6,6,9)
     Default signal is 9 period SimpleMovingAverage (not ExpMovingAverage)
     */
-    private fun knowSureThing(list: PriceList, roc1: Int, roc2: Int, roc3: Int, roc4: Int, sma1: Int, sma2: Int, sma3: Int, sma4: Int): FloatArray {
-        val size = list.size
+    private fun knowSureThing(close: FloatArray, roc1: Int, roc2: Int, roc3: Int, roc4: Int, sma1: Int, sma2: Int, sma3: Int, sma4: Int): FloatArray {
+        val size = close.size
         val result = FloatArray(size)
 
         var r1 = FloatArray(size)
@@ -39,10 +39,10 @@ class PringsKnowSureThing(p1: Int, p2: Int, p3: Int, p4: Int, p5: Int, p6: Int, 
 		KST = (RCMA1 x 1) + (RCMA2 x 2) + (RCMA3 x 3) + (RCMA4 x 4)
 		*/
         for (i in 0 until size) {
-            r1[i] = list.roc(i, roc1)
-            r2[i] = list.roc(i, roc2)
-            r3[i] = list.roc(i, roc3)
-            r4[i] = list.roc(i, roc4)
+            r1[i] = close.roc(i, roc1)
+            r2[i] = close.roc(i, roc2)
+            r3[i] = close.roc(i, roc3)
+            r4[i] = close.roc(i, roc4)
         }
 
         //Apply SimpleMovingAverage to arrays

@@ -1,5 +1,6 @@
 package org.cerion.marketdata.core
 
+import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.web.CSVParser
 import kotlin.math.abs
 
@@ -14,7 +15,7 @@ open class TestBase {
             kotlin.test.assertEquals(expected, actual, "expected=$expected, actual=$actual, diff=$diff - $message")
     }
 
-    protected fun runPriceTest(block: suspend (priceList: PriceList) -> Unit) = Utils.runAsync {
+    protected fun runPriceTest(block: suspend (priceList: OHLCVTable) -> Unit) = Utils.runAsync {
         if (!isInitialized()) {
             val data = Utils.readResourceFileAsync("sp500_2000-2015.csv").await()
             priceList = PriceList("^GSPC", CSVParser.getPricesFromTable(data))

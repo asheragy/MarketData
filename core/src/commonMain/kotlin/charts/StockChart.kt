@@ -1,6 +1,5 @@
 package org.cerion.marketdata.core.charts
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.BandArray
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.arrays.PairArray
@@ -11,6 +10,7 @@ import org.cerion.marketdata.core.functions.IOverlay
 import org.cerion.marketdata.core.functions.ISimpleOverlay
 import org.cerion.marketdata.core.functions.types.IFunctionEnum
 import org.cerion.marketdata.core.functions.types.Overlay
+import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.overlays.ParabolicSAR
 import org.cerion.marketdata.core.platform.KMPDate
 
@@ -25,9 +25,9 @@ abstract class StockChart(protected val _colors: ChartColors) {
     val overlayCount: Int
         get() = _overlays.size
 
-    abstract fun getDataSets(priceList: PriceList): List<IDataSet>
+    abstract fun getDataSets(table: OHLCVTable): List<IDataSet>
 
-    fun getDates(list: PriceList): Array<KMPDate> = list.dates.sliceArray(1 until list.dates.size)
+    fun getDates(table: OHLCVTable): Array<KMPDate> = table.dates.sliceArray(1 until table.dates.size)
 
     fun copy(): StockChart = deserialize(serialize(), _colors)
 

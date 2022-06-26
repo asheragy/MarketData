@@ -1,19 +1,19 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.functions.types.Indicator
+import org.cerion.marketdata.core.model.OHLCVTable
 
 class PringsSpecialK : IndicatorBase(Indicator.SPECIALK) {
 
     override val name: String = "Pring's Special K"
 
-    override fun eval(list: PriceList): FloatArray {
-        return specialK(list)
+    override fun eval(table: OHLCVTable): FloatArray {
+        return specialK(table)
     }
 
-    private fun specialK(list: PriceList): FloatArray {
-        val result = FloatArray(list.size)
+    private fun specialK(table: OHLCVTable): FloatArray {
+        val result = FloatArray(table.size)
 
         /*
 		Special K = 10 Period Simple Moving Average of ROC(10) * 1
@@ -33,11 +33,11 @@ class PringsSpecialK : IndicatorBase(Indicator.SPECIALK) {
 	    */
 
         //This is just 3 different versions of knowSureThing so it can be calculated easy
-        val kst1 = PringsKnowSureThing(10, 15, 20, 30, 10, 10, 10, 15).eval(list)
-        val kst2 = PringsKnowSureThing(40, 65, 75, 100, 50, 65, 75, 100).eval(list)
-        val kst3 = PringsKnowSureThing(195, 265, 390, 530, 130, 130, 130, 195).eval(list)
+        val kst1 = PringsKnowSureThing(10, 15, 20, 30, 10, 10, 10, 15).eval(table)
+        val kst2 = PringsKnowSureThing(40, 65, 75, 100, 50, 65, 75, 100).eval(table)
+        val kst3 = PringsKnowSureThing(195, 265, 390, 530, 130, 130, 130, 195).eval(table)
 
-        for (i in list.indices)
+        for (i in table.indices)
             result[i] = kst1[i] + kst2[i] + kst3[i]
 
         return result
