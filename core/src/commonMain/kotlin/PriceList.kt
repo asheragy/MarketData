@@ -1,24 +1,19 @@
 package org.cerion.marketdata.core
 
-import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.OHLCVRow
+import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.platform.DayOfWeek
 import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.core.platform.KMPTimeStamp
-
 import kotlin.math.*
 
-class PriceList(val symbol: String, list: List<OHLCVRow>, delegate: ArrayList<Price> = ArrayList()) : MutableList<Price> by delegate {
+class PriceList(symbol: String, list: List<OHLCVRow>) : OHLCVTable(symbol, list) {
 
     private var logScale = false
-    val dates: Array<KMPDate>
-    val open: FloatArray = FloatArray(list.size)
-    val high: FloatArray = FloatArray(list.size)
-    val low: FloatArray = FloatArray(list.size)
-    val close: FloatArray = FloatArray(list.size)
-    val volume: FloatArray = FloatArray(list.size)
     var lastUpdated: KMPTimeStamp? = null
+
+    fun getPrice(index: Int): Price = Price(this, index)
 
     // Skip first instance
     // the first month of a fund may only have a few days worth of arrays depending on its first trading date, example SPY
@@ -40,40 +35,11 @@ class PriceList(val symbol: String, list: List<OHLCVRow>, delegate: ArrayList<Pr
             return Interval.DAILY
         }
 
-    val first: Price
-        get() = get(0)
-
-    val last: Price
-        get() = getLast(0)
-
     val change: Float
         get() = close[size - 1] - close[size - 2]
 
     val percentChange: Float
         get() = close.getPercentChange(size - 2)
-
-    init {
-        val sortedList = list.sortedBy { it.date }
-        val size = list.size
-        val dateList = mutableListOf<KMPDate>()
-
-        for (i in 0 until size) {
-            val p = sortedList[i]
-            val entry = Price(this, i)
-
-            //dates[i] = p.date
-            dateList.add(p.date)
-            open[i] = p.open
-            high[i] = p.high
-            low[i] = p.low
-            close[i] = p.close
-            volume[i] = p.volume
-
-            this.add(entry)
-        }
-
-        this.dates = dateList.toTypedArray()
-    }
 
     //Typical price
     fun tp(pos: Int): Float = (close[pos] + high[pos] + low[pos]) / 3
@@ -271,7 +237,7 @@ class PriceList(val symbol: String, list: List<OHLCVRow>, delegate: ArrayList<Pr
     }
 
     fun getLast(prev: Int): Price {
-        return get(size - 1 - prev)
+        return getPrice(size - 1 - prev)
     }
 
     fun tr(pos: Int): Float {
@@ -289,7 +255,7 @@ class PriceList(val symbol: String, list: List<OHLCVRow>, delegate: ArrayList<Pr
         // Simple Return = (Current Price-Purchase Price) / Purchase Price
         // Annual Return = (Simple Return +1) ^ (1 / Years Held)-1
 
-        val simpleReturn = last.getPercentDiff(get(0))
+        val simpleReturn = last().getPercentDiff(first())
         val a = (simpleReturn / 100 + 1).toDouble()
         val b = (1 / years).toDouble()
 

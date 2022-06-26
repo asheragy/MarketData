@@ -31,7 +31,7 @@ class CommodityChannelIndex(period: Int = 20) : IndicatorBase(Indicator.CCI, per
             //Mean deviation is different than standard deviation
             var dev = 0f
             for (j in i - count + 1..i)
-                dev += abs(list[j].tp() - sma)
+                dev += abs(list[j].tp - sma)
             dev /= count
 
             //CCI = (Typical Price  -  20-period SimpleMovingAverage of TP) / (.015 x Mean Deviation)

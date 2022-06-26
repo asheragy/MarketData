@@ -17,6 +17,6 @@ class PriceListTest : TestBase() {
         val list = PriceList.generateSeries(500)
         assertEquals(500, list.size)
         assertEquals(102.0f, list[0].close)
-        assertEquals(319.43283f, list.last.close)
+        assertEquals(319.43283f, list.last().close)
     }
 }

@@ -7,6 +7,7 @@ import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.charts.PriceChart
 import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.functions.IPriceOverlay
+import org.cerion.marketdata.core.model.OHLCVRow
 
 class PriceCondition(private val condition: Condition, private val overlay: IPriceOverlay) : ICondition {
 
@@ -28,7 +29,7 @@ class PriceCondition(private val condition: Condition, private val overlay: IPri
         val arr = overlay.eval(list)
 
         return if (arr is FloatArray) {
-            evalFloatArray(arr, list.last)
+            evalFloatArray(arr, list.last())
         } else if (arr is BandArray) {
             evalBandArray(arr)
         } else
@@ -51,7 +52,7 @@ class PriceCondition(private val condition: Condition, private val overlay: IPri
 
     }
 
-    private fun evalFloatArray(arr: FloatArray, last: Price): Boolean {
+    private fun evalFloatArray(arr: FloatArray, last: OHLCVRow): Boolean {
         val v = arr.last
 
         if (condition === Condition.ABOVE && last.close > v)

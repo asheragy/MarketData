@@ -3,14 +3,14 @@ package org.cerion.marketdata.core
 import org.cerion.marketdata.core.platform.DayOfWeek
 import org.cerion.marketdata.core.platform.KMPDate
 
-class Price(val parent: PriceList, val pos: Int) : IPrice {
+class Price(parent: PriceList, pos: Int) {
 
-    override val date: KMPDate get() = parent.dates[pos]
-    override val open: Float get() = parent.open[pos]
-    override val close: Float get() = parent.close[pos]
-    override val high: Float get() = parent.high[pos]
-    override val low: Float get() = parent.low[pos]
-    override val volume: Float get() = parent.volume[pos]
+    val date = parent.dates[pos]
+    val open = parent.open[pos]
+    val close = parent.close[pos]
+    val high = parent.high[pos]
+    val low = parent.low[pos]
+    val volume = parent.volume[pos]
 
     @Deprecated("use date directly", ReplaceWith("date.toISOString()"))
     val formattedDate: String
@@ -20,12 +20,12 @@ class Price(val parent: PriceList, val pos: Int) : IPrice {
         get() = date.dayOfWeek
 
     //Slope of closing price
-    fun slope(period: Int): Float {
-        return parent.slope(period, pos)
-    }
+    //fun slope(period: Int): Float {
+    //    return parent.slope(period, pos)
+    //}
 
     //Typical price
-    fun tp(): Float = parent.tp(pos)
+    //fun tp(): Float = parent.tp(pos)
     fun change(prev: Price): Float = getPercentDiff(prev)
 
     fun getPercentDiff(old: Price): Float {
@@ -34,12 +34,5 @@ class Price(val parent: PriceList, val pos: Int) : IPrice {
 
         val diff = close - old.close
         return 100 * (diff / old.close)
-    }
-
-    companion object {
-        @Deprecated("removing", ReplaceWith("String.format(\"%.2f\", value)"))
-        fun getDecimal(value: Float): String {
-            return value.toString() //String.format("%.2f", value)
-        }
     }
 }
