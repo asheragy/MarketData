@@ -1,10 +1,10 @@
 package data
 
 import org.cerion.marketdata.core.PriceList
-import org.cerion.marketdata.core.PriceRow
+import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.core.web.FetchInterval
-import org.cerion.marketdata.core.web.clients.YahooFinance
+import org.cerion.marketdata.webclients.yahoo.YahooFinance
 import java.io.File
 import java.text.SimpleDateFormat
 
@@ -33,7 +33,7 @@ class TextDataRepository: DataRepository {
         val fileName = "./history_data/${interval.toString().lowercase()}/$symbol.txt"
         val sTable = File(fileName).readText()
 
-        val prices = mutableListOf<PriceRow>()
+        val prices = mutableListOf<OHLCVRow>()
 
         val lines: Array<String> = sTable.split("\r\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         val symbol = lines[0]
@@ -47,7 +47,7 @@ class TextDataRepository: DataRepository {
                     val low = fields[3].toFloat()
                     val close = fields[4].toFloat()
                     val volume = fields[5].toLong(10)
-                    val p = PriceRow(KMPDate(date), open, high, low, close, volume.toFloat())
+                    val p = OHLCVRow(KMPDate(date), open, high, low, close, volume.toFloat())
                     prices.add(p)
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -69,7 +69,7 @@ class TextDataRepository: DataRepository {
         saveFile(prices, symbol, interval)
     }
 
-    private fun getTableString(symbol: String, list: List<PriceRow>): String {
+    private fun getTableString(symbol: String, list: List<OHLCVRow>): String {
         var table = "Symbol=$symbol\r\n"
 
         for (p in list)
@@ -85,7 +85,7 @@ class TextDataRepository: DataRepository {
         return table
     }
 
-    fun saveFile(prices: List<PriceRow>, symbol: String, interval: FetchInterval) {
+    fun saveFile(prices: List<OHLCVRow>, symbol: String, interval: FetchInterval) {
         val fileName = "./history_data/${interval.toString().lowercase()}/$symbol.txt"
         val file = File(fileName)
         if (!file.exists())

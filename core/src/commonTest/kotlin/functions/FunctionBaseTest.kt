@@ -1,13 +1,13 @@
 package org.cerion.marketdata.core.functions
 
 import org.cerion.marketdata.core.PriceList
-import org.cerion.marketdata.core.PriceRow
 import org.cerion.marketdata.core.TestBase
 import org.cerion.marketdata.core.functions.types.IFunctionEnum
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.functions.types.Overlay
 import org.cerion.marketdata.core.functions.types.PriceOverlay
 import org.cerion.marketdata.core.indicators.MACD
+import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.overlays.BollingerBands
 import org.cerion.marketdata.core.overlays.ExpMovingAverage
 import org.cerion.marketdata.core.overlays.PriceOverlayBase
@@ -136,9 +136,9 @@ class FunctionBaseTest : TestBase() {
 
     @Deprecated("may be actual function on PriceList to do this now")
     private fun generateList(size: Int): PriceList {
-        val prices = ArrayList<PriceRow>()
+        val prices = ArrayList<OHLCVRow>()
         for (i in 0 until size)
-            prices.add(PriceRow(KMPDate.TODAY, i.toFloat(), i.toFloat(), i.toFloat(), i.toFloat(), i.toFloat()))
+            prices.add(OHLCVRow(KMPDate.TODAY, i.toFloat(), i.toFloat(), i.toFloat(), i.toFloat(), i.toFloat()))
 
         return PriceList("TEST", prices)
     }

@@ -1,7 +1,7 @@
-package org.cerion.marketdata.core.web.clients
+package org.cerion.marketdata.webclients.yahoo
 
-import org.cerion.marketdata.core.PriceRow
 import org.cerion.marketdata.core.model.Dividend
+import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.core.web.CSVParser
 import org.cerion.marketdata.core.web.FetchInterval
@@ -17,7 +17,7 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
     private var mCookieCrumb: String? = null
     private var mCookie: String? = null
 
-    override fun getPrices(symbol: String, interval: FetchInterval, start: Date?): List<PriceRow> {
+    override fun getPrices(symbol: String, interval: FetchInterval, start: Date?): List<OHLCVRow> {
         if (!setCookieCrumb())
             throw RuntimeException("Failed to get cookie")
 

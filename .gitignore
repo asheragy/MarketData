@@ -6,6 +6,7 @@
 /build
 /core/build
 /quant/build
+/webclients/build
 
 /core/karma.config.d/karma.config.generated.js
 /history_data

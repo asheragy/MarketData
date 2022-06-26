@@ -1,8 +1,6 @@
 plugins {
-    id 'java'
+    //id 'java'
     id 'org.jetbrains.kotlin.jvm'
-    //id 'org.jetbrains.kotlin.multiplatform'
-    //id 'org.jetbrains.kotlin.jvm'
 }
 
 group 'org.cerion.marketdata'
@@ -16,7 +14,6 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     implementation project(':core')
-    implementation project(':webclients')
 }
 
 test {

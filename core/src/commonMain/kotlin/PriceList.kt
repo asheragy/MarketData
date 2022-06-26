@@ -2,13 +2,14 @@ package org.cerion.marketdata.core
 
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.model.Interval
+import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.platform.DayOfWeek
 import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.core.platform.KMPTimeStamp
 
 import kotlin.math.*
 
-class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Price> = ArrayList()) : MutableList<Price> by delegate {
+class PriceList(val symbol: String, list: List<OHLCVRow>, delegate: ArrayList<Price> = ArrayList()) : MutableList<Price> by delegate {
 
     private var logScale = false
     val dates: Array<KMPDate>
@@ -102,10 +103,10 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
         if (logScale)
             return this
 
-        val logPrices = ArrayList<PriceRow>()
+        val logPrices = ArrayList<OHLCVRow>()
         for (i in 0 until size) {
             val p = get(i)
-            logPrices.add(PriceRow(p.date, ln(p.open), ln(p.high), ln(p.low), ln(p.close), ln(p.volume)))
+            logPrices.add(OHLCVRow(p.date, ln(p.open), ln(p.high), ln(p.low), ln(p.close), ln(p.volume)))
         }
 
         val result = PriceList(symbol, logPrices)
@@ -119,10 +120,10 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
     }
 
     fun truncate(minStartDate: KMPDate): PriceList {
-        val prices = mutableListOf<PriceRow>()
+        val prices = mutableListOf<OHLCVRow>()
         for(p in this) {
             if (p.date >= minStartDate)
-                prices.add(PriceRow(p.date, p.open, p.high, p.low, p.close, p.volume))
+                prices.add(OHLCVRow(p.date, p.open, p.high, p.low, p.close, p.volume))
         }
 
         return PriceList(symbol, prices)
@@ -132,7 +133,7 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
         if (interval !== Interval.DAILY)
             throw RuntimeException("Interval must be daily")
 
-        val prices = ArrayList<PriceRow>()
+        val prices = ArrayList<OHLCVRow>()
 
         var i = 0
         while (i < size - 1) {
@@ -166,7 +167,7 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
                 close = p.close
             }
 
-            val p = PriceRow(start.date, open, high, low, close, volume)
+            val p = OHLCVRow(start.date, open, high, low, close, volume)
             prices.add(p)
         }
 
@@ -177,7 +178,7 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
         if (interval !== Interval.DAILY)
             throw RuntimeException("Interval must be daily")
 
-        val prices = ArrayList<PriceRow>()
+        val prices = ArrayList<OHLCVRow>()
 
         var i = 0
         while (i < size - 1) {
@@ -205,7 +206,7 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
                 close = p.close
             }
 
-            val p = PriceRow(start.date, open, high, low, close, volume)
+            val p = OHLCVRow(start.date, open, high, low, close, volume)
             prices.add(p)
         }
 
@@ -216,14 +217,14 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
         if (interval !== Interval.MONTHLY)
             throw RuntimeException("Interval must be monthly")
 
-        val prices = ArrayList<PriceRow>()
+        val prices = ArrayList<OHLCVRow>()
         var i = size - 1
         while (i >= 2) {
             val p1 = get(i)
             val p2 = get(i - 1)
             val p3 = get(i - 2)
 
-            val p = PriceRow(p1.date,
+            val p = OHLCVRow(p1.date,
                     p3.open,
                     max(max(p1.high, p2.high), p3.high),
                     min(min(p1.low, p2.low), p3.low),
@@ -241,7 +242,7 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
         if (interval !== Interval.MONTHLY)
             throw RuntimeException("Interval must be monthly")
 
-        val prices = ArrayList<PriceRow>()
+        val prices = ArrayList<OHLCVRow>()
         var i = size - 1
         while (i >= 11) {
             val start = get(i - 11)
@@ -261,7 +262,7 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
                     low = q.low
             }
 
-            val p = PriceRow(get(i).date, open, high, low, close, volume)
+            val p = OHLCVRow(get(i).date, open, high, low, close, volume)
             prices.add(p)
             i -= 12
         }
@@ -327,7 +328,7 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
             val increase = 0.001f // ~10% increase every <period> days
             val periodLength = 200
 
-            val rows = mutableListOf<PriceRow>()
+            val rows = mutableListOf<OHLCVRow>()
             for(i in 0 until days) {
                 val period = (i % periodLength) * (PI / periodLength)
                 var curr = base + (base * sin(period)).toFloat()
@@ -345,7 +346,7 @@ class PriceList(val symbol: String, list: List<PriceRow>, delegate: ArrayList<Pr
                 val low = curr - (base / 100)
                 val volume = curr * 1000
 
-                rows.add(PriceRow(dates[i], open, high, low, curr, volume))
+                rows.add(OHLCVRow(dates[i], open, high, low, curr, volume))
                 base += base * increase
             }
 

@@ -1,8 +1,8 @@
 package org.cerion.marketdata.core.repository
 
 import org.cerion.marketdata.core.PriceList
-import org.cerion.marketdata.core.PriceRow
 import org.cerion.marketdata.core.model.Interval
+import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.web.FetchInterval
 
 
@@ -16,7 +16,7 @@ interface PriceListRepository {
     fun add(list: PriceList)
 
     @Deprecated("use PriceList version")
-    fun get(symbol: String, interval: Interval): List<PriceRow>
+    fun get(symbol: String, interval: Interval): List<OHLCVRow>
 
     fun getList(symbol: String, interval: Interval): PriceList?
 

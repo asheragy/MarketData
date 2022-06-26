@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.web
 
-import org.cerion.marketdata.core.PriceRow
+import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.platform.KMPDate
 
 object CSVParser {
@@ -10,13 +10,13 @@ object CSVParser {
      * @param tableData file contents as string
      * @return PriceList
      */
-    fun getPricesFromTable(tableData: String): MutableList<PriceRow> {
+    fun getPricesFromTable(tableData: String): MutableList<OHLCVRow> {
         val lines = tableData.split("\\r\\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
 
         //if (DEBUG)
         //    println("Table lines = " + lines.size)
 
-        val prices = ArrayList<PriceRow>()
+        val prices = ArrayList<OHLCVRow>()
         for (i in 1 until lines.size) {
             if (!lines[i].contains("null"))
                 prices.add(parseLine(lines[i]))
@@ -27,7 +27,7 @@ object CSVParser {
         return prices
     }
 
-    fun parseLine(sLine: String): PriceRow {
+    fun parseLine(sLine: String): OHLCVRow {
         val fields = sLine.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         if (fields.size == 7) {
             //TODO fix this for S&P large numbers
@@ -69,7 +69,7 @@ object CSVParser {
                 volume /= 1000
                 val date = KMPDate.parse(fields[0])
 
-                return PriceRow(date, open, high, low, adjClose, volume.toFloat())
+                return OHLCVRow(date, open, high, low, adjClose, volume.toFloat())
             } catch (e: Exception) {
                 e.printStackTrace()
             }
