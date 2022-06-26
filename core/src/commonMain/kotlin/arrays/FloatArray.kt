@@ -314,3 +314,9 @@ open class FloatArray(length: Int) : ValueArray() {
         return result
     }
 }
+
+fun List<Float>.toFloatArray(): FloatArray {
+    val result = FloatArray(size)
+    this.forEachIndexed { index, value -> result[index] = value }
+    return result
+}
