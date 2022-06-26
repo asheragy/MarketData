@@ -30,7 +30,7 @@ class DefaultPriceHistoryDates : PriceHistoryDates {
     }
 }
 
-class CachedPriceListRepository(private val repo: IPriceListRepository, private val api: PriceHistoryDataSource, private val dates: PriceHistoryDates = DefaultPriceHistoryDates()) {
+class CachedPriceListRepository(private val repo: PriceListRepository, private val api: PriceHistoryDataSource, private val dates: PriceHistoryDates = DefaultPriceHistoryDates()) {
 
     fun get(symbol: String, interval: Interval): PriceList {
         val fetchInterval = when(interval) {

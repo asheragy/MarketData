@@ -1,6 +1,5 @@
 package org.cerion.marketdata.core.charts
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.functions.IOverlay
 import org.cerion.marketdata.core.functions.types.IFunctionEnum
 import org.cerion.marketdata.core.functions.types.PriceOverlay
@@ -17,7 +16,7 @@ class PriceChart(colors: ChartColors = ChartColors()) : StockChart(colors) {
 
     override fun getDataSets(table: OHLCVTable): List<IDataSet> {
         val result = mutableListOf<IDataSet>()
-        val list = if(logScale) (table as PriceList).toLogScale() else table
+        val list = if(logScale) table.toLogScale() else table
 
         if (!showPrice) {
             // Don't add price data

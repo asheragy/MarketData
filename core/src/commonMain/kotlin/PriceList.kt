@@ -10,7 +10,7 @@ import kotlin.math.*
 
 class PriceList(symbol: String, list: List<OHLCVRow>) : OHLCVTable(symbol, list) {
 
-    private var logScale = false
+
     var lastUpdated: KMPTimeStamp? = null
 
     val change: Float
@@ -26,21 +26,6 @@ class PriceList(symbol: String, list: List<OHLCVRow>) : OHLCVTable(symbol, list)
             x = pos - period
 
         return (close[pos] - close[x]) * 100 / close[x]
-    }
-
-    fun toLogScale(): PriceList {
-        if (logScale)
-            return this
-
-        val logPrices = ArrayList<OHLCVRow>()
-        for (i in 0 until size) {
-            val p = get(i)
-            logPrices.add(OHLCVRow(p.date, ln(p.open), ln(p.high), ln(p.low), ln(p.close), ln(p.volume)))
-        }
-
-        val result = PriceList(symbol, logPrices)
-        result.logScale = true
-        return result
     }
 
     fun truncate(minStartDate: KMPDate): PriceList {

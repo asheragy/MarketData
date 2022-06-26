@@ -3,6 +3,7 @@ package org.cerion.marketdata.core.model
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.arrays.toFloatArray
 import org.cerion.marketdata.core.platform.KMPDate
+import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -12,6 +13,9 @@ open class OHLCVTable(
     rows: List<OHLCVRow>,
     delegate: ArrayList<OHLCVRow> = ArrayList()
 ) : List<OHLCVRow> by delegate {
+
+    // TODO remove and make property of charts only
+    private var logScale = false
 
     // TODO check usages of these, might be better to replace with price in some calculations
     val dates: Array<KMPDate> by lazy { map { it.date }.toTypedArray() }
@@ -64,6 +68,21 @@ open class OHLCVTable(
 
         val annualReturn = a.pow(b) - 1
         return annualReturn.toFloat()
+    }
+
+    fun toLogScale(): OHLCVTable {
+        if (logScale)
+            return this
+
+        val logPrices = ArrayList<OHLCVRow>()
+        for (i in 0 until size) {
+            val p = get(i)
+            logPrices.add(OHLCVRow(p.date, ln(p.open), ln(p.high), ln(p.low), ln(p.close), ln(p.volume)))
+        }
+
+        val result = OHLCVTable(symbol, logPrices)
+        result.logScale = true
+        return result
     }
 
     private fun pricesPerYear(): Int {
