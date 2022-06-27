@@ -8,6 +8,9 @@ import org.cerion.marketdata.core.web.FetchInterval
 import org.cerion.marketdata.core.web.PriceHistoryDataSource
 import org.cerion.marketdata.core.web.Tools
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneOffset
 import java.util.*
 
 class YahooFinance private constructor() : PriceHistoryDataSource {
@@ -17,7 +20,7 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
     private var mCookieCrumb: String? = null
     private var mCookie: String? = null
 
-    override fun getPrices(symbol: String, interval: FetchInterval, start: Date?): List<OHLCVRow> {
+    override fun getPrices(symbol: String, interval: FetchInterval, start: LocalDate?): List<OHLCVRow> {
         if (!setCookieCrumb())
             throw RuntimeException("Failed to get cookie")
 
@@ -30,7 +33,7 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
 
         var sURL = "https://query1.finance.yahoo.com/v7/finance/download/$symbol"
         if (start != null)
-            sURL += "?period1=" + start.time / 1000
+            sURL += "?period1=" + start.toEpochSecond(LocalTime.NOON, ZoneOffset.MIN)
         else
             sURL += "?period1=-1325635200" // This is the date they use for S&P 500 index at max size
 
@@ -129,19 +132,20 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
 
         private fun parseDate(inputDate: String): KMPDate? {
             var date = inputDate
-            var result: Date?
+            var result: LocalDate? = null
             date = date.replace("\"", "")
             try {
-                result = mDateFormat.parse(date)
+                result = LocalDate.parse(date)
             } catch (e: Exception) {
                 // Try alternate
+                /*
                 try {
                     result = mDateFormatAlt.parse(date)
                 } catch (ee: Exception) {
                     result = null
                     //ee.printStackTrace();
                 }
-
+                 */
             }
 
             return if (result != null)

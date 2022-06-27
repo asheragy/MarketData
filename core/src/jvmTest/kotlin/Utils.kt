@@ -42,23 +42,19 @@ actual object Utils {
     }
 
     fun getDividends(vararg values: Float): List<Dividend> {
-        val calendar = Calendar.getInstance()
+        var date = KMPDate.TODAY
         val result = ArrayList<Dividend>()
 
         for (v in values) {
-            val d = Dividend(KMPDate(calendar.time), v)
+            val d = Dividend(date, v)
             result.add(d)
 
-            calendar.add(Calendar.DAY_OF_MONTH, -1)
+            date = date.add(-1)
         }
 
         return result
     }
 
-    fun getDate(daysAgo: Int): KMPDate {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_MONTH, -daysAgo)
-        return KMPDate(calendar.time)
-    }
+    fun getDate(daysAgo: Int) = KMPDate.TODAY.add(-daysAgo)
 }
 

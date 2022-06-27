@@ -1,7 +1,6 @@
 package org.cerion.marketdata.core.model
 
 import org.cerion.marketdata.core.platform.KMPDate
-import java.util.*
 
 class DividendHistory(dividendList: List<Dividend>, startDate: KMPDate) {
     val list: MutableList<Dividend> = mutableListOf()
@@ -46,12 +45,8 @@ class DividendHistory(dividendList: List<Dividend>, startDate: KMPDate) {
             val last = list[0]
             val secondToLast = list[1]
 
-            val diff = last.date.time - secondToLast.date.time
-
-            val cal = Calendar.getInstance()
-            cal.timeInMillis = last.date.time + diff
-
-            result = KMPDate(cal.time)
+            val daysDiff = last.date.diff(secondToLast.date)
+            result = last.date.add(daysDiff)
         }
 
         result

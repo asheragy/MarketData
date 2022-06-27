@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.web
 
 import org.cerion.marketdata.core.model.OHLCVRow
-import java.util.*
+import java.time.LocalDate
 
 // Intervals the APIs allow fetching for
 enum class FetchInterval {
@@ -11,5 +11,5 @@ enum class FetchInterval {
 }
 
 interface PriceHistoryDataSource {
-    fun getPrices(symbol: String, interval: FetchInterval, start: Date?): List<OHLCVRow>
+    fun getPrices(symbol: String, interval: FetchInterval, start: LocalDate?): List<OHLCVRow>
 }

@@ -6,6 +6,7 @@ import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.core.platform.KMPTimeStamp
 import org.cerion.marketdata.core.web.FetchInterval
 import org.cerion.marketdata.core.web.PriceHistoryDataSource
+import java.time.LocalDate
 import java.util.*
 
 interface PriceHistoryDates {
@@ -23,9 +24,7 @@ class DefaultPriceHistoryDates : PriceHistoryDates {
 
     companion object {
         fun getYearsBack(years: Int): KMPDate {
-            val cal = Calendar.getInstance()
-            cal.add(Calendar.YEAR, -years)
-            return KMPDate(cal.time)
+            return KMPDate(LocalDate.now().minusYears(years.toLong()))
         }
     }
 }

@@ -1,30 +1,25 @@
 package org.cerion.marketdata.core.platform
 
 import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
-actual class KMPDate actual constructor(year: Int, month: Int, date: Int) : Comparable<KMPDate> {
+actual class KMPDate constructor(val _date: LocalDate) : Comparable<KMPDate> {
+
     actual companion object {
         private val dateFormat = SimpleDateFormat("yyyy-MM-dd")
         actual val TODAY: KMPDate
-            get() = KMPDate(Date())
+            get() = KMPDate(LocalDate.now())
 
         actual fun parse(str: String): KMPDate {
-            return KMPDate(dateFormat.parse(str))
+            return KMPDate(LocalDate.parse(str))
         }
     }
 
-    private var _date: Date = Date(year - 1900, month - 1, date)
+    actual constructor(year: Int, month: Int, date: Int) : this(LocalDate.of(year, month, date))
 
-    // Ideally this should not be used but some cases where its needed
-    constructor(date: Date) : this(date.year + 1900, date.month + 1, date.date)
-
-    actual fun toISOString(): String = dateFormat.format(_date) // YYYY-MM-DD
+    actual fun toISOString(): String = _date.toString() // YYYY-MM-DD
     override fun toString(): String = toISOString()
-
-    actual val time: Long
-        get() = _date.time
 
     // TODO equals should ignore time, depending how it was constructed the same dates may not return true
     actual override fun equals(other: Any?): Boolean {
@@ -39,41 +34,34 @@ actual class KMPDate actual constructor(year: Int, month: Int, date: Int) : Comp
 
     actual val dayOfWeek: DayOfWeek
         get() {
-            val c = Calendar.getInstance()
-            c.time = _date
-            return when (c.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.SUNDAY -> DayOfWeek.SUNDAY
-                Calendar.MONDAY -> DayOfWeek.MONDAY
-                Calendar.TUESDAY -> DayOfWeek.TUESDAY
-                Calendar.WEDNESDAY -> DayOfWeek.WEDNESDAY
-                Calendar.THURSDAY -> DayOfWeek.THURSDAY
-                Calendar.FRIDAY -> DayOfWeek.FRIDAY
-                Calendar.SATURDAY -> DayOfWeek.SATURDAY
+            return when (_date.dayOfWeek) {
+                java.time.DayOfWeek.SUNDAY -> DayOfWeek.SUNDAY
+                java.time.DayOfWeek.MONDAY -> DayOfWeek.MONDAY
+                java.time.DayOfWeek.TUESDAY -> DayOfWeek.TUESDAY
+                java.time.DayOfWeek.WEDNESDAY -> DayOfWeek.WEDNESDAY
+                java.time.DayOfWeek.THURSDAY -> DayOfWeek.THURSDAY
+                java.time.DayOfWeek.FRIDAY -> DayOfWeek.FRIDAY
+                java.time.DayOfWeek.SATURDAY -> DayOfWeek.SATURDAY
                 else -> throw RuntimeException()
             }
         }
 
     actual val year: Int
-        get() = _date.year + 1900
+        get() = _date.year
 
-    actual val date: Int
-        get() = _date.date
+    actual val dayOfMonth: Int
+        get() = _date.dayOfMonth
 
     actual val month: Int // Returns 0-11 for Jan-Dec
-        get() = _date.month
+        get() = _date.month.ordinal
 
-    val jvmDate: Date = _date
+    val jvmDate: LocalDate = _date
 
     actual fun add(days: Int): KMPDate {
-        val cal = Calendar.getInstance()
-        cal.time = _date
-        cal.add(Calendar.DAY_OF_MONTH, days)
-
-        return KMPDate(cal.time)
+        return KMPDate(_date.plusDays(days.toLong()))
     }
 
     actual fun diff(other: KMPDate): Int {
-        val diff = time - other.time
-        return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS).toInt()
+        return ChronoUnit.DAYS.between(other._date, this._date).toInt()
     }
 }

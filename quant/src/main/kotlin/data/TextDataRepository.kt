@@ -7,6 +7,7 @@ import org.cerion.marketdata.core.web.FetchInterval
 import org.cerion.marketdata.webclients.yahoo.YahooFinance
 import java.io.File
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 
 class TextDataRepository: DataRepository {
 
@@ -41,7 +42,7 @@ class TextDataRepository: DataRepository {
             val fields = line.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             if (fields.size == 6) {
                 try {
-                    val date = mDateFormat.parse(fields[0])
+                    val date = LocalDate.parse(fields[0])
                     val open = fields[1].toFloat()
                     val high = fields[2].toFloat()
                     val low = fields[3].toFloat()

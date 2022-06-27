@@ -40,7 +40,7 @@ actual class KMPDate actual constructor(year: Int, month: Int, date: Int) : Comp
     actual val year: Int
         get() = _date.getUTCFullYear()
 
-    actual val date: Int
+    actual val dayOfMonth: Int
         get() = _date.getUTCDate()
 
     actual val month: Int

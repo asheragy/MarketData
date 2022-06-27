@@ -58,10 +58,9 @@ class PriceList(symbol: String, list: List<OHLCVRow>) : OHLCVTable(symbol, list)
                 i++
                 val p = get(i)
 
-                val t1 = get(i - 1).date.time
-                val t2 = p.date.time
-                var diff = t2 - t1
-                diff /= (1000 * 60 * 60 * 24).toLong()
+                val t1 = get(i - 1).date
+                val t2 = p.date
+                val diff = t2.diff(t1)
 
                 // New week
                 if (diff > 2)

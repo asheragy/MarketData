@@ -6,7 +6,6 @@ import org.cerion.marketdata.core.platform.KMPDate
 import org.junit.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import java.util.*
 import kotlin.test.assertNull
 
 class DividendHistoryTest : TestBase() {
@@ -18,10 +17,7 @@ class DividendHistoryTest : TestBase() {
 
         assertEquals(9.1, history.lastDividend!!.toFloat(), 0.005)
         assertEquals(KMPDate.TODAY, history.lastDividendDate)
-
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_MONTH, 1)
-        assertEquals(KMPDate(calendar.time), history.nextDividendEstimate!!)
+        assertEquals(KMPDate.TODAY.add(1), history.nextDividendEstimate!!)
     }
 
     @Test
@@ -58,14 +54,12 @@ class DividendHistoryTest : TestBase() {
 
     private fun getSampleList(): List<Dividend> {
         val result = mutableListOf<Dividend>()
-
-        val cal = GregorianCalendar(2010, 1, 1)
+        var date = KMPDate(2010, 1,1)
 
         for(i in 0..25) {
-            cal.add(Calendar.DATE, 29 * 3) // Add 3 months but not exactly
-            val date = cal.time
+            date = date.add(29 * 3) // Add 3 months but not exactly
 
-            result.add(Dividend(KMPDate(date), (i * 0.03f) + 4))
+            result.add(Dividend(date, (i * 0.03f) + 4))
         }
 
         result.shuffle() // To test the fact this gets sorted in constructor
