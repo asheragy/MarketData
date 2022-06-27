@@ -20,9 +20,6 @@ actual class KMPDate actual constructor(year: Int, month: Int, date: Int) : Comp
 
     actual fun toISOString(): String = _date.toISOString().substring(0, 10)
 
-    actual val time: Long
-        get() = TODO("Not yet implemented")
-
     actual val dayOfWeek: DayOfWeek
         get() {
             return when (_date.getUTCDay()) {
