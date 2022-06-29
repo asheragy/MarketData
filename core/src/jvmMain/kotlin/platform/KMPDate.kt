@@ -2,7 +2,9 @@ package org.cerion.marketdata.core.platform
 
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 actual class KMPDate constructor(val _date: LocalDate) : Comparable<KMPDate> {
 
@@ -64,4 +66,16 @@ actual class KMPDate constructor(val _date: LocalDate) : Comparable<KMPDate> {
     actual fun diff(other: KMPDate): Int {
         return ChronoUnit.DAYS.between(other._date, this._date).toInt()
     }
+}
+
+fun LocalDate.toDate(): Date {
+    return Date.from(
+        this.atStartOfDay()
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+    )
+}
+
+fun KMPDate.toDate(): Date {
+    return this.jvmDate.toDate()
 }

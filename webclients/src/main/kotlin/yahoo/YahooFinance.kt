@@ -3,14 +3,13 @@ package org.cerion.marketdata.webclients.yahoo
 import org.cerion.marketdata.core.model.Dividend
 import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.platform.KMPDate
+import org.cerion.marketdata.core.platform.toDate
 import org.cerion.marketdata.core.web.CSVParser
 import org.cerion.marketdata.core.web.FetchInterval
 import org.cerion.marketdata.core.web.PriceHistoryDataSource
 import org.cerion.marketdata.core.web.Tools
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneOffset
 import java.util.*
 
 class YahooFinance private constructor() : PriceHistoryDataSource {
@@ -33,7 +32,7 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
 
         var sURL = "https://query1.finance.yahoo.com/v7/finance/download/$symbol"
         if (start != null)
-            sURL += "?period1=" + start.toEpochSecond(LocalTime.NOON, ZoneOffset.MIN)
+            sURL += "?period1=" + start.toDate().time / 1000
         else
             sURL += "?period1=-1325635200" // This is the date they use for S&P 500 index at max size
 
