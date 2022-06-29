@@ -10,8 +10,6 @@ repositories {
     mavenCentral()
 }
 
-apply plugin: 'maven-publish'
-
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
@@ -20,4 +18,17 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+        }
+    }
 }
