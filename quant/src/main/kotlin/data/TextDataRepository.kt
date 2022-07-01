@@ -3,7 +3,7 @@ package data
 import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.platform.KMPDate
-import org.cerion.marketdata.core.web.FetchInterval
+import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.marketdata.webclients.yahoo.YahooFinance
 import java.io.File
 import java.text.SimpleDateFormat

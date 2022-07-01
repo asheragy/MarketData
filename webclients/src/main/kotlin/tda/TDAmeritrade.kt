@@ -1,10 +1,10 @@
-package org.cerion.marketdata.core.web.clients
+package org.cerion.marketdata.webclients.tda
 
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.cerion.marketdata.core.model.Position
-import org.cerion.marketdata.core.web.OAuthResponse
+import org.cerion.marketdata.webclients.OAuthResponse
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection

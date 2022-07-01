@@ -77,8 +77,6 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation kotlin('stdlib-jdk8')
-                implementation "com.squareup.okhttp3:okhttp:4.2.1"
-                implementation "org.json:json:20190722"
                 implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.10"
             }
         }

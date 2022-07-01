@@ -4,10 +4,10 @@ import org.cerion.marketdata.core.model.Dividend
 import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.core.platform.toDate
-import org.cerion.marketdata.core.web.CSVParser
-import org.cerion.marketdata.core.web.FetchInterval
-import org.cerion.marketdata.core.web.PriceHistoryDataSource
-import org.cerion.marketdata.core.web.Tools
+import org.cerion.marketdata.core.utils.CSVParser
+import org.cerion.marketdata.webclients.Tools
+import org.cerion.marketdata.webclients.FetchInterval
+import org.cerion.marketdata.webclients.PriceHistoryDataSource
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*

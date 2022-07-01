@@ -8,9 +8,8 @@ import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.core.platform.KMPTimeStamp
 import kotlin.math.*
 
+@Deprecated("Use OHLCVTable")
 class PriceList(symbol: String, list: List<OHLCVRow>) : OHLCVTable(symbol, list) {
-
-
     var lastUpdated: KMPTimeStamp? = null
 
     val change: Float

@@ -1,7 +1,7 @@
 package data
 
 import org.cerion.marketdata.core.model.Interval
-import org.cerion.marketdata.core.web.FetchInterval
+import org.cerion.marketdata.webclients.FetchInterval
 
 class SectorDataDef : DataDef {
     override val symbols: List<String>

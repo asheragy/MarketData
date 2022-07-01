@@ -1,4 +1,4 @@
-package org.cerion.marketdata.core.web.clients
+package org.cerion.marketdata.webclients.tiingo
 
 import org.cerion.marketdata.core.model.Symbol
 import org.json.JSONObject

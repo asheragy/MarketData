@@ -1,4 +1,4 @@
-package org.cerion.marketdata.core.web
+package org.cerion.marketdata.core.utils
 
 import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.platform.KMPDate

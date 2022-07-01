@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core
 
 import org.cerion.marketdata.core.model.OHLCVTable
-import org.cerion.marketdata.core.web.CSVParser
+import org.cerion.marketdata.core.utils.CSVParser
 import kotlin.math.abs
 
 open class TestBase {

@@ -1,4 +1,4 @@
-package org.cerion.marketdata.core.web.clients
+package org.cerion.marketdata.webclients.tda
 
 import okhttp3.Response
 

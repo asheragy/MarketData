@@ -1,4 +1,4 @@
-package org.cerion.marketdata.core.web
+package org.cerion.marketdata.webclients
 
 class Response {
     var code: Int = 0

@@ -1,7 +1,7 @@
 package data
 
 import org.cerion.marketdata.core.PriceList
-import org.cerion.marketdata.core.web.FetchInterval
+import org.cerion.marketdata.webclients.FetchInterval
 
 interface DataDef {
     val symbols: List<String>

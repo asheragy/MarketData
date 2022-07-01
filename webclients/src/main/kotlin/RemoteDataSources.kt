@@ -1,4 +1,4 @@
-package org.cerion.marketdata.core.web
+package org.cerion.marketdata.webclients
 
 import org.cerion.marketdata.core.model.OHLCVRow
 import java.time.LocalDate
