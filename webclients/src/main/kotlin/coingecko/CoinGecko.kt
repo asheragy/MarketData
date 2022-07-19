@@ -9,10 +9,10 @@ import java.net.HttpURLConnection
 class CoinGecko {
     private val client = OkHttpClient()
 
-    fun getPrices(currencies: List<String>): Map<String, Double> {
+    fun getPrices(currencies: List<String>): List<SimpleQuote> {
         val ids = currencies.joinToString(",")
         val request = Request.Builder()
-            .url("https://api.coingecko.com/api/v3/simple/price?ids=$ids&vs_currencies=usd")
+            .url("https://api.coingecko.com/api/v3/simple/price?ids=$ids&vs_currencies=usd&include_24hr_change=true")
             .build()
 
         val response = client.newCall(request).execute()
@@ -27,9 +27,12 @@ class CoinGecko {
 
         return currencies.associateWith {
             val obj = json[it] as JSONObject
-            val value = obj["usd"] as Double
-            value
-        }
+            val price = obj["usd"] as Number
+            val change = obj["usd_24h_change"] as Double
+            SimpleQuote(it, price.toDouble(), change)
+        }.values.toList()
     }
 
+    data class SimpleQuote(val id: String, val price: Double, val change24h: Double)
 }
+

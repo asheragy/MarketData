@@ -10,11 +10,13 @@ class CoinGeckoTest {
     @Test
     fun simplePrice() {
         val prices = client.getPrices(listOf("bitcoin", "ethereum", "solana"))
-        println(prices)
-
         assertEquals(3, prices.size)
-        assertTrue(prices["bitcoin"]!! > 0)
-        assertTrue(prices["ethereum"]!! > 0)
-        assertTrue(prices["solana"]!! > 0)
+
+        prices.forEach {
+            println(it)
+            assertTrue(it.id.isNotEmpty())
+            assertTrue(it.price != 0.0)
+            assertTrue(it.change24h != 0.0)
+        }
     }
 }
