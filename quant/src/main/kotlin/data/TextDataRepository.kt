@@ -1,7 +1,7 @@
 package data
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.model.OHLCVRow
+import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.marketdata.webclients.yahoo.YahooFinance
@@ -27,10 +27,10 @@ class TextDataRepository: DataRepository {
         val lists = data.symbols.map { symbol -> getList(symbol, data.interval) }
         val index = if (data.index != null) getList(data.index!!, data.interval) else null
 
-        return DataSet(lists, index)
+        return DataSet.getNormalizedDataSet(lists, index)
     }
 
-    private fun getList(symbol: String, interval: FetchInterval): PriceList {
+    private fun getList(symbol: String, interval: FetchInterval): OHLCVTable {
         val fileName = "./history_data/${interval.toString().lowercase()}/$symbol.txt"
         val sTable = File(fileName).readText()
 
@@ -56,7 +56,7 @@ class TextDataRepository: DataRepository {
             }
         }
 
-        val list = PriceList(symbol, prices)
+        val list = OHLCVTable(symbol, prices)
         //check(!(list.interval !== interval)) { "intervals do not match" }
 
         return list

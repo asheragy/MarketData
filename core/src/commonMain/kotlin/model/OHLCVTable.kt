@@ -85,6 +85,26 @@ open class OHLCVTable(
         return result
     }
 
+    /**
+     * Verify data set is exactly the same start/end/interval as another
+     */
+    fun equalRange(other: OHLCVTable): Boolean {
+        if (size != other.size || interval != other.interval)
+            return false
+
+        if (dates.first() != other.dates.first() || dates.last() != other.dates.last())
+            return false
+
+        return true
+    }
+
+    fun truncate(startDate: KMPDate?, endDate: KMPDate?): OHLCVTable {
+        val startIndex = if(startDate == null) 0 else dates.indexOf(startDate)
+        val endIndex = if(endDate == null) size - 1 else dates.indexOf(endDate)
+
+        return OHLCVTable(symbol, subList(startIndex, endIndex + 1))
+    }
+
     private fun pricesPerYear(): Int {
         return when (interval) {
             Interval.DAILY -> 252

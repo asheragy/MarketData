@@ -1,6 +1,5 @@
 package data
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.webclients.FetchInterval
 
 interface DataDef {
@@ -11,14 +10,12 @@ interface DataDef {
     val index: String?
 
     // Minimum length of all data sets, error if any lists are shorter
+    // TODO should check on read since it might be changed
     val minLength: Int
 }
-
-data class DataSet(val lists: List<PriceList>, val index: PriceList? = null)
 
 interface DataRepository {
     fun upsert(data: DataDef)
 
-    // TODO return DataSet object
     fun get(data: DataDef): DataSet
 }
