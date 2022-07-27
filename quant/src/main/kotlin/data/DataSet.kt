@@ -5,6 +5,8 @@ import org.cerion.marketdata.core.model.OHLCVTable
 
 data class DataSet(val lists: List<OHLCVTable>, val index: OHLCVTable? = null) {
 
+    val size = lists.first().size
+
     init {
         val first = lists.first()
         lists.forEach { assertEqualRange(it, first) }

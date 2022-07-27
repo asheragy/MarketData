@@ -1,13 +1,18 @@
 import data.SectorDataDef
 import data.TextDataRepository
-import org.cerion.marketdata.core.platform.KMPDate
+import strategy.RsiStrategy
 
 /* Initial Goals
-   - Read in data, truncate to shortest list
-
-   Strategy
-   - Input: Symbols / Interval / Benchmark index or null
+   strategy.Strategy
    - Output: Misc data points TBD
+        - Avg ticks held
+        - Max draw down (compare to index)
+        - Profit to draw down ratio
+        - Biggest win/loss
+        - Sharpe ratio
+        - Sortino ratio
+        - Percent wins
+        - Z score
    - Prevent future leak??
 
    Later
@@ -18,8 +23,9 @@ fun main() {
 
     val dataSource = TextDataRepository()
     //dataSource.upsert(SectorDataDef())
-    val test = dataSource.get(SectorDataDef())
+    val dataSet = dataSource.get(SectorDataDef())
+    val strategy = RsiStrategy()
 
-    println(test.lists)
+    Backtester.run(dataSet, strategy)
 
 }
