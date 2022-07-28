@@ -1,6 +1,7 @@
 package strategy
 
 import data.DataSet
+import model.Position
 import org.cerion.marketdata.core.indicators.RSI
 
 /**

@@ -1,6 +1,7 @@
 package strategy
 
 import data.DataSet
+import model.Position
 
 /**
  * Buy equal percentage of all at start

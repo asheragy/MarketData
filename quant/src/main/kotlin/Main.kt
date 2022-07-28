@@ -1,5 +1,6 @@
 import data.SectorDataDef
 import data.TextDataRepository
+import strategy.IndexStrategy
 import strategy.RsiStrategy
 
 /* Initial Goals
@@ -24,8 +25,8 @@ fun main() {
     val dataSource = TextDataRepository()
     //dataSource.upsert(SectorDataDef())
     val dataSet = dataSource.get(SectorDataDef())
-    val strategy = RsiStrategy()
+    val strategy = IndexStrategy()
 
-    Backtester.run(dataSet, strategy)
-
+    val result = Backtester.run(dataSet, strategy)
+    result.print()
 }

@@ -13,6 +13,14 @@ data class DataSet(val lists: List<OHLCVTable>, val index: OHLCVTable? = null) {
         index?.also { assertEqualRange(it, first) }
     }
 
+    fun getBySymbol(symbol: String): OHLCVTable? {
+        var match = lists.firstOrNull { it.symbol == symbol }
+        if (match == null && index?.symbol == symbol)
+            match = index
+
+        return match
+    }
+
     private fun assertEqualRange(tableA: OHLCVTable, tableB: OHLCVTable) {
         if (!tableA.equalRange(tableB))
             throw IllegalArgumentException("Range of all tables must match")

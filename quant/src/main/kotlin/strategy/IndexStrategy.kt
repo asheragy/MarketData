@@ -4,17 +4,14 @@ import data.DataSet
 import model.Position
 
 /**
- * Every 100 ticks buy next in list
+ * TODO this should really be a unit test
  */
-class AlternatingStrategy : Strategy() {
-    private var listIndex = 0
-
+class IndexStrategy : Strategy() {
     override fun eval(data: DataSet, index: Int) {
-        // Every 100 days alternate
+        // Every 100 ticks buy/sell the same
         if (index % 100 == 0) {
             closeAll(data, index)
-
-            val list = data.lists[listIndex++ % data.lists.size]
+            val list = data.index!!
             positions.add(Position(list.symbol, list[index], 1.0))
         }
 
