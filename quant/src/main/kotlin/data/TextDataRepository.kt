@@ -34,32 +34,7 @@ class TextDataRepository: DataRepository {
         val fileName = "./history_data/${interval.toString().lowercase()}/$symbol.txt"
         val sTable = File(fileName).readText()
 
-        val prices = mutableListOf<OHLCVRow>()
-
-        val lines: Array<String> = sTable.split("\r\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        val symbol = lines[0]
-        for (line in lines) {
-            val fields = line.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            if (fields.size == 6) {
-                try {
-                    val date = LocalDate.parse(fields[0])
-                    val open = fields[1].toFloat()
-                    val high = fields[2].toFloat()
-                    val low = fields[3].toFloat()
-                    val close = fields[4].toFloat()
-                    val volume = fields[5].toLong(10)
-                    val p = OHLCVRow(KMPDate(date), open, high, low, close, volume.toFloat())
-                    prices.add(p)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }
-
-        val list = OHLCVTable(symbol, prices)
-        //check(!(list.interval !== interval)) { "intervals do not match" }
-
-        return list
+        return stringToTable(sTable)
     }
 
     private fun insert(symbol: String, interval: FetchInterval, minLength: Int) {
@@ -94,5 +69,37 @@ class TextDataRepository: DataRepository {
 
         val content = getTableString(symbol, prices)
         file.writeText(content)
+    }
+
+    companion object {
+        // Static so can be used to load from resources in tests
+        fun stringToTable(sTable: String): OHLCVTable {
+            val prices = mutableListOf<OHLCVRow>()
+
+            val lines: Array<String> = sTable.split("\r\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val symbol = lines[0].split("=")[1]
+            for (line in lines) {
+                val fields = line.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                if (fields.size == 6) {
+                    try {
+                        val date = LocalDate.parse(fields[0])
+                        val open = fields[1].toFloat()
+                        val high = fields[2].toFloat()
+                        val low = fields[3].toFloat()
+                        val close = fields[4].toFloat()
+                        val volume = fields[5].toLong(10)
+                        val p = OHLCVRow(KMPDate(date), open, high, low, close, volume.toFloat())
+                        prices.add(p)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+
+            val list = OHLCVTable(symbol, prices)
+            //check(!(list.interval !== interval)) { "intervals do not match" }
+
+            return list
+        }
     }
 }

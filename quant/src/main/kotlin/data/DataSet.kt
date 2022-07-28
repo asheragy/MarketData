@@ -21,6 +21,10 @@ data class DataSet(val lists: List<OHLCVTable>, val index: OHLCVTable? = null) {
         return match
     }
 
+    override fun toString(): String {
+        return "lists=" + lists.map { it.symbol } + " size=" + size + " index=" + (index?.symbol ?: "null")
+    }
+
     private fun assertEqualRange(tableA: OHLCVTable, tableB: OHLCVTable) {
         if (!tableA.equalRange(tableB))
             throw IllegalArgumentException("Range of all tables must match")
