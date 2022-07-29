@@ -24,6 +24,7 @@ data class OHLCVRow(
     val dow: DayOfWeek
         get() = date.dayOfWeek
 
+    // TODO should return value NOT multiplied by 100
     fun getPercentDiff(old: OHLCVRow): Float {
         if (old.date > date)
             throw RuntimeException("current price is older than input price")

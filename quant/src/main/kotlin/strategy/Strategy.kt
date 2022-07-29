@@ -3,26 +3,45 @@ package strategy
 import data.DataSet
 import model.Trade
 import model.Position
+import org.cerion.marketdata.core.model.OHLCVRow
 
 abstract class Strategy {
-    protected val positions = mutableListOf<Position>()
-    protected val _trades = mutableListOf<Trade>()
+    private val _positions = mutableListOf<Position>()
+    val positions: List<Position>
+        get() = _positions
 
+    private val _trades = mutableListOf<Trade>()
     val trades: List<Trade>
         get() = _trades
 
+    private val startingCash = 100.0
+    var cash: Double = startingCash
+        private set
+
+    val profit: Double
+        get() = (cash - startingCash) / startingCash
+
     abstract fun eval(data: DataSet, index: Int)
+
+    protected fun open(symbol: String, buy: OHLCVRow, amount: Double) {
+        if (amount > cash)
+            throw IllegalArgumentException("Not enough money")
+
+        _positions.add(Position(symbol, buy, amount / buy.close))
+        cash -= amount
+    }
 
     /**
      * Close all open positions
      */
     protected fun closeAll(data: DataSet, index: Int) {
-        positions.forEach { position ->
+        _positions.forEach { position ->
             val current = data.getBySymbol(position.symbol)!![index]
             val trade = position.close(current)
             _trades.add(trade)
+            cash += trade.value
         }
 
-        positions.clear()
+        _positions.clear()
     }
 }

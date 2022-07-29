@@ -6,7 +6,7 @@ object Backtester {
 
     fun run(dataSet: DataSet, strategy: Strategy): BackTestResult {
         val index = dataSet.index!!
-        val indexProfit = index.last().getPercentDiff(index.first())
+        val indexProfit = index.last().getPercentDiff(index.first()) / 100.0
 
         for(i in 0 until dataSet.size)
             strategy.eval(dataSet, i)
@@ -15,24 +15,23 @@ object Backtester {
         var money = startingMoney
         val trades = strategy.trades.sortedBy { it.buy.date }
         trades.forEach {
-            val profit = money * it.profit
-            money += profit
+            money += it.value
         }
 
-        val strategyProfit = 100 * (money - startingMoney) / startingMoney
+        val strategyProfit = strategy.profit
 
         return BackTestResult(trades, indexProfit, strategyProfit)
     }
 }
 
 class BackTestResult(val trades: List<Trade>,
-                     val indexProfit: Number,
-                     val strategyProfit: Number) {
+                     val indexProfit: Double,
+                     val strategyProfit: Double) {
 
     fun print() {
         trades.forEach { println(it) }
 
         println("Index Profit    = $indexProfit%")
-        println("Strategy Profit = $strategyProfit%")
+        println("Strategy Profit = ${strategyProfit}%")
     }
 }

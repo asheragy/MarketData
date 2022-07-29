@@ -13,14 +13,14 @@ class RsiStrategy : Strategy() {
         val lowest = data.lists.map { Pair(it, RSI().eval(it)[index]) }.minBy { it.second }
         val highest = data.lists.map { Pair(it, RSI().eval(it)[index]) }.maxBy { it.second }
 
-        if (positions.size == 0)
-            positions.add(Position(lowest.first.symbol, lowest.first[index], 1.0))
+        if (positions.isEmpty())
+            open(lowest.first.symbol, lowest.first[index], cash)
         else {
             // Only swap current position if it's the highest
             if (positions[0].symbol == highest.first.symbol && (highest.second - lowest.second) > 10.0) {
                 closeAll(data, index)
 
-                positions.add(Position(lowest.first.symbol, lowest.first[index], 1.0))
+                open(lowest.first.symbol, lowest.first[index], cash)
             }
         }
 

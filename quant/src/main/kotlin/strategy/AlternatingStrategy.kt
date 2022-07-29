@@ -15,7 +15,7 @@ class AlternatingStrategy : Strategy() {
             closeAll(data, index)
 
             val list = data.lists[listIndex++ % data.lists.size]
-            positions.add(Position(list.symbol, list[index], 1.0))
+            open(list.symbol, list[index], cash)
         }
 
         // Sell all at end
