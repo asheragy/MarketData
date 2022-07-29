@@ -14,6 +14,8 @@ import strategy.RsiStrategy
         - Percent wins
         - Z score
    - Prevent future leak??
+      - Cannot look at prices > current index
+      - Cannot buy/sell other than current day
 
    Later
    - Optimization / discovery utils

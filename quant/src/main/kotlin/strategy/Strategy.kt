@@ -31,11 +31,21 @@ abstract class Strategy {
         cash -= amount
     }
 
+    protected fun close(position: Position, data: DataSet, index: Int) {
+        val current = data.getBySymbol(position.symbol)!![index]
+        val trade = position.close(current)
+        _trades.add(trade)
+        cash += trade.value
+
+        _positions.remove(position)
+    }
+
     /**
      * Close all open positions
      */
     protected fun closeAll(data: DataSet, index: Int) {
         _positions.forEach { position ->
+            // TODO call close() above
             val current = data.getBySymbol(position.symbol)!![index]
             val trade = position.close(current)
             _trades.add(trade)
