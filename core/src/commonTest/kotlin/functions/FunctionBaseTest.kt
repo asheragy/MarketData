@@ -1,6 +1,5 @@
 package org.cerion.marketdata.core.functions
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.TestBase
 import org.cerion.marketdata.core.functions.types.IFunctionEnum
 import org.cerion.marketdata.core.functions.types.Indicator
@@ -8,6 +7,7 @@ import org.cerion.marketdata.core.functions.types.Overlay
 import org.cerion.marketdata.core.functions.types.PriceOverlay
 import org.cerion.marketdata.core.indicators.MACD
 import org.cerion.marketdata.core.model.OHLCVRow
+import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.overlays.BollingerBands
 import org.cerion.marketdata.core.overlays.ExpMovingAverage
 import org.cerion.marketdata.core.overlays.PriceOverlayBase
@@ -84,14 +84,14 @@ class FunctionBaseTest : TestBase() {
     fun parametersVerified_DecimalType() {
         //All types should work on decimal input, no exceptions thrown
         var call: IFunction = BollingerBands(20, 2.0)
-        call.eval(PriceList.generateSeries(50))
+        call.eval(OHLCVTable.generateSeries(50))
 
         call = BollingerBands(20, 2.0)
-        call.eval(PriceList.generateSeries(50))
+        call.eval(OHLCVTable.generateSeries(50))
 
         //Int
         call = BollingerBands(20, 2.0)
-        call.eval(PriceList.generateSeries(50))
+        call.eval(OHLCVTable.generateSeries(50))
     }
 
     @Test
@@ -135,11 +135,11 @@ class FunctionBaseTest : TestBase() {
     }
 
     @Deprecated("may be actual function on PriceList to do this now")
-    private fun generateList(size: Int): PriceList {
+    private fun generateList(size: Int): OHLCVTable {
         val prices = ArrayList<OHLCVRow>()
         for (i in 0 until size)
             prices.add(OHLCVRow(KMPDate.TODAY, i.toFloat(), i.toFloat(), i.toFloat(), i.toFloat(), i.toFloat()))
 
-        return PriceList("TEST", prices)
+        return OHLCVTable("TEST", prices)
     }
 }

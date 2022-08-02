@@ -18,14 +18,14 @@ open class TestBase {
     protected fun runPriceTest(block: suspend (priceList: OHLCVTable) -> Unit) = Utils.runAsync {
         if (!isInitialized()) {
             val data = Utils.readResourceFileAsync("sp500_2000-2015.csv").await()
-            priceList = PriceList("^GSPC", CSVParser.getPricesFromTable(data))
+            table = OHLCVTable("^GSPC", CSVParser.getPricesFromTable(data))
         }
 
-        block(priceList)
+        block(table)
     }
 
     companion object {
-        fun isInitialized() = ::priceList.isInitialized
-        private lateinit var priceList: PriceList
+        fun isInitialized() = ::table.isInitialized
+        private lateinit var table: OHLCVTable
     }
 }

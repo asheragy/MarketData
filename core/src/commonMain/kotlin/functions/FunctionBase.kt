@@ -1,10 +1,10 @@
 package org.cerion.marketdata.core.functions
 
-import org.cerion.marketdata.core.PriceList
 import org.cerion.marketdata.core.functions.types.IFunctionEnum
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.functions.types.Overlay
 import org.cerion.marketdata.core.functions.types.PriceOverlay
+import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.reflect.KClass
 
 //import kotlin.reflect.KClass
@@ -85,7 +85,7 @@ abstract class FunctionBase protected constructor(override val id: IFunctionEnum
     override val resultType: KClass<*>
         get() {
             // Evaluate on a small dataset to get result type
-            val fakeList = PriceList.generateSeries(10) //
+            val fakeList = OHLCVTable.generateSeries(10) //
             val result = eval(fakeList)
             return result::class
         }
