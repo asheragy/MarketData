@@ -50,15 +50,22 @@ class CoinGecko {
 
         client.connectionPool.evictAll()
 
-        return json.map {
-            it as JSONObject
+        // For some reason json.map is not working on android
+        val result = mutableListOf<DetailedQuote>()
+
+        for(i in 0 until json.length()) {
+            val it = json.get(i) as JSONObject
+
             val id = it["id"] as String
             val price = it["current_price"] as Number
             val changeHour = it["price_change_percentage_1h_in_currency"] as Double
             val changeDay = it["price_change_percentage_24h_in_currency"] as Double
             val changeWeek = it["price_change_percentage_7d_in_currency"] as Double
-            DetailedQuote(id, price.toDouble(), changeHour, changeDay, changeWeek)
+            val quote = DetailedQuote(id, price.toDouble(), changeHour, changeDay, changeWeek)
+            result.add(quote)
         }
+
+        return result
     }
 
     data class SimpleQuote(val id: String, val price: Double, val change24h: Double)
