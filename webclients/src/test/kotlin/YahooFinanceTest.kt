@@ -18,6 +18,12 @@ class YahooFinanceTest {
     }
 
     @Test
+    fun bitcoin() {
+        val prices = api.getPrices("BTC-USD", FetchInterval.DAILY, oneYearAgo)
+        assertTrue(prices.size > 0)
+    }
+
+    @Test
     fun prices() {
         for(i in 0..19) {
             println(i)

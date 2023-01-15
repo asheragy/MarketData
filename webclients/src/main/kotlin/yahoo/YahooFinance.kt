@@ -91,30 +91,27 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
 
         val res = Tools.getURL("https://finance.yahoo.com/quote/%5EGSPC/options", null) // most any page will work here
         val page = res.result
-        var index = page.indexOf("\"CrumbStore\"")
+        val index = page.indexOf("Crumb\":\"")
         if (index > 0) {
             if (DEBUG) {
                 val debug = page.substring(index, index + 50)
                 println(debug)
             }
 
-            index = page.indexOf("\"crumb\"", index)
+            val start = index + 8
+            val end = page.indexOf("\"", start)
+            if (start < end) {
+                mCookieCrumb = page.substring(start, end)
+                mCookieCrumb = mCookieCrumb!!.replace("\\u002F", "/")
 
-            if (index > 0) {
-                val start = page.indexOf("\"", index + 8) + 1
-                val end = page.indexOf("\"", start)
-                if (start < end) {
-                    mCookieCrumb = page.substring(start, end)
-                    mCookieCrumb = mCookieCrumb!!.replace("\\u002F", "/")
-
-                    // Seems to be different for local vs android, if more than 1 get the last entry
-                    // If this still fails look into better method, might be difference between http vs https requests
-                    val cookieHeaders = res.headers["Set-Cookie"]!!
-                    mCookie = cookieHeaders[cookieHeaders.size - 1]
-                    mCookie = mCookie!!.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
-                    return true
-                }
+                // Seems to be different for local vs android, if more than 1 get the last entry
+                // If this still fails look into better method, might be difference between http vs https requests
+                val cookieHeaders = res.headers["Set-Cookie"]!!
+                mCookie = cookieHeaders[cookieHeaders.size - 1]
+                mCookie = mCookie!!.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
+                return true
             }
+
         }
 
         return false
