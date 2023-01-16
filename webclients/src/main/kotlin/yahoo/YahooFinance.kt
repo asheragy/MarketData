@@ -1,18 +1,22 @@
 package org.cerion.marketdata.webclients.yahoo
 
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.cerion.marketdata.core.model.Dividend
 import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.core.platform.toDate
 import org.cerion.marketdata.core.utils.CSVParser
-import org.cerion.marketdata.webclients.Tools
 import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.marketdata.webclients.PriceHistoryDataSource
+import org.cerion.marketdata.webclients.tda.RequestException
+import java.net.HttpURLConnection
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
 
 class YahooFinance private constructor() : PriceHistoryDataSource {
+    private val client = OkHttpClient()
 
     // TODO add interval enum specific to this class for more type safety, the other has values this API does not support
 
@@ -49,21 +53,28 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
         sURL += "&crumb=" + mCookieCrumb!!
 
         println(sURL)
-        val res = Tools.getURL(sURL, mCookie)
+
+        val request = Request.Builder().url(sURL).build()
+        val response = client.newCall(request).execute()
+        if (response.code != HttpURLConnection.HTTP_OK)
+            throw RequestException(response)
+
+        val body = response.body?.string()!!
         if (DEBUG) {
-            println("Response size = " + res.result.length)
-            if (res.result.length < 1000)
-                println(res.result)
+            println("Response size = " + body.length)
+            if (body.length < 1000)
+                println(body)
         }
 
-        val sData = res.result
-        return CSVParser.getPricesFromTable(sData)
+        return CSVParser.getPricesFromTable(body)
     }
 
     fun getDividends(symbol: String): List<Dividend> {
         if (!setCookieCrumb())
             throw RuntimeException("Failed to get cookie")
 
+        TODO("Convert to okhttp")
+        /*
         var sURL = "https://query1.finance.yahoo.com/v7/finance/download/$symbol"
         sURL += "?period1=946684800" // Jan 1, 2000
         sURL += "&period2=" + Date().time / 1000
@@ -83,32 +94,41 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
         }
 
         return result
+         */
     }
 
     private fun setCookieCrumb(): Boolean {
         if (mCookieCrumb != null)
             return true
 
-        val res = Tools.getURL("https://finance.yahoo.com/quote/%5EGSPC/options", null) // most any page will work here
-        val page = res.result
-        val index = page.indexOf("Crumb\":\"")
+        val request = Request.Builder()
+            .url("https://finance.yahoo.com/quote/%5EGSPC/options")
+            .build()
+
+        val response = client.newCall(request).execute()
+        if (response.code != HttpURLConnection.HTTP_OK)
+            throw RequestException(response)
+
+        val body = response.body?.string()!!
+
+        val index = body.indexOf("Crumb\":\"")
         if (index > 0) {
             if (DEBUG) {
-                val debug = page.substring(index, index + 50)
+                val debug = body.substring(index, index + 50)
                 println(debug)
             }
 
             val start = index + 8
-            val end = page.indexOf("\"", start)
+            val end = body.indexOf("\"", start)
             if (start < end) {
-                mCookieCrumb = page.substring(start, end)
+                mCookieCrumb = body.substring(start, end)
                 mCookieCrumb = mCookieCrumb!!.replace("\\u002F", "/")
 
                 // Seems to be different for local vs android, if more than 1 get the last entry
                 // If this still fails look into better method, might be difference between http vs https requests
-                val cookieHeaders = res.headers["Set-Cookie"]!!
-                mCookie = cookieHeaders[cookieHeaders.size - 1]
-                mCookie = mCookie!!.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
+                //val cookieHeaders = response.headers.values("Set-Cookie")
+                //mCookie = cookieHeaders[cookieHeaders.size - 1]
+                //mCookie = mCookie!!.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
                 return true
             }
 

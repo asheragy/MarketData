@@ -12,6 +12,8 @@ object Symbols {
     //Some are listed twice, for each class of stock
     //Don't add the one with the least historical arrays
     fun getSP500List(): List<String> {
+        TODO("Convert to okhttp")
+        /*
         val data = Tools.getURL("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
         val arr = data!!.split("</a></td>\r\n<td><a href".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
 
@@ -24,6 +26,8 @@ object Symbols {
                 result.add(s)
             }
         }
+
         return result
+        */
     }
 }

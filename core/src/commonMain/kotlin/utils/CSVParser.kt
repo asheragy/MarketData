@@ -11,7 +11,7 @@ object CSVParser {
      * @return PriceList
      */
     fun getPricesFromTable(tableData: String): MutableList<OHLCVRow> {
-        val lines = tableData.split("\\r\\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val lines = tableData.lines().dropLastWhile { it.isEmpty() }.toTypedArray()
 
         //if (DEBUG)
         //    println("Table lines = " + lines.size)

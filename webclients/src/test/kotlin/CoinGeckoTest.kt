@@ -22,8 +22,8 @@ class CoinGeckoTest {
 
     @Test
     fun detailedQuotes() {
-        val prices = client.getDetailedQuotes(listOf("bitcoin", "ethereum", "solana"))
-        assertEquals(3, prices.size)
+        val prices = client.getDetailedQuotes(listOf("bitcoin", "ethereum", "solana", "binancecoin", "litecoin"))
+        assertEquals(5, prices.size)
 
         prices.forEach {
             println(it)
