@@ -1,5 +1,6 @@
 
 import org.cerion.marketdata.webclients.tda.TDAmeritrade
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.awt.Desktop
 import java.io.FileInputStream
@@ -59,6 +60,17 @@ class TDAmeritradeTest {
         val ps = api.getPositions(accessToken)
         ps.forEach {
             println("${it.symbol}, ${it.quantity}, ${it.pricePerShare}, ${it.totalValue}, isCash=${it.cash}")
+        }
+    }
+
+    @Test
+    fun getQuotes() {
+        val quotes = api.getQuotes(listOf("VTSAX", "TSLA"))
+
+        quotes.forEach {
+            assertTrue(it.price > 0)
+            assertTrue(it.price > it.low52)
+            assertTrue(it.price < it.high52)
         }
     }
 

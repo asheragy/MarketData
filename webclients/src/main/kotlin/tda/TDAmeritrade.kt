@@ -25,9 +25,16 @@ private class TDPosition(val data: JSONObject) : Position {
         get() = totalValue / quantity
 }
 
+data class Quote(
+    val symbol: String,
+    val price: Double,
+    val description: String,
+    val high52: Double,
+    val low52: Double)
+
 private const val HOST = "https://api.tdameritrade.com"
 
-class TDAmeritrade(consumerKey: String, redirectUri: String) {
+class TDAmeritrade(val consumerKey: String, redirectUri: String) {
     private val client = OkHttpClient()
     private val auth = TDAmeritradeAuth(consumerKey, redirectUri)
 
@@ -60,5 +67,35 @@ class TDAmeritrade(consumerKey: String, redirectUri: String) {
         }
 
         return result
+    }
+
+    fun getQuotes(symbols: List<String>): List<Quote> {
+        val params = symbols.joinToString(",")
+        val request = Request.Builder()
+            .url("$HOST/v1/marketdata/quotes?apikey=$consumerKey&symbol=$params")
+            .build()
+
+        val response = client.newCall(request).execute()
+        if (response.code != HttpURLConnection.HTTP_OK)
+            throw RequestException(response)
+
+        val body = response.body?.string()
+        val json = JSONObject(body)
+
+        return symbols.map { symbol ->
+            val quote = json[symbol] as JSONObject
+            val type = quote["assetType"]
+            val desc = quote["description"] as String
+            val high52 = quote["52WkHigh"] as Double
+            val low52 = quote["52WkLow"] as Double
+
+            val price = when(type) {
+                "EQUITY" -> quote["lastPrice"] as Double
+                "MUTUAL_FUND" -> quote["closePrice"] as Double
+                else -> TODO("Unexpected assetType")
+            }
+
+            Quote(symbol, price, desc, high52, low52)
+        }
     }
 }
