@@ -65,7 +65,7 @@ class TDAmeritradeTest {
 
     @Test
     fun getQuotes() {
-        val quotes = api.getQuotes(listOf("VTSAX", "TSLA"))
+        val quotes = api.getQuotes(listOf("VTSAX", "TSLA", "OHI", "SPY"))
 
         quotes.forEach {
             assertTrue(it.price > 0)

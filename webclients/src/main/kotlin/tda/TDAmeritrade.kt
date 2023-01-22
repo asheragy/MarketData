@@ -90,7 +90,7 @@ class TDAmeritrade(val consumerKey: String, redirectUri: String) {
             val low52 = quote["52WkLow"] as Double
 
             val price = when(type) {
-                "EQUITY" -> quote["lastPrice"] as Double
+                "ETF", "EQUITY" -> quote["lastPrice"] as Double
                 "MUTUAL_FUND" -> quote["closePrice"] as Double
                 else -> TODO("Unexpected assetType")
             }
