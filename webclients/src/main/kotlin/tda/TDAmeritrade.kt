@@ -29,6 +29,7 @@ data class Quote(
     val symbol: String,
     val price: Double,
     val description: String,
+    val change: Double,
     val high52: Double,
     val low52: Double)
 
@@ -95,7 +96,13 @@ class TDAmeritrade(val consumerKey: String, redirectUri: String) {
                 else -> TODO("Unexpected assetType")
             }
 
-            Quote(symbol, price, desc, high52, low52)
+            val change = when(type) {
+                "ETF", "EQUITY" -> quote["regularMarketPercentChangeInDouble"] as Double
+                "MUTUAL_FUND" -> quote["netPercentChangeInDouble"] as Double
+                else -> TODO("Unexpected assetType")
+            }
+
+            Quote(symbol, price, desc, change, high52, low52)
         }
     }
 }
