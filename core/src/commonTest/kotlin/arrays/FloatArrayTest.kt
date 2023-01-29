@@ -3,7 +3,6 @@ package org.cerion.marketdata.core.arrays
 import org.cerion.marketdata.core.TestBase
 import org.cerion.marketdata.core.overlays.SimpleMovingAverage
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class FloatArrayTest : TestBase() {
 
@@ -75,5 +74,21 @@ class FloatArrayTest : TestBase() {
 
         corr = arr.correlation(it.volume)
         assertEquals(0.06938858, corr, 0.0001, "correlation volume")
+    }
+
+    @Test
+    fun variance() {
+        val input = floatArrayOf(1.21f, 3.4f, 2f, 4.66f, 1.5f, 5.61f, 7.22f)
+        val arr = FloatArray(input)
+
+        assertEquals(5.16122, arr.variance(7).last)
+        assertEquals(3.23155, arr.variance(7)[5])
+        assertEquals(2.39805, arr.variance(7)[1])
+        assertEquals(0, arr.variance(7)[0])
+
+        assertEquals(5.86252, arr.variance(5).last)
+        assertEquals(3.00898, arr.variance(5)[5])
+        assertEquals(2.39805, arr.variance(5)[1])
+        assertEquals(0, arr.variance(5)[0])
     }
 }

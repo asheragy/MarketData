@@ -243,6 +243,12 @@ open class OHLCVTable(
         return OHLCVTable(symbol, prices)
     }
 
+    fun beta(index: OHLCVTable, period: Int): FloatArray {
+
+        return index.close
+    }
+
+    // TODO different with crypto
     private fun pricesPerYear(): Int {
         return when (interval) {
             Interval.DAILY -> 252

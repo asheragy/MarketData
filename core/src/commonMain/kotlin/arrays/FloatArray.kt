@@ -7,9 +7,9 @@ import org.cerion.marketdata.core.overlays.SimpleMovingAverage
 import kotlin.math.ln
 import kotlin.math.sqrt
 
-open class FloatArray(length: Int) : ValueArray() {
+open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray() {
 
-    private val mVal: kotlin.FloatArray = kotlin.FloatArray(length)
+    constructor(length: Int) : this(kotlin.FloatArray(length))
 
     override val size: Int = mVal.size
 
@@ -235,26 +235,26 @@ open class FloatArray(length: Int) : ValueArray() {
         return Sxy / sqrt((Sxx * Syy).toDouble()).toFloat()
     }
 
+    fun variance(period: Int): FloatArray {
+        val result = FloatArray(size)
+        val sma = sma(period)
+
+        for(i in 1 until size) {
+            val start = kotlin.math.max(0, i - period + 1)
+            val squares = mVal.toList().subList(start, i + 1).map { it - sma[i] }.map { it * it }
+            val N = squares.size - 1
+
+            val sum = squares.sum()
+            result[i] = sum / N
+        }
+
+        return result
+    }
 
     //------------ Moved from PriceList, for calculating Beta
     // Possibly able to extract some useful functions from here like variance
 
     /*
-	public float variance(int start, int length)
-	{
-		float result = 0;
-		float avg = average(start,length);
-
-		for(int i = start; i > (start - length); i--)
-		{
-			Price p = get(i);
-			Price prev = get(i-1);
-			float s = p.getPercentDiff(prev) - avg;
-			result += (s * s);
-		}
-
-		return (result / length);
-	}
 
 	public float average(int start, int length)
 	{
@@ -282,7 +282,6 @@ open class FloatArray(length: Int) : ValueArray() {
 	    result /= index.variance(start,length);
 
 	    return result;
-
 	}
 
 	public float covar(PriceList b, int start, int length)
