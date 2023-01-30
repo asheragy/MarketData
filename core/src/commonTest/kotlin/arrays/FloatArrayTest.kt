@@ -91,4 +91,16 @@ class FloatArrayTest : TestBase() {
         assertEquals(2.39805, arr.variance(5)[1])
         assertEquals(0, arr.variance(5)[0])
     }
+
+    @Test
+    fun covariance() {
+        val arr1 = FloatArray(floatArrayOf(2f, 1.5f, 3f, 5f, 10f))
+        val arr2 = FloatArray(floatArrayOf(5f, 2f, 1.25f, 15f, 8f))
+
+        val covar = arr1.covariance(arr2, 5)
+        assertEquals(9.34375, covar.last)
+        assertEquals(8.30208, covar[3])
+        assertEquals(0.75, covar[1])
+        assertEquals(0, covar[0])
+    }
 }

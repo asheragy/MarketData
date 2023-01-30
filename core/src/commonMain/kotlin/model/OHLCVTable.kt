@@ -244,8 +244,20 @@ open class OHLCVTable(
     }
 
     fun beta(index: OHLCVTable, period: Int): FloatArray {
+        if (size != index.size)
+            throw IllegalArgumentException("Must be same size")
 
-        return index.close
+        val stockChange = close.percentChange
+        val indexChange = index.close.percentChange
+
+        val covar = stockChange.covariance(indexChange, period)
+        val variance = indexChange.variance(period)
+        val result = FloatArray(size)
+
+        for(i in 1 until size)
+            result[i] = covar[i] / variance[i]
+
+        return result
     }
 
     // TODO different with crypto

@@ -30,6 +30,10 @@ class OHLCVTableTest : TestBase() {
         val amzn = OHLCVTable("^GSPC", CSVParser.getPricesFromTable(data))
 
         val beta = amzn.beta(index, 200)
-        assertEquals(1.65, beta.last)
+        assertEquals(1.6469187, beta.last, 0.0000005)
+        assertEquals(1.6488297, beta[beta.size - 2], 0.0000005)
+        assertEquals(1.6642212, beta[beta.size - 100], 0.0000005)
+        assertEquals(1.8936148, beta[1], 0.0000005)
+        assertEquals(0, beta[0], 0.0000005)
     }
 }

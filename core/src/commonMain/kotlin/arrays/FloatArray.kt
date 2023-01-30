@@ -251,6 +251,25 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray() {
         return result
     }
 
+    fun covariance(other: FloatArray, period: Int): FloatArray {
+        val result = FloatArray(size)
+        val sma1 = sma(period)
+        val sma2 = other.sma(period)
+
+        for(i in 1 until size) {
+            val start = kotlin.math.max(0, i - period + 1)
+            val diff1 = mVal.toList().subList(start, i + 1).map { it - sma1[i] }
+            val diff2 = other.mVal.toList().subList(start, i + 1).map { it - sma2[i] }
+            val squares = diff1.zip(diff2) { a, b -> a * b }
+            val N = squares.size - 1
+
+            val sum = squares.sum()
+            result[i] = sum / N
+        }
+
+        return result
+    }
+
     //------------ Moved from PriceList, for calculating Beta
     // Possibly able to extract some useful functions from here like variance
 
