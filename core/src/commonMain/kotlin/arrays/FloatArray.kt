@@ -270,64 +270,6 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray() {
         return result
     }
 
-    //------------ Moved from PriceList, for calculating Beta
-    // Possibly able to extract some useful functions from here like variance
-
-    /*
-
-	public float average(int start, int length)
-	{
-		float result = 0;
-		for(int i = start; i > (start - length); i--)
-		{
-			Price p = get(i);
-			Price prev = get(i-1);
-			result += p.getPercentDiff(prev);
-		}
-
-		return (result / length);
-	}
-
-	@Deprecated
-	public float getBeta(PriceList index, int start, int length)
-	{
-		if(get(0).date.equals(index.get(0).date) == false)
-		{
-			System.out.println("getBeta() start dates do not match");
-			return 0;
-		}
-
-	    float result = covar(index,start,length);
-	    result /= index.variance(start,length);
-
-	    return result;
-	}
-
-	public float covar(PriceList b, int start, int length)
-	{
-		float result = 0;
-		float avg_a = average(start,length);
-		float avg_b = b.average(start,length);
-
-		for(int i = start; i > (start - length); i--)
-		{
-			Price p1 = get(i);
-			Price p1prev = get(i-1);
-			Price p2 = b.get(i);
-			Price p2prev = b.get(i-1);
-
-			if(!p1.date.equals(p2.date))
-				System.out.println("dates do not match");
-
-			float s = p1.getPercentDiff(p1prev) - avg_a;
-			float t = p2.getPercentDiff(p2prev) - avg_b;
-			result += (s * t);
-		}
-
-		return (result / length);
-	}
-	*/
-
     override fun toString(): String {
         var result = "{"
 
