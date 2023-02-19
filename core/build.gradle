@@ -6,10 +6,6 @@ plugins {
 group 'org.cerion.marketdata'
 version '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
-
 
 apply plugin: 'maven-publish'
 apply from: 'other.gradle.kts'

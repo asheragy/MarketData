@@ -3,4 +3,4 @@ rootProject.name = 'MarketData'
 include 'core'
 include 'quant'
 include 'webclients'
-
+include 'dbgenerator'

@@ -6,10 +6,6 @@ plugins {
 group 'org.cerion.marketdata'
 version '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation "com.squareup.okhttp3:okhttp:4.2.1"
     implementation "org.json:json:20190722"
