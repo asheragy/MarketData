@@ -1,0 +1,110 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'androidx.navigation.safeargs.kotlin' version "$androidxNavigationVersion"
+}
+
+def apikeyPropertiesFile = rootProject.file("stockcharts/apikey.properties")
+def apikeyProperties = new Properties()
+if(apikeyPropertiesFile.exists())
+    apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+
+android {
+    namespace 'org.cerion.stockcharts'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "org.cerion.stockcharts"
+        minSdkVersion 28
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        buildConfigField("String", "TD_CONSUMER_KEY", apikeyProperties.get('td_consumer_key', "\"\""))
+        buildConfigField("String", "TD_REDIRECT_URI", apikeyProperties.get('td_redirect_uri', "\"\""))
+        buildConfigField("String", "TIINGO_APIKEY", apikeyProperties.get('tiingo', "\"\""))
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    sourceSets {
+        androidTest {
+            java.srcDirs += "src/sharedTest/java"
+        }
+        test {
+            java.srcDirs += "src/sharedTest/java"
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+    //kapt "androidx.lifecycle:lifecycle-compiler:2.5.1"
+
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.5.1"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation "androidx.navigation:navigation-fragment-ktx:$androidxNavigationVersion"
+    implementation "androidx.navigation:navigation-ui-ktx:$androidxNavigationVersion"
+
+    implementation 'com.google.android.material:material:1.7.0'
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+
+    def room_version = "2.5.0"
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    implementation "io.insert-koin:koin-android:3.3.2"
+
+    //implementation 'com.google.firebase:firebase-appindexing:10.2.1'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    implementation project(':core')
+    implementation project(':webclients')
+
+    // Test
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+
+    // Android Test
+    androidTestImplementation "androidx.test.ext:junit:1.1.5"
+    debugImplementation "androidx.fragment:fragment-testing:1.6.0-alpha04"
+    testImplementation "androidx.test:core:1.5.0"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
+    androidTestImplementation "androidx.test.espresso:espresso-contrib:3.5.1"
+    androidTestImplementation "io.insert-koin:koin-test:3.3.2"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+}
+
+repositories {
+    google()
+    maven { url 'https://jitpack.io' }
+}

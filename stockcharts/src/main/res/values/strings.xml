@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">StockCharts</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_chart_test">ChartTestActivity</string>
+    <string name="indicators">Indicators</string>
+    <string name="overlays">Overlays</string>
+
+    <string name="interval_daily">Daily</string>
+    <string name="interval_weekly">Weekly</string>
+    <string name="interval_monthly">Monthly</string>
+    <string name="interval_quarterly">Quarterly</string>
+
+    <string-array name="intervals">
+        <item>@string/interval_daily</item>
+        <item>@string/interval_weekly</item>
+        <item>@string/interval_monthly</item>
+        <item>@string/interval_quarterly</item>
+    </string-array>
+
+    <string-array name="functions_toolsonly">
+        <item>Simple Moving Average</item>
+    </string-array>
+
+    <string-array name="overlays_toolsonly">
+        <item>Bollinger Bands</item>
+    </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

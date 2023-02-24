@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <Spinner
+        android:id="@+id/name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        tools:entries="@array/overlays_toolsonly">
+    </Spinner>
+
+    <org.cerion.stockcharts.ui.charts.views.ParametersEditControl
+        android:id="@+id/parameters"
+        android:orientation="horizontal"
+        android:layout_weight="0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <!-- Editor only -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" tools:visibility="visible" android:visibility="gone">
+            <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="20" tools:ignore="LabelFor" />
+            <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="20.0" tools:ignore="LabelFor" />
+        </LinearLayout>
+
+
+    </org.cerion.stockcharts.ui.charts.views.ParametersEditControl>
+
+    <ImageButton
+        android:layout_margin="4dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_weight="0"
+        android:src="@android:drawable/ic_delete"
+        android:background="#00000000"
+        android:layout_gravity="center_vertical"
+        android:id="@+id/remove" />
+</LinearLayout>

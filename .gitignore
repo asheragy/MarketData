@@ -1,14 +1,22 @@
 
+local.properties
+
 /.gradle
 /kotlin-js-store
 /.idea/artifacts/*
+/.idea/androidTestResultsUserPreferences.xml
+/.idea/kotlinc.xml
 
 /build
 /core/build
 /dbgenerator/build
 /quant/build
+/stockcharts/build
 /webclients/build
+
+# Secrets
 /webclients/secrets
+stockcharts/apikey.properties
 
 /core/karma.config.d/karma.config.generated.js
 /history_data
