@@ -6,10 +6,15 @@ import kotlin.math.abs
 
 open class TestBase {
 
-    fun assertEquals(expected: Number, actual: Float, message: String? = null) =
-            assertEquals(expected, actual, 0.005, message)
+    fun assertNotSet(actual: Float) {
+        kotlin.test.assertEquals(Float.NaN, actual)
+    }
+    fun assertEquals(expected: Number, actual: Float, message: String? = null) = assertEquals(expected, actual, 0.005, message)
 
     fun assertEquals(expected: Number, actual: Float, delta: Double, message: String? = null) {
+        if (expected == Float.NaN || actual.isNaN())
+            throw RuntimeException("Unexpected float value")
+
         val diff = abs(expected.toDouble() - actual)
         if (diff > delta)
             kotlin.test.assertEquals(expected, actual, "expected=$expected, actual=$actual, diff=$diff - $message")

@@ -16,11 +16,14 @@ class VolumeWeightedMovingAverage(period: Int = 20) : PriceOverlayBase(PriceOver
         val result = FloatArray(size)
 
         for (i in 0 until size) {
-            val count = ValueArray.maxPeriod(i, period)
+            if (i < period - 1) {
+                result[i] = Float.NaN
+                continue
+            }
 
             var total = 0f
             var volume = 0f
-            for (j in i - count + 1..i) {
+            for (j in i - period + 1..i) {
                 volume += table.volume[j]
                 total += table.close[j] * table.volume[j]
             }
