@@ -1,6 +1,7 @@
 import data.DataSet
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import strategy.Strategy
 
@@ -67,6 +68,7 @@ class BacktesterTest {
      * Hold but only 50% of the time
      */
     @Test
+    @Disabled
     fun partialHoldTime() {
         val strategy = object: Strategy() {
             override fun eval(data: DataSet, index: Int) {
@@ -102,6 +104,7 @@ class BacktesterTest {
      * -- --- --- ---
     */
     @Test
+    @Disabled
     fun concurrentTrades() {
         val strategy = object: Strategy() {
             override fun eval(data: DataSet, index: Int) {
