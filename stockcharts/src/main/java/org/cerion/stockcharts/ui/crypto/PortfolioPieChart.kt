@@ -27,9 +27,9 @@ class PortfolioPieChart(context: Context?, attrs: AttributeSet?) : PieChart(cont
         val colors = ArrayList<Int>()
 
         val cashPosition = positions.firstOrNull { it.cash }
+        val green = ColorTemplate.PASTEL_COLORS[1]
         if (cashPosition != null) {
-            // TODO merge or add multiple colors
-            colors.add(Color.GREEN)
+            colors.add(green)
             entries.add(PieEntry(cashPosition.totalValue.toFloat() / total, "Cash"))
         }
 
@@ -45,7 +45,9 @@ class PortfolioPieChart(context: Context?, attrs: AttributeSet?) : PieChart(cont
         dataSet.valueTextSize = 12f
         dataSet.valueFormatter = PercentFormatter()
 
-        colors.addAll(ColorTemplate.PASTEL_COLORS.toList())
+        val colorsWithoutGreen = ColorTemplate.PASTEL_COLORS.filter { it != green }
+        colors.addAll(colorsWithoutGreen)
+        colors.addAll(colorsWithoutGreen)
         dataSet.colors = colors
         val pieData = PieData(dataSet)
         data = pieData

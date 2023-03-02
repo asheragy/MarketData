@@ -1,4 +1,4 @@
-package org.cerion.stockcharts.fakes
+package fakes
 
 import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.webclients.FetchInterval

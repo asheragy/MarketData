@@ -10,9 +10,9 @@ import org.cerion.marketdata.core.charts.VolumeChart
 import org.cerion.marketdata.core.indicators.RSI
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.Symbol
-import org.cerion.stockcharts.fakes.FakePreferenceRepository
-import org.cerion.stockcharts.fakes.FakePriceHistoryDataSource
-import org.cerion.stockcharts.fakes.FakePriceListRepository
+import fakes.FakePreferenceRepository
+import fakes.FakePriceHistoryDataSource
+import fakes.FakePriceListRepository
 import org.cerion.stockcharts.repository.CachedPriceListRepository
 import org.cerion.stockcharts.repository.DefaultPriceHistoryDates
 import org.cerion.stockcharts.repository.PreferenceRepository

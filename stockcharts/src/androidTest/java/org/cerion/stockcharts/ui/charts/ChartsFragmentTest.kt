@@ -11,14 +11,14 @@ import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.mikephil.charting.charts.LineChart
+import fakes.FakePreferenceRepository
+import fakes.FakePriceHistoryDataSource
+import fakes.FakePriceListRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.cerion.marketdata.webclients.PriceHistoryDataSource
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.repository.PreferenceRepository
-import org.cerion.stockcharts.fakes.FakePreferenceRepository
-import org.cerion.stockcharts.fakes.FakePriceHistoryDataSource
-import org.cerion.stockcharts.fakes.FakePriceListRepository
 import org.cerion.stockcharts.repository.CachedPriceListRepository
 import org.cerion.stockcharts.repository.PriceListRepository
 import org.junit.Assert

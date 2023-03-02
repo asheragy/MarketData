@@ -1,4 +1,4 @@
-package org.cerion.stockcharts.fakes
+package fakes
 
 import org.cerion.marketdata.core.charts.ChartColors
 import org.cerion.marketdata.core.charts.StockChart

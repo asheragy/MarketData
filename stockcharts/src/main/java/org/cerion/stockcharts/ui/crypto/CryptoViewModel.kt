@@ -23,6 +23,13 @@ data class CryptoPosition(val row: CryptoRow, override val quantity: Double) : P
     override val cash = false
 }
 
+data class CashPosition(override val quantity: Double) : Position {
+    override val symbol = "Cash"
+    override val pricePerShare = 1.0
+    override val totalValue = pricePerShare * quantity
+    override val cash = true
+}
+
 class CryptoViewModel : ViewModel() {
 
     private val api = CoinGecko()
@@ -31,8 +38,8 @@ class CryptoViewModel : ViewModel() {
     val rows: LiveData<List<CryptoRow>>
         get() = _rows
 
-    private val _positions = MutableLiveData<List<CryptoPosition>>()
-    val positions: LiveData<List<CryptoPosition>>
+    private val _positions = MutableLiveData<List<Position>>()
+    val positions: LiveData<List<Position>>
         get() = _positions
 
     private val mappings = mapOf(
@@ -63,18 +70,21 @@ class CryptoViewModel : ViewModel() {
 
             _rows.value = result.sortedBy { it.name }
 
-            _positions.value = result.map {
+            val positions = result.map {
                 val amount = when(it.quote?.id) {
                     "ethereum" -> 1.01
                     "bitcoin" -> 0.0685
                     "solana" -> 14.4
                     "matic-network" -> 717.0
                     "algorand" -> 84.0
+                    "litecoin" -> 2.5
                     else -> 0.0
                 }
 
                 CryptoPosition(it, amount)
             }.filter { it.quantity > 0 }
+
+            _positions.value = listOf(*positions.toTypedArray(), CashPosition(1000.0))
         }
     }
 
