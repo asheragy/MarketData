@@ -7,13 +7,20 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.cerion.marketdata.core.model.Position
 import org.cerion.marketdata.webclients.coingecko.CoinGecko
 
 
 data class CryptoRow(val name: String,
                      val symbol: String) {
     var quote: CoinGecko.DetailedQuote? = null
+}
+
+interface Position {
+    val symbol: String
+    val quantity: Double
+    val pricePerShare: Double
+    val totalValue: Double
+    val cash: Boolean
 }
 
 data class CryptoPosition(val row: CryptoRow, override val quantity: Double) : Position {

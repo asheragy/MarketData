@@ -9,7 +9,6 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
-import org.cerion.marketdata.core.model.Position
 import java.util.*
 
 class PortfolioPieChart(context: Context?, attrs: AttributeSet?) : PieChart(context, attrs) {

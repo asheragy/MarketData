@@ -9,8 +9,8 @@ import kotlin.test.Test
 class OHLCVTableTest : TestBase() {
 
     @Test
-    fun averageYearlyGain() = runPriceTest {
-        val gain = it.averageYearlyGain()
+    fun averageYearlyGain() {
+        val gain = table.averageYearlyGain()
         assertEquals(0.0215, gain, 0.0001)
     }
 
@@ -23,11 +23,9 @@ class OHLCVTableTest : TestBase() {
     }
 
     @Test
-    fun beta() = Utils.runAsync {
-        var data = Utils.readResourceFileAsync("sp500_2010-2022.csv").await()
-        val index = OHLCVTable("^GSPC", CSVParser.getPricesFromTable(data))
-        data = Utils.readResourceFileAsync("AMZN_2010-2022.csv").await()
-        val amzn = OHLCVTable("^GSPC", CSVParser.getPricesFromTable(data))
+    fun beta() {
+        val index = getTable("sp500_2010-2022.csv")
+        val amzn = getTable("AMZN_2010-2022.csv")
 
         val beta = amzn.beta(index, 200)
         assertEquals(1.6469187, beta.last, 0.0000005)

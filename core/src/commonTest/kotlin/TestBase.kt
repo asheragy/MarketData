@@ -20,17 +20,17 @@ open class TestBase {
             kotlin.test.assertEquals(expected, actual, "expected=$expected, actual=$actual, diff=$diff - $message")
     }
 
+    @Deprecated("Use table directly")
     protected fun runPriceTest(block: suspend (priceList: OHLCVTable) -> Unit) = Utils.runAsync {
-        if (!isInitialized()) {
-            val data = Utils.readResourceFileAsync("sp500_2000-2015.csv").await()
-            table = OHLCVTable("^GSPC", CSVParser.getPricesFromTable(data))
-        }
-
         block(table)
     }
 
     companion object {
-        fun isInitialized() = ::table.isInitialized
-        private lateinit var table: OHLCVTable
+        fun getTable(filename: String): OHLCVTable {
+            val data = Utils.readResourceFile(filename)
+            return OHLCVTable("unknown", CSVParser.getPricesFromTable(data))
+        }
+
+        val table = OHLCVTable("^GSPC", CSVParser.getPricesFromTable(Utils.readResourceFile("sp500_2000-2015.csv")))
     }
 }

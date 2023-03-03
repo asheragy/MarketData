@@ -1,19 +1,14 @@
 package org.cerion.marketdata.core
 
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
-import org.cerion.marketdata.core.model.Dividend
-import org.cerion.marketdata.core.platform.KMPDate
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
-import java.util.*
 
 actual object Utils {
 
-    actual suspend fun readResourceFileAsync(fileName: String): Deferred<String> {
-        return CompletableDeferred(resourceToString(fileName))
+    actual fun readResourceFile(fileName: String): String {
+        return resourceToString(fileName)
     }
 
     actual fun runAsync(block: suspend () -> Unit) = runBlocking {
@@ -40,21 +35,5 @@ actual object Utils {
     private fun fileToString(fileName: String): String {
         return File(fileName).readText(Charsets.UTF_8)
     }
-
-    fun getDividends(vararg values: Float): List<Dividend> {
-        var date = KMPDate.TODAY
-        val result = ArrayList<Dividend>()
-
-        for (v in values) {
-            val d = Dividend(date, v)
-            result.add(d)
-
-            date = date.add(-1)
-        }
-
-        return result
-    }
-
-    fun getDate(daysAgo: Int) = KMPDate.TODAY.add(-daysAgo)
 }
 

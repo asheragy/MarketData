@@ -3,25 +3,24 @@ package org.cerion.marketdata.webclients.tda
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.cerion.marketdata.core.model.Position
 import org.cerion.marketdata.webclients.OAuthResponse
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 
 
-private class TDPosition(val data: JSONObject) : Position {
+data class TDPosition(val data: JSONObject) {
     private val instrument = data["instrument"] as JSONObject
     private val averagePrice = data["averagePrice"] as Double
 
-    override val symbol: String = instrument["symbol"] as String
-    override val quantity: Double = data["longQuantity"] as Double
-    override val totalValue: Double = data["marketValue"] as Double
+    val symbol: String = instrument["symbol"] as String
+    val quantity: Double = data["longQuantity"] as Double
+    val totalValue: Double = data["marketValue"] as Double
 
-    override val cash
+    val cash
         get() = averagePrice == 1.0
 
-    override val pricePerShare: Double
+    val pricePerShare: Double
         get() = totalValue / quantity
 }
 
@@ -44,7 +43,7 @@ class TDAmeritrade(val consumerKey: String, redirectUri: String) {
     fun authorize(code: String): OAuthResponse = auth.authorize(code)
     fun refreshAuth(refreshToken: String): OAuthResponse = auth.refreshAuth(refreshToken)
 
-    fun getPositions(auth: String): List<Position> {
+    fun getPositions(auth: String): List<TDPosition> {
         val request = Request.Builder()
                 .header("Authorization", "Bearer $auth")
                 .url("$HOST/v1/accounts?fields=positions")

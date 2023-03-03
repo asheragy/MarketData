@@ -95,33 +95,33 @@ class FunctionBaseTest : TestBase() {
     }
 
     @Test
-    fun verifyReturnTypes_simpleOverlays() = runPriceTest {
+    fun verifyReturnTypes_simpleOverlays() {
         for (o in Overlay.values()) {
             val overlay = o.instance
-            var arr = overlay.eval(it.close)
+            var arr = overlay.eval(table.close)
             assertEquals(arr::class, overlay.resultType, "'$o' resultType() does not match eval() result")
 
             // Verify when called on both evals
-            arr = overlay.eval(it)
+            arr = overlay.eval(table)
             assertEquals(arr::class, overlay.resultType, "'$o' resultType() does not match eval() result (2)")
         }
     }
 
     @Test
-    fun verifyReturnTypes_priceOverlays() = runPriceTest {
+    fun verifyReturnTypes_priceOverlays() {
         for (o in PriceOverlay.values()) {
             val overlay = o.instance
-            val arr = overlay.eval(it)
+            val arr = overlay.eval(table)
 
             assertEquals(arr::class, overlay.resultType, "'$o' resultType() does not match eval() result")
         }
     }
 
     @Test
-    fun verifyReturnTypes_indicators() = runPriceTest {
+    fun verifyReturnTypes_indicators() {
         for (i in Indicator.values()) {
             val indicator = i.instance
-            val arr = indicator.eval(it)
+            val arr = indicator.eval(table)
 
             assertEquals(arr::class, indicator.resultType, "'$i' resultType() does not match eval() result")
         }
