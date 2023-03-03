@@ -1,7 +1,6 @@
-package overlays
+package org.cerion.marketdata.core.overlays
 
 import org.cerion.marketdata.core.TestBase
-import org.cerion.marketdata.core.overlays.VolumeWeightedMovingAverage
 import org.junit.Test
 
 

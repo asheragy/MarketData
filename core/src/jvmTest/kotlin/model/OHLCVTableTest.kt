@@ -2,8 +2,6 @@ package org.cerion.marketdata.core.model
 
 
 import org.cerion.marketdata.core.TestBase
-import org.cerion.marketdata.core.Utils
-import org.cerion.marketdata.core.utils.CSVParser
 import kotlin.test.Test
 
 class OHLCVTableTest : TestBase() {

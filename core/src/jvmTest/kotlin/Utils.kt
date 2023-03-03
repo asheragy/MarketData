@@ -5,13 +5,13 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 
-actual object Utils {
+object Utils {
 
-    actual fun readResourceFile(fileName: String): String {
+    fun readResourceFile(fileName: String): String {
         return resourceToString(fileName)
     }
 
-    actual fun runAsync(block: suspend () -> Unit) = runBlocking {
+    fun runAsync(block: suspend () -> Unit) = runBlocking {
         block()
     }
 
