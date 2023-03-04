@@ -6,12 +6,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.model.OHLCVTable
-import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.stockcharts.common.TAG
 import org.cerion.stockcharts.database.PriceListEntity
 import org.cerion.stockcharts.database.PriceRowEntity
 import org.cerion.stockcharts.database.getDatabase
+import utils.toDate
+import utils.toLocalDate
+import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
 
@@ -35,7 +37,7 @@ class PriceListSQLRepository(private val context: Context) : PriceListRepository
         val dbPrices = pricesDao.getAll(symbol, interval.ordinal)
 
         val prices = dbPrices.map {
-            OHLCVRow(it.date.toKMPDate(), it.open, it.high, it.low, it.close, it.volume)
+            OHLCVRow(it.date.toLocalDate(), it.open, it.high, it.low, it.close, it.volume)
         }
 
         val result = OHLCVTable(symbol, prices)
@@ -113,18 +115,4 @@ class PriceListSQLRepository(private val context: Context) : PriceListRepository
         optimize()
     }
      */
-}
-
-fun Date.toKMPDate(): KMPDate {
-    return KMPDate(this.toInstant()
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate())
-}
-
-fun KMPDate.toDate(): Date {
-    return Date.from(
-        this.jvmDate.atStartOfDay()
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
-    )
 }

@@ -2,7 +2,6 @@ package data
 
 import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.model.OHLCVTable
-import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.marketdata.webclients.yahoo.YahooFinance
 import java.io.File
@@ -51,7 +50,7 @@ class TextDataRepository: DataRepository {
         for (p in list)
             table += java.lang.String.format(
                 "%s|%s|%s|%s|%s|%s\r\n",
-                p.date.toISOString(),
+                p.date.toString(),
                 p.open,
                 p.high,
                 p.low,
@@ -88,7 +87,7 @@ class TextDataRepository: DataRepository {
                         val low = fields[3].toFloat()
                         val close = fields[4].toFloat()
                         val volume = fields[5].toLong(10)
-                        val p = OHLCVRow(KMPDate(date), open, high, low, close, volume.toFloat())
+                        val p = OHLCVRow(date, open, high, low, close, volume.toFloat())
                         prices.add(p)
                     } catch (e: Exception) {
                         e.printStackTrace()

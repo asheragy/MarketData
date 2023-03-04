@@ -18,7 +18,6 @@ import org.cerion.marketdata.core.charts.CandleDataSet
 import org.cerion.marketdata.core.charts.DataSet
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.OHLCVTable
-import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.common.isDarkTheme
 import java.math.BigDecimal
@@ -253,14 +252,14 @@ class ChartViewFactory(private val context: Context) {
         }
     }
 
-    private fun getAxisFormatter(dates: Array<KMPDate>, interval: Interval): ValueFormatter {
+    private fun getAxisFormatter(dates: Array<LocalDate>, interval: Interval): ValueFormatter {
         return object : ValueFormatter() {
             override fun getFormattedValue(value: Float): String {
                 val position = value.toInt()
                 if (position >= dates.size)
                     return ""
 
-                val date: LocalDate = dates[position].jvmDate
+                val date: LocalDate = dates[position]
                 return if (interval === Interval.MONTHLY)
                     dateFormatMonthly.format(date)
                 else

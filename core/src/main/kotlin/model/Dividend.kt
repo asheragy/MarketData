@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.model
 
-import org.cerion.marketdata.core.platform.KMPDate
+import java.time.LocalDate
 
 
-class Dividend(val date: KMPDate, val dividend: Float)
+class Dividend(val date: LocalDate, val dividend: Float)

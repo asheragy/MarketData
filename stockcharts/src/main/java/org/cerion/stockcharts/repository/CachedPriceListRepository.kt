@@ -2,28 +2,27 @@ package org.cerion.stockcharts.repository
 
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.OHLCVTable
-import org.cerion.marketdata.core.platform.KMPDate
 import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.marketdata.webclients.PriceHistoryDataSource
 import java.time.LocalDate
 import java.util.*
 
 interface PriceHistoryDates {
-    val dailyStartDate: KMPDate?
-    val weeklyStartDate: KMPDate?
-    val monthlyStartDate: KMPDate?
-    val quarterStartDate: KMPDate?
+    val dailyStartDate: LocalDate?
+    val weeklyStartDate: LocalDate?
+    val monthlyStartDate: LocalDate?
+    val quarterStartDate: LocalDate?
 }
 
 class DefaultPriceHistoryDates : PriceHistoryDates {
     override val dailyStartDate = getYearsBack(5)
     override val weeklyStartDate = getYearsBack(10)
     override val monthlyStartDate = getYearsBack(20)
-    override val quarterStartDate: KMPDate? = null
+    override val quarterStartDate: LocalDate? = null
 
     companion object {
-        fun getYearsBack(years: Int): KMPDate {
-            return KMPDate(LocalDate.now().minusYears(years.toLong()))
+        fun getYearsBack(years: Int): LocalDate {
+            return LocalDate.now().minusYears(years.toLong())
         }
     }
 }
@@ -121,13 +120,11 @@ class CachedPriceListRepository(private val repo: PriceListRepository, private v
         try {
             //val cal = Calendar.getInstance()
             //cal.set(1990, Calendar.JANUARY, 1)
-            val kmpStartDate = when (interval) {
+            val startDate = when (interval) {
                 Interval.DAILY -> dates.dailyStartDate
                 Interval.WEEKLY -> dates.weeklyStartDate
                 else -> dates.quarterStartDate // Always retrieve quarterly date then truncate month if needed
             }
-
-            val startDate = kmpStartDate?.jvmDate
 
             val prices = api.getPrices(symbol, fetchInterval, startDate)
             table = OHLCVTable(symbol, prices)

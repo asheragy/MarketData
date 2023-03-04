@@ -2,8 +2,9 @@ package org.cerion.marketdata.core.model
 
 import org.cerion.marketdata.core.arrays.FloatArray
 import org.cerion.marketdata.core.arrays.toFloatArray
-import org.cerion.marketdata.core.platform.DayOfWeek
-import org.cerion.marketdata.core.platform.KMPDate
+import utils.diff
+import java.time.DayOfWeek
+import java.time.LocalDate
 import kotlin.math.*
 
 open class OHLCVTable(
@@ -16,7 +17,7 @@ open class OHLCVTable(
     private var logScale = false
 
     // TODO check usages of these, might be better to replace with price in some calculations
-    val dates: Array<KMPDate> by lazy { map { it.date }.toTypedArray() }
+    val dates: Array<LocalDate> by lazy { map { it.date }.toTypedArray() }
     val open: FloatArray by lazy { map { it.open }.toFloatArray() }
     val high: FloatArray by lazy { map { it.high }.toFloatArray() }
     val low: FloatArray by lazy { map { it.low }.toFloatArray() }
@@ -96,7 +97,7 @@ open class OHLCVTable(
         return true
     }
 
-    fun truncate(startDate: KMPDate?, endDate: KMPDate?): OHLCVTable {
+    fun truncate(startDate: LocalDate?, endDate: LocalDate?): OHLCVTable {
         val startIndex = if(startDate == null) 0 else dates.indexOf(startDate)
         val endIndex = if(endDate == null) size - 1 else dates.indexOf(endDate)
 
@@ -273,17 +274,17 @@ open class OHLCVTable(
 
     companion object {
         fun generateSeries(days: Int): OHLCVTable {
-            val dates = mutableListOf<KMPDate>()
-            var date = KMPDate.TODAY
+            val dates = mutableListOf<LocalDate>()
+            var date = LocalDate.now()
 
             while(dates.size < days) {
                 if (date.dayOfWeek == DayOfWeek.SATURDAY)
-                    date = date.add(-1)
+                    date = date.minusDays(1)
                 else if (date.dayOfWeek == DayOfWeek.SUNDAY)
-                    date = date.add(-2)
+                    date = date.minusDays(2)
 
                 dates.add(date)
-                date = date.add(-1)
+                date = date.minusDays(1)
             }
 
             dates.reverse()

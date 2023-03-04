@@ -1,10 +1,10 @@
 package org.cerion.marketdata.core.model
 
-import org.cerion.marketdata.core.platform.DayOfWeek
-import org.cerion.marketdata.core.platform.KMPDate
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 data class OHLCVRow(
-    val date: KMPDate,
+    val date: LocalDate,
     val open: Float,
     val high: Float,
     val low: Float,
@@ -14,7 +14,7 @@ data class OHLCVRow(
     init {
         //Error checking
         if (open < low || close < low || open > high || close > high)
-            throw RuntimeException("OHLCV range inconsistency ${date.toISOString()}: $open, $high, $low, $close")
+            throw RuntimeException("OHLCV range inconsistency ${date}: $open, $high, $low, $close")
     }
 
     //Typical price

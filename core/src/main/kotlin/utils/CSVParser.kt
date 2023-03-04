@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.utils
 
 import org.cerion.marketdata.core.model.OHLCVRow
-import org.cerion.marketdata.core.platform.KMPDate
+import java.time.LocalDate
 
 object CSVParser {
 
@@ -67,7 +67,7 @@ object CSVParser {
 
                 var volume = fields[6].toLong()
                 volume /= 1000
-                val date = KMPDate.parse(fields[0])
+                val date = LocalDate.parse(fields[0])
 
                 return OHLCVRow(date, open, high, low, adjClose, volume.toFloat())
             } catch (e: Exception) {

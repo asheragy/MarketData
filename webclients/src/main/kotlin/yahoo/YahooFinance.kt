@@ -4,12 +4,11 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.cerion.marketdata.core.model.Dividend
 import org.cerion.marketdata.core.model.OHLCVRow
-import org.cerion.marketdata.core.platform.KMPDate
-import org.cerion.marketdata.core.platform.toDate
 import org.cerion.marketdata.core.utils.CSVParser
 import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.marketdata.webclients.PriceHistoryDataSource
 import org.cerion.marketdata.webclients.tda.RequestException
+import utils.toDate
 import java.net.HttpURLConnection
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -146,7 +145,7 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
 
         private const val DEBUG = true
 
-        private fun parseDate(inputDate: String): KMPDate? {
+        private fun parseDate(inputDate: String): LocalDate? {
             var date = inputDate
             var result: LocalDate? = null
             date = date.replace("\"", "")
@@ -164,10 +163,7 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
                  */
             }
 
-            return if (result != null)
-                KMPDate(result)
-            else
-                null
+            return result
         }
     }
 }

@@ -1,6 +1,7 @@
 package model
 
 import org.cerion.marketdata.core.model.OHLCVRow
+import utils.diff
 
 data class Trade(val symbol: String, val buy: OHLCVRow, val sell: OHLCVRow, val shares: Double) {
     val value: Double

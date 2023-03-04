@@ -12,7 +12,7 @@ import org.cerion.marketdata.core.functions.types.IFunctionEnum
 import org.cerion.marketdata.core.functions.types.Overlay
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.overlays.ParabolicSAR
-import org.cerion.marketdata.core.platform.KMPDate
+import java.time.LocalDate
 
 abstract class StockChart(protected val _colors: ChartColors) {
 
@@ -27,7 +27,7 @@ abstract class StockChart(protected val _colors: ChartColors) {
 
     abstract fun getDataSets(table: OHLCVTable): List<IDataSet>
 
-    fun getDates(table: OHLCVTable): Array<KMPDate> = table.dates.sliceArray(1 until table.dates.size)
+    fun getDates(table: OHLCVTable): Array<LocalDate> = table.dates.sliceArray(1 until table.dates.size)
 
     fun copy(): StockChart = deserialize(serialize(), _colors)
 

@@ -12,7 +12,7 @@ import org.cerion.marketdata.core.overlays.BollingerBands
 import org.cerion.marketdata.core.overlays.ExpMovingAverage
 import org.cerion.marketdata.core.overlays.PriceOverlayBase
 import org.cerion.marketdata.core.overlays.SimpleMovingAverage
-import org.cerion.marketdata.core.platform.KMPDate
+import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -138,7 +138,7 @@ class FunctionBaseTest : TestBase() {
     private fun generateList(size: Int): OHLCVTable {
         val prices = ArrayList<OHLCVRow>()
         for (i in 0 until size)
-            prices.add(OHLCVRow(KMPDate.TODAY, i.toFloat(), i.toFloat(), i.toFloat(), i.toFloat(), i.toFloat()))
+            prices.add(OHLCVRow(LocalDate.now(), i.toFloat(), i.toFloat(), i.toFloat(), i.toFloat(), i.toFloat()))
 
         return OHLCVTable("TEST", prices)
     }
