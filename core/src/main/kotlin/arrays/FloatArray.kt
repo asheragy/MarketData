@@ -7,25 +7,17 @@ import org.cerion.marketdata.core.overlays.SimpleMovingAverage
 import kotlin.math.ln
 import kotlin.math.sqrt
 
-open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray() {
+open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float>() {
 
     constructor(length: Int) : this(kotlin.FloatArray(length))
 
     override val size: Int = mVal.size
 
-    val first: Float by lazy {
-        this[0]
-    }
-
-    val last: Float by lazy {
-        this[size - 1]
-    }
-
     operator fun set(i: Int, value: Float) {
         mVal[i] = value
     }
 
-    operator fun get(pos: Int): Float = mVal[pos]
+    override operator fun get(pos: Int): Float = mVal[pos]
 
     /**
      * Calculates percent difference between each entry

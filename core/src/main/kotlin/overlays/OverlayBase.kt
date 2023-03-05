@@ -11,7 +11,7 @@ import org.cerion.marketdata.core.model.OHLCVTable
 
 abstract class PriceOverlayBase internal constructor(id: IFunctionEnum, vararg params: Number) : FunctionBase(id, *params), IPriceOverlay
 
-abstract class OverlayBase<T : ValueArray> internal constructor(id: IFunctionEnum, vararg params: Number) : PriceOverlayBase(id, *params), ISimpleOverlay {
+abstract class OverlayBase<T : ValueArray<*>> internal constructor(id: IFunctionEnum, vararg params: Number) : PriceOverlayBase(id, *params), ISimpleOverlay {
 
     override fun eval(table: OHLCVTable): T {
         return eval(table.close)

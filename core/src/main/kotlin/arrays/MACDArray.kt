@@ -1,5 +1,7 @@
 package org.cerion.marketdata.core.arrays
 
+data class MACD(val value: Float, val signal: Float, val hist: Float)
+
 class MACDArray(size: Int, private val signalPeriod: Int) : FloatArray(size) {
 
     private val signal: FloatArray by lazy {

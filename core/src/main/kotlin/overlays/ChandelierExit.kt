@@ -25,10 +25,14 @@ class ChandelierExit(period: Int, multiplier: Double) : PriceOverlayBase(PriceOv
         val atr = AverageTrueRange(period).eval(table)
 
         for (i in 0 until size) {
-            val p = ValueArray.maxPeriod(i, period)
+            if (i < period - 1) {
+                high[i] = Float.NaN
+                low[i] = Float.NaN
+                continue
+            }
 
-            val h = table.high.max(i - p + 1, i) // highest high
-            val l = table.low.min(i - p + 1, i) // lowest low
+            val h = table.high.max(i - period + 1, i) // highest high
+            val l = table.low.min(i - period + 1, i) // lowest low
 
             high[i] = h - atr[i] * multiplier
             low[i] = l + atr[i] * multiplier

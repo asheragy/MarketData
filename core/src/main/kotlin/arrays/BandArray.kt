@@ -1,8 +1,14 @@
 package org.cerion.marketdata.core.arrays
 
-class BandArray(private val source: FloatArray, val upper: FloatArray, val lower: FloatArray) : ValueArray() {
+data class BandValue(val upper: Float, val lower: Float, val mid: Float, val bandwidth: Float, val percent: Float)
+
+class BandArray(private val source: FloatArray, val upper: FloatArray, val lower: FloatArray) : ValueArray<BandValue>() {
 
     override val size = source.size
+
+    override fun get(i: Int): BandValue {
+        return BandValue(upper(i), lower(i), mid(i), bandwidth(i), percent(i))
+    }
 
     fun mid(pos: Int): Float = (lower[pos] + upper[pos]) / 2
     fun lower(pos: Int): Float = lower[pos]

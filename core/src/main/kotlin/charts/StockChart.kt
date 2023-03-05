@@ -62,7 +62,7 @@ abstract class StockChart(protected val _colors: ChartColors) {
         _nextColor = 0
     }
 
-    protected fun getDefaultOverlayDataSets(arr: ValueArray, overlay: IOverlay, ignoreColor: Int): List<DataSet> {
+    protected fun getDefaultOverlayDataSets(arr: ValueArray<*>, overlay: IOverlay, ignoreColor: Int): List<DataSet> {
         val label = overlay.toString()
 
         return when (arr) {

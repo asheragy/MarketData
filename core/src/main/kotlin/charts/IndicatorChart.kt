@@ -51,7 +51,7 @@ class IndicatorChart(indicator: IIndicator, colors: ChartColors = ChartColors())
         return result
     }
 
-    private fun getOverlayDataSets(arr: ValueArray, ignoreColor: Int): List<DataSet> {
+    private fun getOverlayDataSets(arr: ValueArray<*>, ignoreColor: Int): List<DataSet> {
         resetNextColor()
         val result = mutableListOf<DataSet>()
 
@@ -65,7 +65,7 @@ class IndicatorChart(indicator: IIndicator, colors: ChartColors = ChartColors())
         return result
     }
 
-    private fun getIndicatorDataSets(arr: ValueArray, indicator: IIndicator): List<DataSet> {
+    private fun getIndicatorDataSets(arr: ValueArray<*>, indicator: IIndicator): List<DataSet> {
         val label = indicator.toString()
 
         // TODO look at all uses and see if any colors should be non-defaults (there are some that will)

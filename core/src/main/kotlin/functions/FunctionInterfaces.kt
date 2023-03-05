@@ -13,7 +13,7 @@ interface IFunction {
     val resultType: KClass<*>
     val id: IFunctionEnum
     val params: List<Number>
-    fun eval(table: OHLCVTable): ValueArray
+    fun eval(table: OHLCVTable): ValueArray<*>
     fun setParams(vararg params: Number)
     fun serialize(): String
 }
@@ -27,5 +27,5 @@ interface IOverlay : IFunction
 interface IPriceOverlay : IOverlay
 
 interface ISimpleOverlay : IOverlay {
-    fun eval(arr: org.cerion.marketdata.core.arrays.FloatArray): ValueArray
+    fun eval(arr: org.cerion.marketdata.core.arrays.FloatArray): ValueArray<*>
 }
