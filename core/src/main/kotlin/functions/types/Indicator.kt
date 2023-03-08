@@ -10,6 +10,7 @@ enum class Indicator : IFunctionEnum {
     ADX,
     AROON,
     ATR,
+    BOP,
     CCI,
     DI,
     KST,
@@ -71,6 +72,7 @@ enum class Indicator : IFunctionEnum {
                 PPO -> PercentagePriceOscillator()
                 STOCH -> Stochastic()
                 SHARPE -> SharpeRatio()
+                BOP -> BalanceOfPower()
             }
         }
 

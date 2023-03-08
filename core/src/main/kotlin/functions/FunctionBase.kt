@@ -1,5 +1,6 @@
 package org.cerion.marketdata.core.functions
 
+import com.tictactec.ta.lib.Core
 import org.cerion.marketdata.core.functions.types.IFunctionEnum
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.functions.types.Overlay
@@ -111,6 +112,8 @@ abstract class FunctionBase protected constructor(override val id: IFunctionEnum
     }
 
     companion object {
+        val taLib = Core()
+
         fun deserialize(str: String): IFunction {
             // Format is NAME(p1,p2)
             val tokens = str.replace("(", ",").replace(")", "").split(",")

@@ -274,6 +274,12 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float>()
         result += "...}"
         return result
     }
+
+    fun toFloatArray(): kotlin.FloatArray {
+        val result = kotlin.FloatArray(size)
+        this.mVal.forEachIndexed { index, value -> result[index] = value }
+        return result
+    }
 }
 
 fun List<Float>.toFloatArray(): FloatArray {
