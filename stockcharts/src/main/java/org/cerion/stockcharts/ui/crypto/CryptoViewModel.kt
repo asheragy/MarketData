@@ -84,7 +84,7 @@ class CryptoViewModel : ViewModel() {
                     "solana" -> 14.4
                     "matic-network" -> 717.0
                     "algorand" -> 84.0
-                    "litecoin" -> 2.5
+                    "litecoin" -> 5.33
                     else -> 0.0
                 }
 

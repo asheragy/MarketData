@@ -102,12 +102,25 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float>()
     }
 
     //Rate of change
+    @Deprecated(message = "use FloatArray version")
     fun roc(pos: Int, period: Int): Float {
         var x = 0 //If period goes beyond start then set to first element
         if (pos >= period)
             x = pos - period
 
         return (this[pos] - this[x]) * 100 / this[x]
+    }
+
+    fun roc(period: Int): FloatArray {
+        val result = FloatArray(size)
+        for(i in 0 until size) {
+            if (i < period)
+                result[i] = Float.NaN
+            else
+                result[i] = 100 * (this[i] - this[i - period]) / this[i - period]
+        }
+
+        return result
     }
 
     /**

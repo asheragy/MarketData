@@ -7,8 +7,8 @@ import kotlin.test.Test
 class FloatArrayTest : TestBase() {
 
     @Test
-    fun sma_callsSimpleMovingAverage() = runPriceTest {
-        val arr = it.close
+    fun sma_callsSimpleMovingAverage() {
+        val arr = table.close
         val arr1 = SimpleMovingAverage(13).eval(arr)
         val arr2 = arr.sma(13)
 
@@ -16,8 +16,8 @@ class FloatArrayTest : TestBase() {
     }
 
     @Test
-    fun slope() = runPriceTest {
-        val arr = it.close
+    fun slope() {
+        val arr = table.close
         assertEquals(0.0, arr.slope(5, 0), "slope position 0")
         assertEquals(-55.8, arr.slope(5, 1), "slope position 1")
         assertEquals(-2.35, arr.slope(5, 4), "slope position 4")
@@ -26,8 +26,8 @@ class FloatArrayTest : TestBase() {
     }
 
     @Test
-    fun regressionLine() = runPriceTest {
-        val arr = it.close
+    fun regressionLine() {
+        val arr = table.close
         assertEquals(1455.22, arr.regressionLinePoint(5, 0), "regressionLine position 0")
         assertEquals(1483.12, arr.regressionLinePoint(5, 1), "regressionLine position 1")
         assertEquals(1422.68, arr.regressionLinePoint(5, 4), "regressionLine position 4")
@@ -42,17 +42,17 @@ class FloatArrayTest : TestBase() {
     }
 
     @Test
-    fun sum() = runPriceTest {
-        val arr = it.close
+    fun sum() {
+        val arr = table.close
         assertEquals(1455.22, arr.sum(0, 0))
         assertEquals(2854.64, arr.sum(0, 1))
         assertEquals(8698.38, arr.sum(5, 10))
     }
 
     @Test
-    fun std()= runPriceTest {
+    fun std() {
         val period = 10
-        val std = it.close.std(period)
+        val std = table.close.std(period)
 
         assertEquals(0.0, std.first, "standard deviation position 0")
         assertEquals(27.90, std[1], "standard deviation position 1")
@@ -62,17 +62,16 @@ class FloatArrayTest : TestBase() {
     }
 
     @Test
-    fun correlation() = runPriceTest {
-        val arr = it.close
+    fun correlation() {
+        val arr = table.close
         var corr = arr.correlation(arr)
         assertEquals(1.0, corr, "correlation self")
         assertEquals(1.0, corr, 0.000001, "correlation self")
 
-        corr = arr.correlation(it.high)
-        // TODO look into js/jvm discrepancy
+        corr = arr.correlation(table.high)
         assertEquals(0.9995274, corr, 0.00001, "correlation high")
 
-        corr = arr.correlation(it.volume)
+        corr = arr.correlation(table.volume)
         assertEquals(0.06938858, corr, 0.0001, "correlation volume")
     }
 
@@ -102,5 +101,14 @@ class FloatArrayTest : TestBase() {
         assertEquals(8.30208, covar[3])
         assertEquals(0.75, covar[1])
         assertEquals(0, covar[0])
+    }
+
+    @Test
+    fun roc() {
+        val roc = table22.close.roc(12)
+        assertNotSet(roc.first)
+        assertNotSet(roc[11])
+        assertEquals(-1.46, roc[12])
+        assertEquals(-4.48, roc.last)
     }
 }

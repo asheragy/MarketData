@@ -12,6 +12,7 @@ enum class Indicator : IFunctionEnum {
     ATR,
     BOP,
     CCI,
+    CCURVE,
     DI,
     KST,
     MASS_INDEX,
@@ -49,6 +50,7 @@ enum class Indicator : IFunctionEnum {
                 ATR -> AverageTrueRange()
                 STOCHRSI -> StochasticRSI()
                 CCI -> CommodityChannelIndex()
+                CCURVE -> CoppockCurve()
                 MFI -> MoneyFlowIndex()
                 CMF -> ChaikinMoneyFlow()
                 MASS_INDEX -> MassIndex()

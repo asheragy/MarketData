@@ -32,5 +32,6 @@ open class TestBase {
         }
 
         val table = OHLCVTable("^GSPC", CSVParser.getPricesFromTable(Utils.readResourceFile("sp500_2000-2015.csv")))
+        val table22 = OHLCVTable("^GSPC", CSVParser.getPricesFromTable(Utils.readResourceFile("sp500_2010-2022.csv")))
     }
 }

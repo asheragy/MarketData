@@ -5,22 +5,6 @@
 		return stddev(period) / sma(period);
 	}
 
-
-		// TODO add this as indicator class
-    	public float copp(int roc1, int roc2, int period) //Coppock Curve
-    	{
-    		int total = 0;
-    		for(int i = pos - period + 1; i <= pos; i++)
-    			total += roc(roc1) + roc(roc2);
-
-    		return total / period;
-
-    	}
-
-
-    		public float roc(int period) { return parent.roc(pos, period); }; //Rate of change
-
-
 // Ratios for averages, getRatio(ema(50)) which is a way of normalizing when comparing stocks
 	public float getRatio(float avg) //Bias ratio
 	{
