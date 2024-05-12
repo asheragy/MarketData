@@ -1,7 +1,12 @@
 package org.cerion.stockcharts.ui
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -17,7 +22,6 @@ import org.cerion.stockcharts.repository.PriceListSQLRepository
 import org.cerion.stockcharts.ui.crypto.CryptoFragment
 import org.cerion.stockcharts.ui.symbols.SymbolCategory
 import org.cerion.stockcharts.ui.symbols.SymbolsFragment
-import org.cerion.stockcharts.ui.watchlist.WatchListFragment
 
 class HomeFragment : Fragment() {
 
@@ -74,13 +78,12 @@ class HomeFragment : Fragment() {
     }
 
     private inner class ViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-        override fun getItemCount(): Int = 3
+        override fun getItemCount(): Int = 2
 
         override fun createFragment(position: Int): Fragment {
             return when(position) {
                 0 -> CryptoFragment()
-                1 -> SymbolsFragment.newInstance(SymbolCategory.FUND)
-                2 -> SymbolsFragment.newInstance(SymbolCategory.STOCK)
+                1 -> SymbolsFragment.newInstance(SymbolCategory.STOCK)
                 else -> throw NotImplementedError()
             }
         }
@@ -88,8 +91,7 @@ class HomeFragment : Fragment() {
         fun getTitle(position: Int): String {
             return when (position) {
                 0 -> "Crypto"
-                1 -> "ETF"
-                2 -> "Stocks"
+                1 -> "Stocks"
                 else -> throw NotImplementedError()
             }
         }

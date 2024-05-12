@@ -3,7 +3,11 @@ package org.cerion.stockcharts.ui.symbols
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.cerion.marketdata.webclients.tda.Quote
 import org.cerion.marketdata.webclients.tda.TDAmeritrade
 import org.cerion.stockcharts.repository.SymbolRepository
@@ -21,8 +25,8 @@ class SymbolsViewModel(private val symbolRepo: SymbolRepository, private val td:
 
     private val emptyQuote: Quote? = null
 
-    private val etf = listOf("SPY", "VNQ", "BND", "VXUS", "FXI")
-    private val stocks = listOf("ALK", "ARKK", "EMQQ", "LAD", "PBW", "QQQJ", "SQ", "TMUS")
+    private val etf = listOf("")
+    private val stocks = listOf("SQ", "ALK", "FXI", "PBW", "ARKK", "BND", "EMQQ", "SPY")
     private lateinit var category: SymbolCategory
     private lateinit var symbols: List<String>
 
