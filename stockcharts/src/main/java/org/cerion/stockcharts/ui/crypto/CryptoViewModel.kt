@@ -37,6 +37,13 @@ data class CashPosition(override val quantity: Double) : Position {
     override val cash = true
 }
 
+data class AltsPosition(override val quantity: Double) : Position {
+    override val symbol = "Alts"
+    override val pricePerShare = 1.0
+    override val totalValue = pricePerShare * quantity
+    override val cash = false
+}
+
 class CryptoViewModel : ViewModel() {
 
     private val api = CoinGecko()
@@ -49,6 +56,10 @@ class CryptoViewModel : ViewModel() {
     val positions: LiveData<List<Position>>
         get() = _positions
 
+    private val _positionsAlts = MutableLiveData<List<Position>>()
+    val positionsAlts: LiveData<List<Position>>
+        get() = _positionsAlts
+
     private val mappings = mapOf(
         "bitcoin" to CryptoRow("Bitcoin","BTC-USD"),
         "matic-network" to CryptoRow("Polygon/Matic", "MATIC-USD"),
@@ -56,7 +67,10 @@ class CryptoViewModel : ViewModel() {
         "ethereum" to CryptoRow("Ethereum","ETH-USD"),
         "solana" to CryptoRow("Solana","SOL-USD"),
         "binancecoin" to CryptoRow("BNB","BNB-USD"),
-        "litecoin" to CryptoRow("Litecoin","LTC-USD")
+        "litecoin" to CryptoRow("Litecoin","LTC-USD"),
+        "cardano" to CryptoRow("Cardano", "ADA-USD"),
+        "dogecoin" to CryptoRow("Dogecoin", "DOGE-USD"),
+        "ripple" to CryptoRow("XRP", "XRP-USD")
     )
 
     fun load() {
@@ -91,7 +105,14 @@ class CryptoViewModel : ViewModel() {
                 CryptoPosition(it, amount)
             }.filter { it.quantity > 0 }
 
-            _positions.value = listOf(*positions.toTypedArray(), CashPosition(1000.0))
+            val alts = positions.filter { x -> x.row.symbol != "BTC-USD"}
+            val altPosition = AltsPosition(alts.sumOf { x -> x.totalValue })
+            val btcPosition = positions.first { x -> x.row.symbol == "BTC-USD" }
+            // Baseline 5%
+            val cashPosition = CashPosition(15_000 * 0.05)
+
+            _positions.value = listOf(altPosition, btcPosition, cashPosition)
+            _positionsAlts.value = alts
         }
     }
 

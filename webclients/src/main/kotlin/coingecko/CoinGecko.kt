@@ -10,6 +10,20 @@ import java.net.HttpURLConnection
 class CoinGecko {
     private val client = OkHttpClient()
 
+    fun list() {
+        val request = Request.Builder()
+            .url("https://api.coingecko.com/api/v3/coins/list")
+            .build()
+
+        val response = client.newCall(request).execute()
+        if (response.code != HttpURLConnection.HTTP_OK)
+            throw RequestException(response)
+
+        val body = response.body?.string()
+        val json = JSONArray(body)
+        println(json.length())
+    }
+
     fun getSimpleQuotes(currencies: List<String>): List<SimpleQuote> {
         val ids = currencies.joinToString(",")
         val request = Request.Builder()

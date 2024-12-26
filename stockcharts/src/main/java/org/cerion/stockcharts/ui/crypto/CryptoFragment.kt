@@ -36,7 +36,11 @@ class CryptoFragment : Fragment() {
         }
 
         viewModel.positions.observe(viewLifecycleOwner) {
-            binding.chart.setPositions(it)
+            binding.chartTotal.setPositions(it)
+        }
+
+        viewModel.positionsAlts.observe(viewLifecycleOwner) {
+            binding.chartAlts.setPositions(it)
         }
 
         binding.recyclerView.adapter = adapter
