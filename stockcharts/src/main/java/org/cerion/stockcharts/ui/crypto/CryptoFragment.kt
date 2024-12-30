@@ -1,14 +1,14 @@
 package org.cerion.stockcharts.ui.crypto
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import org.cerion.stockcharts.databinding.FragmentCryptoBinding
-import org.cerion.stockcharts.ui.HomeFragmentDirections
 
 
 class CryptoFragment : Fragment() {
@@ -21,8 +21,13 @@ class CryptoFragment : Fragment() {
 
         val adapter = CryptoListAdapter(object : CryptoListListener {
             override fun onClick(symbol: String) {
-                val action = HomeFragmentDirections.actionFragmentHomeToChartsFragment(symbol)
-                findNavController().navigate(action)
+                // TODO add back when api data works
+                //val action = HomeFragmentDirections.actionFragmentHomeToChartsFragment(symbol)
+                //findNavController().navigate(action)
+
+                val i = Intent(Intent.ACTION_VIEW)
+                    .setData(Uri.parse("https://finance.yahoo.com/quote/$symbol"))
+                startActivity(i)
             }
         })
 
