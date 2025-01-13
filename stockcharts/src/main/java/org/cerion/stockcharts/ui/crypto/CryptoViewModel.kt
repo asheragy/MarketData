@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.cerion.marketdata.webclients.coingecko.CoinGecko
+import org.json.JSONObject
 
 
 data class CryptoRow(val name: String,
@@ -60,9 +61,13 @@ class CryptoViewModel : ViewModel() {
     val positionsAlts: LiveData<List<Position>>
         get() = _positionsAlts
 
+    private val _total = MutableLiveData(0.0)
+    val total: LiveData<Double>
+        get() = _total
+
     private val mappings = mapOf(
         "bitcoin" to CryptoRow("Bitcoin","BTC-USD"),
-        "matic-network" to CryptoRow("Polygon/Matic", "MATIC-USD"),
+        //"matic-network" to CryptoRow("Polygon/Matic", "MATIC-USD"),
         "algorand" to CryptoRow("Algorand","ALGO-USD"),
         "ethereum" to CryptoRow("Ethereum","ETH-USD"),
         "solana" to CryptoRow("Solana","SOL-USD"),
@@ -73,9 +78,8 @@ class CryptoViewModel : ViewModel() {
         "ripple" to CryptoRow("XRP", "XRP-USD")
     )
 
-    fun load() {
+    fun load(positionFile: JSONObject) {
         viewModelScope.launch {
-
             val result = withContext(Dispatchers.IO) {
                 val ids = mappings.keys.toList()
                 val response = api.getDetailedQuotes(ids)
@@ -92,26 +96,24 @@ class CryptoViewModel : ViewModel() {
             _rows.value = result.sortedBy { it.name }
 
             val positions = result.map {
-                val amount = when(it.quote?.id) {
-                    "ethereum" -> 1.01
-                    "bitcoin" -> 0.0685
-                    "solana" -> 14.4
-                    "matic-network" -> 717.0
-                    "algorand" -> 84.0
-                    "litecoin" -> 5.33
-                    else -> 0.0
-                }
+                val amount = if (positionFile.has(it.quote?.id))
+                    positionFile.getDouble(it.quote!!.id)
+                else
+                    0.0
 
                 CryptoPosition(it, amount)
             }.filter { it.quantity > 0 }
 
-            val alts = positions.filter { x -> x.row.symbol != "BTC-USD"}
+            _total.value = positions.sumOf { it.totalValue }
+
+            val alts = positions.filter { x -> !listOf("BTC-USD", "ETH-USD").contains(x.row.symbol)}
             val altPosition = AltsPosition(alts.sumOf { x -> x.totalValue })
             val btcPosition = positions.first { x -> x.row.symbol == "BTC-USD" }
+            val ethPosition = positions.first { x -> x.row.symbol == "ETH-USD" }
             // Baseline 5%
-            val cashPosition = CashPosition(15_000 * 0.05)
+            val cashPosition = CashPosition(16_000 * 0.05)
 
-            _positions.value = listOf(altPosition, btcPosition, cashPosition)
+            _positions.value = listOf(altPosition, btcPosition, ethPosition, cashPosition)
             _positionsAlts.value = alts
         }
     }

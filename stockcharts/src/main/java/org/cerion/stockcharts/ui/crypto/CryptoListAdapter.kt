@@ -39,9 +39,9 @@ class CryptoListAdapter(val listener: CryptoListListener) : RecyclerView.Adapter
             binding.name.text = item.name
             item.quote?.also {
                 binding.price.text = it.price.toString()
-                binding.changeHour.text = decimalFormat.format(it.changeHour)
-                binding.changeDay.text = decimalFormat.format(it.changeDay)
-                binding.changeWeek.text = decimalFormat.format(it.changeWeek)
+                binding.change1.text = decimalFormat.format(it.changeDay)
+                binding.change2.text = decimalFormat.format(it.changeWeek)
+                binding.change3.text = decimalFormat.format(it.changeMonth)
             }
 
             binding.root.setOnClickListener {

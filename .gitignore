@@ -16,5 +16,8 @@ local.properties
 # Secrets
 /webclients/secrets
 stockcharts/apikey.properties
+stockcharts/src/main/res/raw/crypto.json
 
 /history_data
+
+

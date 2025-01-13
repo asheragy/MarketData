@@ -1,6 +1,7 @@
 package org.cerion.stockcharts.ui.crypto
 
 import android.content.Intent
+import android.icu.text.DecimalFormat
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,7 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
+import org.cerion.stockcharts.R
 import org.cerion.stockcharts.databinding.FragmentCryptoBinding
+import org.json.JSONObject
 
 
 class CryptoFragment : Fragment() {
@@ -31,8 +34,11 @@ class CryptoFragment : Fragment() {
             }
         })
 
+        val fileStream = requireContext().resources.openRawResource(R.raw.crypto)
+        val positionFile = JSONObject(fileStream.bufferedReader().use { it.readText() })
+
         binding.swipeRefresh.setOnRefreshListener {
-            viewModel.load()
+            viewModel.load(positionFile)
         }
 
         viewModel.rows.observe(viewLifecycleOwner) {
@@ -48,11 +54,15 @@ class CryptoFragment : Fragment() {
             binding.chartAlts.setPositions(it)
         }
 
+        viewModel.total.observe(viewLifecycleOwner) {
+            binding.totalAmount.text = "$" + DecimalFormat("#.##").format(it)
+        }
+
         binding.recyclerView.adapter = adapter
         binding.recyclerView.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
 
 
-        viewModel.load()
+        viewModel.load(positionFile)
 
         return binding.root
     }

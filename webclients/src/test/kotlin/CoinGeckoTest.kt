@@ -32,6 +32,7 @@ class CoinGeckoTest {
             assertTrue(it.changeDay != 0.0)
             assertTrue(it.changeHour != 0.0)
             assertTrue(it.changeWeek != 0.0)
+            assertTrue(it.changeMonth != 0.0)
         }
     }
 }

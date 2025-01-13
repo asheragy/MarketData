@@ -9,11 +9,11 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZoneOffset
 
 class Schwab(private val token: String) {
     private val client = OkHttpClient()
-
 
     fun priceHistory(symbol: String, interval: Interval, count: Int): List<OHLCVRow> {
         val daysBack = when (interval) {
@@ -24,12 +24,12 @@ class Schwab(private val token: String) {
         }
 
         val startDate = LocalDate.now().minusDays(daysBack.toLong())
-        val list = priceHistory(symbol, interval, startDate)
+        val list = priceHistory(symbol, interval, startDate, null)
         return list.takeLast(count)
     }
 
-    fun priceHistory(symbol: String, interval: Interval, startDate: LocalDate): List<OHLCVRow> {
-        val start = startDate.atStartOfDay(ZoneOffset.UTC).toEpochSecond() * 1000
+    fun priceHistory(symbol: String, interval: Interval, startDate: LocalDate, endDate: LocalDate?): List<OHLCVRow> {
+        val start = startDate.atStartOfDay(ZoneId.of("America/New_York")).toEpochSecond() * 1000
 
         val frequency = when (interval) {
             Interval.DAILY -> "daily"
@@ -38,9 +38,13 @@ class Schwab(private val token: String) {
             else -> throw Exception("Invalid interval $interval")
         }
 
+        var url = "https://api.schwabapi.com/marketdata/v1/pricehistory?symbol=$symbol&periodType=year&frequencyType=$frequency&startDate=$start"
+        if (endDate != null)
+            url += "&endDate=" + endDate.atStartOfDay(ZoneId.of("America/New_York")).toEpochSecond() * 1000
+
         val request = Request.Builder()
             .header("Authorization", "Bearer $token")
-            .url("https://api.schwabapi.com/marketdata/v1/pricehistory?symbol=$symbol&periodType=year&frequencyType=$frequency&startDate=$start")
+            .url(url)
             .build()
 
         val response = client.newCall(request).execute()

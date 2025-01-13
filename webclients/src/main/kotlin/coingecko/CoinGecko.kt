@@ -51,7 +51,7 @@ class CoinGecko {
     fun getDetailedQuotes(currencies: List<String>): List<DetailedQuote> {
         val ids = currencies.joinToString(",")
         val request = Request.Builder()
-            .url("https://api.coingecko.com/api/v3/coins/markets?ids=$ids&vs_currency=usd&price_change_percentage=1h,24h,7d")
+            .url("https://api.coingecko.com/api/v3/coins/markets?ids=$ids&vs_currency=usd&price_change_percentage=1h,24h,7d,30d")
             .build()
 
         val response = client.newCall(request).execute()
@@ -75,7 +75,8 @@ class CoinGecko {
             val changeHour = it["price_change_percentage_1h_in_currency"] as Double
             val changeDay = it["price_change_percentage_24h_in_currency"] as Double
             val changeWeek = it["price_change_percentage_7d_in_currency"] as Double
-            val quote = DetailedQuote(id, price.toDouble(), changeHour, changeDay, changeWeek)
+            val changeMonth = it["price_change_percentage_30d_in_currency"] as Double
+            val quote = DetailedQuote(id, price.toDouble(), changeHour, changeDay, changeWeek, changeMonth)
             result.add(quote)
         }
 
@@ -88,6 +89,7 @@ class CoinGecko {
                              val price: Double,
                              val changeHour: Double,
                              val changeDay: Double,
-                             val changeWeek: Double)
+                             val changeWeek: Double,
+                             val changeMonth: Double)
 }
 

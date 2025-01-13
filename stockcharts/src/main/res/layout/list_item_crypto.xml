@@ -38,7 +38,7 @@
         android:layout_gravity="center_vertical">
 
         <TextView
-            android:id="@+id/change_hour"
+            android:id="@+id/change1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -47,7 +47,7 @@
         </TextView>
 
         <TextView
-            android:id="@+id/change_day"
+            android:id="@+id/change2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -56,7 +56,7 @@
         </TextView>
 
         <TextView
-            android:id="@+id/change_week"
+            android:id="@+id/change3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
