@@ -9,7 +9,6 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
-import java.util.*
 
 class PortfolioPieChart(context: Context?, attrs: AttributeSet?) : PieChart(context, attrs) {
 
@@ -29,7 +28,7 @@ class PortfolioPieChart(context: Context?, attrs: AttributeSet?) : PieChart(cont
         val green = ColorTemplate.PASTEL_COLORS[1]
         if (cashPosition != null) {
             colors.add(green)
-            entries.add(PieEntry(cashPosition.totalValue.toFloat() / total, "Cash"))
+            entries.add(PieEntry(cashPosition.totalValue.toFloat() / total, cashPosition.symbol))
         }
 
         for (p in positions.filter { !it.cash }) {
