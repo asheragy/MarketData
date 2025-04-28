@@ -99,3 +99,20 @@ repositories {
     google()
     maven { url 'https://jitpack.io' }
 }
+
+tasks.register('createIfNotExists') {
+    doLast {
+        def targetFile = file('src/main/res/raw/crypto.json')
+        if (!targetFile.exists()) {
+            targetFile.parentFile.mkdirs() // ensure parent directories exist
+            targetFile.text = '{}'
+            println "Created ${targetFile}"
+        } else {
+            println "${targetFile} already exists"
+        }
+    }
+}
+
+tasks.named('preBuild') {
+    dependsOn 'createIfNotExists'
+}
