@@ -8,9 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.databinding.FragmentCryptoBinding
+import org.cerion.stockcharts.ui.HomeFragmentDirections
 import org.json.JSONObject
 
 
@@ -24,13 +26,15 @@ class CryptoFragment : Fragment() {
 
         val adapter = CryptoListAdapter(object : CryptoListListener {
             override fun onClick(symbol: String) {
-                // TODO add back when api data works
-                //val action = HomeFragmentDirections.actionFragmentHomeToChartsFragment(symbol)
-                //findNavController().navigate(action)
-
-                val i = Intent(Intent.ACTION_VIEW)
-                    .setData(Uri.parse("https://finance.yahoo.com/quote/$symbol"))
-                startActivity(i)
+                if (true) {
+                    val assetId = symbol.replace("-USD", "")
+                    val action = HomeFragmentDirections.actionFragmentHomeToChartsFragment(assetId)
+                    findNavController().navigate(action)
+                } else {
+                    val i = Intent(Intent.ACTION_VIEW)
+                        .setData(Uri.parse("https://finance.yahoo.com/quote/$symbol"))
+                    startActivity(i)
+                }
             }
         })
 

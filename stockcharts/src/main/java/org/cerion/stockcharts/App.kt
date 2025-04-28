@@ -3,12 +3,17 @@ package org.cerion.stockcharts
 import android.app.Application
 import org.cerion.marketdata.core.charts.ChartColors
 import org.cerion.marketdata.webclients.PriceHistoryDataSource
+import org.cerion.marketdata.webclients.api.Kraken
 import org.cerion.marketdata.webclients.tda.TDAmeritrade
-import org.cerion.marketdata.webclients.yahoo.YahooFinance
 import org.cerion.stockcharts.database.AppDatabase
 import org.cerion.stockcharts.database.SymbolDao
 import org.cerion.stockcharts.database.getDatabase
-import org.cerion.stockcharts.repository.*
+import org.cerion.stockcharts.repository.CachedPriceListRepository
+import org.cerion.stockcharts.repository.DefaultPreferenceRepository
+import org.cerion.stockcharts.repository.PreferenceRepository
+import org.cerion.stockcharts.repository.PriceListRepository
+import org.cerion.stockcharts.repository.PriceListSQLRepository
+import org.cerion.stockcharts.repository.SymbolRepository
 import org.cerion.stockcharts.ui.charts.ChartColorScheme
 import org.cerion.stockcharts.ui.charts.ChartsViewModel
 import org.cerion.stockcharts.ui.symbols.SymbolsViewModel
@@ -38,7 +43,7 @@ class App : Application() {
 }
 
 val networkModule = module {
-    single<PriceHistoryDataSource> { YahooFinance.instance }
+    single<PriceHistoryDataSource> { Kraken() }
     single { TDAmeritrade(BuildConfig.TD_CONSUMER_KEY, BuildConfig.TD_REDIRECT_URI) }
 }
 
