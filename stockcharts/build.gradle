@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
     id 'androidx.navigation.safeargs.kotlin' version "$androidxNavigationVersion"
 }
 
@@ -12,7 +12,7 @@ if(apikeyPropertiesFile.exists())
 
 android {
     namespace 'org.cerion.stockcharts'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "org.cerion.stockcharts"
@@ -56,11 +56,8 @@ dependencies {
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-    //kapt "androidx.lifecycle:lifecycle-compiler:2.5.1"
-
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.5.1"
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation "androidx.navigation:navigation-fragment-ktx:$androidxNavigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$androidxNavigationVersion"
 
@@ -71,11 +68,9 @@ dependencies {
 
     def room_version = "2.5.0"
     implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
 
     implementation "io.insert-koin:koin-android:3.3.2"
-
-    //implementation 'com.google.firebase:firebase-appindexing:10.2.1'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation project(':core')
     implementation project(':webclients')
