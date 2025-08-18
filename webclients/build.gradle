@@ -7,7 +7,7 @@ version '1.0-SNAPSHOT'
 
 dependencies {
     implementation "com.squareup.okhttp3:okhttp:4.2.1"
-    implementation "org.json:json:20190722"
+    implementation "org.json:json:20250517"
     implementation project(':core')
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'

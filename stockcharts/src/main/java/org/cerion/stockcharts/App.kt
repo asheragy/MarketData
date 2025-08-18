@@ -3,8 +3,8 @@ package org.cerion.stockcharts
 import android.app.Application
 import org.cerion.marketdata.core.charts.ChartColors
 import org.cerion.marketdata.webclients.PriceHistoryDataSource
-import org.cerion.marketdata.webclients.api.Kraken
 import org.cerion.marketdata.webclients.tda.TDAmeritrade
+import org.cerion.marketdata.webclients.yahoo.YahooFinance
 import org.cerion.stockcharts.database.AppDatabase
 import org.cerion.stockcharts.database.SymbolDao
 import org.cerion.stockcharts.database.getDatabase
@@ -43,7 +43,8 @@ class App : Application() {
 }
 
 val networkModule = module {
-    single<PriceHistoryDataSource> { Kraken() }
+    //single<PriceHistoryDataSource> { Kraken() }
+    single<PriceHistoryDataSource> { YahooFinance.instance }
     single { TDAmeritrade(BuildConfig.TD_CONSUMER_KEY, BuildConfig.TD_REDIRECT_URI) }
 }
 

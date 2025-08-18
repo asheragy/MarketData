@@ -7,13 +7,14 @@ import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.marketdata.webclients.PriceHistoryDataSource
 import org.cerion.marketdata.webclients.tda.RequestException
+import org.json.JSONArray
 import org.json.JSONObject
 import utils.toDate
 import java.net.HttpURLConnection
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.util.*
+import java.util.Date
 
 class YahooFinance private constructor() : PriceHistoryDataSource {
     private val client = OkHttpClient()
@@ -54,15 +55,16 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
         }
 
         val json = JSONObject(body).getJSONObject("chart").getJSONArray("result").getJSONObject(0)
-        val dates = json.getJSONArray("timestamp").map { t -> Instant.ofEpochMilli((t as Integer).toLong() * 1000).atZone(
+        val dates = json.getJSONArray("timestamp").asIterable().map { t -> Instant.ofEpochMilli((t as Int).toLong() * 1000).atZone(
             ZoneId.systemDefault()).toLocalDate(); }
 
         val ohlcv = json.getJSONObject("indicators").getJSONArray("quote").getJSONObject(0)
-        val volume = ohlcv.getJSONArray("volume").map { t -> (t as Integer).toFloat() }
-        val open = ohlcv.getJSONArray("open").map { t -> (t as Double).toFloat() }
-        val high = ohlcv.getJSONArray("high").map { t -> (t as Double).toFloat() }
-        val low = ohlcv.getJSONArray("low").map { t -> (t as Double).toFloat() }
-        val close = ohlcv.getJSONArray("close").map { t -> (t as Double).toFloat() }
+        // TODO bad data fix
+        val volume = ohlcv.getJSONArray("volume").asIterable().map { if (it is Number) it else 0 }.map { t -> (t as Integer).toFloat() }
+        val open = ohlcv.getJSONArray("open").asIterable().map { if (it is Number) it else 0.0 }.map { t -> (t as Double).toFloat() }
+        val high = ohlcv.getJSONArray("high").asIterable().map { if (it is Number) it else 0.0 }.map { t -> (t as Double).toFloat() }
+        val low = ohlcv.getJSONArray("low").asIterable().map { if (it is Number) it else 0.0 }.map { t -> (t as Double).toFloat() }
+        val close = ohlcv.getJSONArray("close").asIterable().map { if (it is Number) it else 0.0 }.map { t -> (t as Double).toFloat() }
 
         check(dates.size == volume.size) { "Array lengths should be equal" }
 
@@ -99,5 +101,14 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
     companion object {
         val instance = YahooFinance()
         private const val DEBUG = false
+    }
+}
+
+// Workaround for android version of org.json not doing this correctly
+fun JSONArray.asIterable(): Iterable<Any?> = object : Iterable<Any?> {
+    override fun iterator(): Iterator<Any?> = object : Iterator<Any?> {
+        private var index = 0
+        override fun hasNext(): Boolean = index < this@asIterable.length()
+        override fun next(): Any? = this@asIterable.get(index++)
     }
 }
