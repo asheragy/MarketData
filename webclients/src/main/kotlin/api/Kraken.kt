@@ -12,7 +12,7 @@ import java.net.HttpURLConnection
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.Date
+import java.util.*
 
 class Kraken : PriceHistoryDataSource {
     private val client = OkHttpClient()

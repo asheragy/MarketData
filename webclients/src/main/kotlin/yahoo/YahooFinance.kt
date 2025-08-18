@@ -4,13 +4,15 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.cerion.marketdata.core.model.Dividend
 import org.cerion.marketdata.core.model.OHLCVRow
-import org.cerion.marketdata.core.utils.CSVParser
 import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.marketdata.webclients.PriceHistoryDataSource
 import org.cerion.marketdata.webclients.tda.RequestException
+import org.json.JSONObject
 import utils.toDate
 import java.net.HttpURLConnection
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
 
 class YahooFinance private constructor() : PriceHistoryDataSource {
@@ -24,7 +26,7 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
         // &events=history
         // &crumb=TSV3DSdPIjI
 
-        var url = "https://query1.finance.yahoo.com/v7/finance/download/$symbol"
+        var url = "https://query2.finance.yahoo.com/v8/finance/chart/$symbol"
         if (start != null)
             url += "?period1=" + start.toDate().time / 1000
         else
@@ -51,7 +53,22 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
                 println(body)
         }
 
-        return CSVParser.getPricesFromTable(body)
+        val json = JSONObject(body).getJSONObject("chart").getJSONArray("result").getJSONObject(0)
+        val dates = json.getJSONArray("timestamp").map { t -> Instant.ofEpochMilli((t as Integer).toLong() * 1000).atZone(
+            ZoneId.systemDefault()).toLocalDate(); }
+
+        val ohlcv = json.getJSONObject("indicators").getJSONArray("quote").getJSONObject(0)
+        val volume = ohlcv.getJSONArray("volume").map { t -> (t as Integer).toFloat() }
+        val open = ohlcv.getJSONArray("open").map { t -> (t as Double).toFloat() }
+        val high = ohlcv.getJSONArray("high").map { t -> (t as Double).toFloat() }
+        val low = ohlcv.getJSONArray("low").map { t -> (t as Double).toFloat() }
+        val close = ohlcv.getJSONArray("close").map { t -> (t as Double).toFloat() }
+
+        check(dates.size == volume.size) { "Array lengths should be equal" }
+
+        return dates.mapIndexed { i, date ->
+            OHLCVRow(date, open[i], high[i], low[i], close[i], volume[i])
+        }
     }
 
     fun getDividends(symbol: String): List<Dividend> {
