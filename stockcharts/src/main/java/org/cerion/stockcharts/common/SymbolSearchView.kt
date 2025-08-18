@@ -9,8 +9,8 @@ import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
 import androidx.appcompat.R
 import androidx.appcompat.widget.SearchView
-import org.cerion.stockcharts.database.toSymbol
 import org.cerion.marketdata.core.model.Symbol
+import org.cerion.stockcharts.database.toSymbol
 
 class SymbolSearchView(context: Context, attrs: AttributeSet?) : SearchView(context, attrs) {
 
@@ -18,6 +18,7 @@ class SymbolSearchView(context: Context, attrs: AttributeSet?) : SearchView(cont
         fun onClick(symbol: Symbol)
     }
 
+    @SuppressLint("RestrictedApi")
     private val _searchAutoComplete: SearchAutoComplete = findViewById<View>(R.id.search_src_text) as SearchAutoComplete
     private val _adapter = SymbolSearchAdapter(context)
     private var _listener: OnSymbolClickListener? = null
