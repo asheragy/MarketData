@@ -1,15 +1,28 @@
 package org.cerion.stockcharts.ui.charts
 
-import androidx.lifecycle.*
-import kotlinx.coroutines.*
-import org.cerion.stockcharts.common.Event
-import org.cerion.stockcharts.repository.PreferenceRepository
-import org.cerion.marketdata.core.charts.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.cerion.marketdata.core.charts.ChartColors
+import org.cerion.marketdata.core.charts.IndicatorChart
+import org.cerion.marketdata.core.charts.PriceChart
+import org.cerion.marketdata.core.charts.StockChart
+import org.cerion.marketdata.core.charts.VolumeChart
 import org.cerion.marketdata.core.indicators.MACD
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.model.Symbol
+import org.cerion.stockcharts.common.Event
 import org.cerion.stockcharts.repository.CachedPriceListRepository
+import org.cerion.stockcharts.repository.PreferenceRepository
 import org.cerion.stockcharts.repository.PriceListRepository
 
 
@@ -69,8 +82,8 @@ class ChartsViewModel(
     private var cleanupCache = true
 
     val rangeSelect = MutableLiveData<Event<Int>>()
-    val ranges = Transformations.map(interval) {
-        when(it) {
+    val ranges = interval.map {
+        when (it) {
             Interval.DAILY -> listOf("1M", "6M", "1Y", "MAX")
             Interval.WEEKLY -> listOf("3M", "1Y", "5Y", "MAX")
             Interval.MONTHLY -> listOf("1Y", "5Y", "10Y", "MAX")

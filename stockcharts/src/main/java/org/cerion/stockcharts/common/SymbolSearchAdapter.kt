@@ -12,6 +12,7 @@ import android.widget.TextView
 import org.cerion.stockcharts.database.SymbolEntity
 import org.cerion.stockcharts.database.getSymbolsDatabase
 import org.cerion.stockcharts.repository.DefaultPreferenceRepository
+import java.util.Locale
 
 
 class SymbolSearchAdapter(context: Context) : ArrayAdapter<SymbolEntity>(context, android.R.layout.simple_dropdown_item_1line), Filterable {
@@ -88,7 +89,9 @@ class SymbolSearchAdapter(context: Context) : ArrayAdapter<SymbolEntity>(context
                     _results.addAll(matches)
 
                     // TODO temp until in database, add crypto currency manually
-                    if (constraint.toString().toUpperCase().startsWith("COI") || constraint.toString().toUpperCase().startsWith("CRYP"))
+                    if (constraint.toString().uppercase(Locale.getDefault()).startsWith("COI") || constraint.toString()
+                            .uppercase(Locale.getDefault())
+                            .startsWith("CRYP"))
                         _results.addAll(_crypto)
                     else if (constraint.length >= 3) {
                         val search = constraint.toString()
