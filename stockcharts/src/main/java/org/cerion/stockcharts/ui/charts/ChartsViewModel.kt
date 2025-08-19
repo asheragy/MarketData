@@ -241,7 +241,6 @@ class ChartsViewModel(
     }
 
     private suspend fun getPricesAsync(symbol: String): Deferred<OHLCVTable> {
-        interval.value
         return withContext(Dispatchers.IO) {
             async(Dispatchers.IO) {
                 repo.get(symbol, interval.value!!)
