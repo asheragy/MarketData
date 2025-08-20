@@ -1,11 +1,14 @@
 package org.cerion.stockcharts.repository
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.marketdata.webclients.PriceHistoryDataSource
 import java.time.LocalDate
-import java.util.*
+import java.util.Date
 
 interface PriceHistoryDates {
     val dailyStartDate: LocalDate?
@@ -27,16 +30,23 @@ class DefaultPriceHistoryDates : PriceHistoryDates {
     }
 }
 
-class CachedPriceListRepository(private val repo: PriceListRepository, private val api: PriceHistoryDataSource, private val dates: PriceHistoryDates = DefaultPriceHistoryDates()) {
+class CachedPriceListRepository(
+    private val repo: PriceListRepository,
+    private val api: PriceHistoryDataSource,
+    private val dates: PriceHistoryDates = DefaultPriceHistoryDates(),
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) {
 
-    fun get(symbol: String, interval: Interval): OHLCVTable {
+    suspend fun get(symbol: String, interval: Interval): OHLCVTable {
         val fetchInterval = when(interval) {
             Interval.DAILY -> FetchInterval.DAILY
             Interval.WEEKLY -> FetchInterval.WEEKLY
             else -> FetchInterval.MONTHLY
         }
 
-        val cachedResult = repo.get(symbol, fetchInterval)
+        val cachedResult = withContext(dispatcher) {
+            repo.get(symbol, fetchInterval)
+        }
         var update = false
         val retrieveFrom: Date? = null
 
@@ -86,10 +96,12 @@ class CachedPriceListRepository(private val repo: PriceListRepository, private v
             //updatePricesIncremental(symbol, interval, start, retrieveFrom)
         }
 
-        val result = if (update)
-            updatePrices(symbol, interval, fetchInterval)
-        else
-            cachedResult.first!!
+        val result = withContext(dispatcher) {
+            if (update)
+                updatePrices(symbol, interval, fetchInterval)
+            else
+                cachedResult.first!!
+        }
 
         if (interval == Interval.MONTHLY && dates.monthlyStartDate != null) {
             if (dates.monthlyStartDate == null)

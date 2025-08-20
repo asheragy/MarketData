@@ -5,6 +5,7 @@ import fakes.FakePreferenceRepository
 import fakes.FakePriceHistoryDataSource
 import fakes.FakePriceListRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.cerion.marketdata.core.charts.ChartColors
 import org.cerion.marketdata.core.charts.IndicatorChart
@@ -20,12 +21,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-// TODO fix coroutine tests
-@Ignore
 class ChartsViewModelTest {
 
     @get:Rule val mainDispatcherRule = MainDispatcherRule()
@@ -40,7 +38,7 @@ class ChartsViewModelTest {
         val priceListRepository = FakePriceListRepository()
         val priceHistory = FakePriceHistoryDataSource()
         val dates = DefaultPriceHistoryDates()
-        _cachedRepo = CachedPriceListRepository(priceListRepository, priceHistory, dates)
+        _cachedRepo = CachedPriceListRepository(priceListRepository, priceHistory, dates, mainDispatcherRule.dispatcher)
         _prefs = FakePreferenceRepository()
 
         _viewModel = ChartsViewModel(_cachedRepo, FakePriceListRepository(), _prefs, ChartColors())
@@ -107,7 +105,7 @@ class ChartsViewModelTest {
     @Test
     fun chartsViewModel_invalidSymbolError() = runTest {
         _viewModel.load(Symbol("<ex>")) // Throws exception
-        Thread.sleep(100) // Workaround for not injecting dispatcher
+        advanceUntilIdle()
         assertTrue(_viewModel.error.value!!.getContentIfNotHandled()!!.isNotEmpty())
     }
 
@@ -115,11 +113,11 @@ class ChartsViewModelTest {
     @Test
     fun chartsViewModel_invalidSymbolNotSaved() = runTest {
         _viewModel.load(Symbol("<ex>")) // Throws exception
-        Thread.sleep(100)
+        advanceUntilIdle()
         assertEquals(0, _prefs.getSymbolHistory().size)
 
         _viewModel.load(Symbol("GOOG"))
-        Thread.sleep(100)
+        advanceUntilIdle()
         assertEquals(1, _prefs.getSymbolHistory().size)
     }
 }

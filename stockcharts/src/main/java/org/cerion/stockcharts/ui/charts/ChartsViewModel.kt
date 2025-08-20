@@ -6,11 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.cerion.marketdata.core.charts.ChartColors
 import org.cerion.marketdata.core.charts.IndicatorChart
 import org.cerion.marketdata.core.charts.PriceChart
@@ -173,7 +169,7 @@ class ChartsViewModel(
 
             val symbol = _symbol.value!!.symbol
             try {
-                table.value = getPricesAsync(symbol).await()
+                table.value = repo.get(symbol, interval.value!!)
             } catch (e: Exception) {
                 _error.value = Event(e.message ?: "Failed to load $symbol")
                 table.value = null
@@ -238,13 +234,5 @@ class ChartsViewModel(
         _charts.add(chart)
         charts.value = _charts
         saveCharts()
-    }
-
-    private suspend fun getPricesAsync(symbol: String): Deferred<OHLCVTable> {
-        return withContext(Dispatchers.IO) {
-            async(Dispatchers.IO) {
-                repo.get(symbol, interval.value!!)
-            }
-        }
     }
 }

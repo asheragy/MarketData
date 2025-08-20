@@ -14,9 +14,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.repository.PriceListSQLRepository
 import org.cerion.stockcharts.ui.crypto.CryptoFragment
@@ -69,10 +67,7 @@ class HomeFragment : Fragment() {
     private fun onClearCache() {
         val repo = PriceListSQLRepository(requireContext())
         lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                repo.clearCache()
-            }
-
+            repo.clearCache()
             Toast.makeText(requireContext(), "Cache cleared", Toast.LENGTH_SHORT).show()
         }
     }
