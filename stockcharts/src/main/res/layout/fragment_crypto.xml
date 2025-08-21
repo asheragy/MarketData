@@ -16,13 +16,12 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/compose_view"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="0.7"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
-            </androidx.recyclerview.widget.RecyclerView>
+                android:layout_weight="0.7">
+            </androidx.compose.ui.platform.ComposeView>
 
             <TextView
                 android:layout_width="match_parent"
