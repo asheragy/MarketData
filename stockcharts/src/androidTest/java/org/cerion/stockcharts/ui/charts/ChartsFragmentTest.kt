@@ -15,11 +15,11 @@ import fakes.FakePreferenceRepository
 import fakes.FakePriceHistoryDataSource
 import fakes.FakePriceListRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.cerion.marketdata.webclients.PriceHistoryDataSource
 import org.cerion.stockcharts.R
-import org.cerion.stockcharts.repository.PreferenceRepository
 import org.cerion.stockcharts.repository.CachedPriceListRepository
+import org.cerion.stockcharts.repository.PreferenceRepository
 import org.cerion.stockcharts.repository.PriceListRepository
 import org.junit.Assert
 import org.junit.Before
@@ -46,7 +46,7 @@ class ChartsFragmentTest : KoinTest {
     }
 
     @Test
-    fun chartsFragment_defaults() = runBlockingTest {
+    fun chartsFragment_defaults() = runTest {
         val scenario = launchFragmentInContainer<ChartsFragment>(null, R.style.AppTheme)
 
         // 2 charts by default
@@ -57,7 +57,7 @@ class ChartsFragmentTest : KoinTest {
     }
 
     @Test
-    fun chartsFragment_addOverlay() = runBlockingTest {
+    fun chartsFragment_addOverlay() = runTest {
         val scenario = launchFragmentInContainer<ChartsFragment>(null, R.style.AppTheme)
 
         // Click first item -> add new overlay -> save
@@ -74,7 +74,7 @@ class ChartsFragmentTest : KoinTest {
     }
 
     @Test
-    fun chartsFragment_addChart() = runBlockingTest {
+    fun chartsFragment_addChart() = runTest {
         val scenario = launchFragmentInContainer<ChartsFragment>(null, R.style.AppTheme)
 
         scenario.onFragment {
