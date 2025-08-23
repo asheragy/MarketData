@@ -1,5 +1,6 @@
 package org.cerion.stockcharts.ui.crypto
 
+import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.cerion.marketdata.webclients.coingecko.CoinGecko
+import org.cerion.stockcharts.R
 import org.json.JSONObject
 
 
@@ -45,7 +47,8 @@ data class AltsPosition(override val quantity: Double) : Position {
     override val cash = false
 }
 
-class CryptoViewModel : ViewModel() {
+class CryptoViewModel(private val context: Application) : ViewModel() {
+    private val positionFile: JSONObject
 
     private val api = CoinGecko()
 
@@ -65,6 +68,10 @@ class CryptoViewModel : ViewModel() {
     val total: LiveData<Double>
         get() = _total
 
+    private val _busy = MutableLiveData(false)
+    val busy: LiveData<Boolean>
+        get() = _busy
+
     private val mappings = mapOf(
         "bitcoin" to CryptoRow("Bitcoin","BTC-USD"),
         "bitcoin-cash" to CryptoRow("Bitcoin Cash", "BCH-USD"),
@@ -80,8 +87,15 @@ class CryptoViewModel : ViewModel() {
         "ripple" to CryptoRow("XRP", "XRP-USD")
     )
 
-    fun load(positionFile: JSONObject) {
+    init {
+        val fileStream = context.resources.openRawResource(R.raw.crypto)
+        positionFile = JSONObject(fileStream.bufferedReader().use { it.readText() })
+        load()
+    }
+
+    fun load() {
         viewModelScope.launch {
+            _busy.value = true
             val result = withContext(Dispatchers.IO) {
                 val ids = mappings.keys.toList()
                 val response = api.getDetailedQuotes(ids)
@@ -121,7 +135,10 @@ class CryptoViewModel : ViewModel() {
 
             _positions.value = mainPositions
             _positionsAlts.value = alts
+
+            _busy.value = false
         }
+
     }
 
 }
