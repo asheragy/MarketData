@@ -9,7 +9,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.cerion.marketdata.webclients.coingecko.CoinGecko
 import org.json.JSONObject
-import kotlin.math.max
 
 
 data class CryptoRow(val name: String,
@@ -32,8 +31,8 @@ data class CryptoPosition(val row: CryptoRow, override val quantity: Double) : P
     override val cash = false
 }
 
-data class CashPosition(override val quantity: Double, val positive: Boolean) : Position {
-    override val symbol = if(positive) "Sell" else "Buy"
+data class CashPosition(override val quantity: Double) : Position {
+    override val symbol = "Cash"
     override val pricePerShare = 1.0
     override val totalValue = pricePerShare * quantity
     override val cash = true
@@ -107,7 +106,8 @@ class CryptoViewModel : ViewModel() {
                 CryptoPosition(it, amount)
             }.filter { it.quantity > 0 }
 
-            _total.value = positions.sumOf { it.totalValue }
+            val cashPosition = CashPosition(1505.0)
+            _total.value = positions.sumOf { it.totalValue } + cashPosition.totalValue
 
             val mainCoins = listOf("BTC-USD", "ETH-USD", "SOL-USD",
                 //"LTC-USD"
@@ -116,18 +116,8 @@ class CryptoViewModel : ViewModel() {
             val alts = positions.filter { x -> !mainCoins.contains(x.row.symbol)}
             val altPosition = AltsPosition(alts.sumOf { x -> x.totalValue })
 
-            var mainPositions = positions.filter { x -> mainCoins.contains(x.row.symbol) }.plus(altPosition)
 
-            // Profit/Loss
-            val total = positions.map { it.totalValue }.sum()
-            val t = 1_600_000
-            val g = 1.1 / 100
-            val min = t * g * 0.85
-            val max = t * g * 1.15
-            if (total < min)
-                mainPositions = mainPositions.plus(CashPosition(max(0.0, min - total), false))
-            else if (total > max)
-                mainPositions = mainPositions.plus(CashPosition(max(0.0, total - max), true))
+            val mainPositions = positions.filter { x -> mainCoins.contains(x.row.symbol) }.plus(altPosition).plus(cashPosition)
 
             _positions.value = mainPositions
             _positionsAlts.value = alts

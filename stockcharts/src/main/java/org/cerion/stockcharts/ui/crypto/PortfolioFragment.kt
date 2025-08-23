@@ -26,13 +26,12 @@ import org.json.JSONObject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class CryptoFragment : Fragment() {
+class PortfolioFragment : Fragment() {
 
     private lateinit var binding: FragmentCryptoBinding
     private val viewModel: CryptoViewModel by viewModel(
         ownerProducer = { requireParentFragment() }
     )
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentCryptoBinding.inflate(inflater, container, false)
@@ -60,7 +59,7 @@ class CryptoFragment : Fragment() {
             binding.totalAmount.text = "$" + DecimalFormat("#.##").format(it)
         }
 
-        viewModel.load(positionFile)
+        //viewModel.load(positionFile)
 
         binding.composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         binding.composeView.setContent {

@@ -18,10 +18,12 @@ import kotlinx.coroutines.launch
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.repository.PriceListSQLRepository
 import org.cerion.stockcharts.ui.crypto.CryptoFragment
-import org.cerion.stockcharts.ui.symbols.SymbolCategory
-import org.cerion.stockcharts.ui.symbols.SymbolsFragment
+import org.cerion.stockcharts.ui.crypto.PortfolioFragment
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HomeFragment : Fragment() {
+
+    private val cryptoViewModel: CryptoFragment by viewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
@@ -78,7 +80,8 @@ class HomeFragment : Fragment() {
         override fun createFragment(position: Int): Fragment {
             return when(position) {
                 0 -> CryptoFragment()
-                1 -> SymbolsFragment.newInstance(SymbolCategory.STOCK)
+                //1 -> SymbolsFragment.newInstance(SymbolCategory.STOCK)
+                1 -> PortfolioFragment()
                 else -> throw NotImplementedError()
             }
         }
@@ -86,7 +89,7 @@ class HomeFragment : Fragment() {
         fun getTitle(position: Int): String {
             return when (position) {
                 0 -> "Crypto"
-                1 -> "Stocks"
+                1 -> "Portfolio"
                 else -> throw NotImplementedError()
             }
         }
