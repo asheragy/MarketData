@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import org.cerion.marketdata.core.charts.IndicatorChart
 import org.cerion.marketdata.core.charts.PriceChart
+import org.cerion.marketdata.core.indicators.MACD
 import org.cerion.marketdata.core.model.OHLCVRow
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.overlays.SimpleMovingAverage
@@ -80,4 +82,11 @@ fun VolumeChartPreview() {
     vchart.addOverlay(SimpleMovingAverage(20))
 
     VolumeChart(vchart, table)
+}
+
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+fun IndicatorChartPreview() {
+    val model = IndicatorChart(MACD(), ChartColorScheme(LocalContext.current))
+    IndicatorChart(model, table)
 }
