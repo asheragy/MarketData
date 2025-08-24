@@ -155,7 +155,7 @@ class ChartListAdapter(context: Context, private val chartListener: StockChartLi
         val lowestVisibleX: Float = chart.lowestVisibleX
         val highestVisibleX: Float = chart.highestVisibleX
 
-        val chartData = chart.data
+        val chartData = chart.data!!
         chartData.calcMinMaxY(lowestVisibleX, highestVisibleX)
 
         chart.xAxis.calculate(chartData.xMin, chartData.xMax)
@@ -166,7 +166,7 @@ class ChartListAdapter(context: Context, private val chartListener: StockChartLi
     }
 
     private fun calculateMinMaxForYAxis(chart: BarLineChartBase<*>, axisDependency: AxisDependency) {
-        val chartData = chart.data
+        val chartData = chart.data!!
         val yAxis = chart.getAxis(axisDependency)
         if (yAxis.isEnabled) {
             val yMin = chartData.getYMin(axisDependency)

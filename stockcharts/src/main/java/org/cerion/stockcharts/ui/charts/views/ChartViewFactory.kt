@@ -8,14 +8,32 @@ import com.github.mikephil.charting.charts.Chart
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.charts.CombinedChart.DrawOrder
 import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.*
-import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.components.AxisBase
+import com.github.mikephil.charting.components.Description
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.LegendEntry
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.CandleData
+import com.github.mikephil.charting.data.CandleEntry
+import com.github.mikephil.charting.data.CombinedData
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
-import org.cerion.marketdata.core.charts.*
 import org.cerion.marketdata.core.charts.CandleDataSet
 import org.cerion.marketdata.core.charts.DataSet
+import org.cerion.marketdata.core.charts.IDataSet
+import org.cerion.marketdata.core.charts.IndicatorChart
+import org.cerion.marketdata.core.charts.LineType
+import org.cerion.marketdata.core.charts.PriceChart
+import org.cerion.marketdata.core.charts.StockChart
+import org.cerion.marketdata.core.charts.VolumeChart
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.stockcharts.R
@@ -252,9 +270,9 @@ class ChartViewFactory(private val context: Context) {
         }
     }
 
-    private fun getAxisFormatter(dates: Array<LocalDate>, interval: Interval): ValueFormatter {
-        return object : ValueFormatter() {
-            override fun getFormattedValue(value: Float): String {
+    private fun getAxisFormatter(dates: Array<LocalDate>, interval: Interval): IAxisValueFormatter {
+        return object : IAxisValueFormatter {
+            override fun getFormattedValue(value: Float, axis: AxisBase?): String? {
                 val position = value.toInt()
                 if (position >= dates.size)
                     return ""
@@ -269,8 +287,8 @@ class ChartViewFactory(private val context: Context) {
     }
 
     // Round to 2 significant figures
-    private val logScaleYAxis: ValueFormatter = object : ValueFormatter() {
-        override fun getFormattedValue(value: Float): String {
+    private val logScaleYAxis: IAxisValueFormatter = object : IAxisValueFormatter {
+        override fun getFormattedValue(value: Float, axis: AxisBase?): String? {
             // Round to 2 significant figures
             val actual = exp(value.toDouble())
             var bd = BigDecimal(actual)

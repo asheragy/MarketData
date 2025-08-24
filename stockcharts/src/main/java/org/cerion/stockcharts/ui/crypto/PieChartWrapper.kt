@@ -67,7 +67,7 @@ fun SimplePieChart(
             }
 
             val dataSet = PieDataSet(entries, "").apply {
-                this.colors = colors
+                setColors(colors)
                 this.valueTextSize = 12f
             }
             chart.data = PieData(dataSet)
