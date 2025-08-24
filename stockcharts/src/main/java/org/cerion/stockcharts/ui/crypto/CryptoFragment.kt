@@ -11,9 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import org.cerion.stockcharts.ui.AppTheme
 import org.cerion.stockcharts.ui.HomeFragmentDirections
@@ -30,9 +30,9 @@ class CryptoFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val rows by viewModel.rows.observeAsState(emptyList())
+                val rows by viewModel.rows.collectAsStateWithLifecycle()
                 val converted = rows.map { QuoteRowUi(it.name, it.quote!!.price, it.quote!!.changeDay, it.quote!!.changeWeek, it.quote!!.changeMonth) }
-                val refreshing by viewModel.busy.observeAsState(false)
+                val refreshing by viewModel.busy.collectAsStateWithLifecycle()
 
                 AppTheme {
                     Surface(color = MaterialTheme.colorScheme.surface) {

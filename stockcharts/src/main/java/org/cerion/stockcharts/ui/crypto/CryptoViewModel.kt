@@ -1,11 +1,11 @@
 package org.cerion.stockcharts.ui.crypto
 
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.cerion.marketdata.webclients.coingecko.CoinGecko
@@ -18,58 +18,30 @@ data class CryptoRow(val name: String,
     var quote: CoinGecko.DetailedQuote? = null
 }
 
-interface Position {
-    val symbol: String
-    val quantity: Double
-    val pricePerShare: Double
-    val totalValue: Double
-    val cash: Boolean
-}
+data class Position(val symbol: String, val totalValue: Double, val cash: Boolean = false)
 
-data class CryptoPosition(val row: CryptoRow, override val quantity: Double) : Position {
-    override val symbol = row.symbol.substringBefore("-")
-    override val pricePerShare = row.quote?.price ?: 0.0
-    override val totalValue = quantity * pricePerShare
-    override val cash = false
-}
-
-data class CashPosition(override val quantity: Double) : Position {
-    override val symbol = "Cash"
-    override val pricePerShare = 1.0
-    override val totalValue = pricePerShare * quantity
-    override val cash = true
-}
-
-data class AltsPosition(override val quantity: Double) : Position {
-    override val symbol = "Alts"
-    override val pricePerShare = 1.0
-    override val totalValue = pricePerShare * quantity
-    override val cash = false
-}
-
-class CryptoViewModel(private val context: Application) : ViewModel() {
+class CryptoViewModel(context: Application) : ViewModel() {
     private val positionFile: JSONObject
-
     private val api = CoinGecko()
 
-    private val _rows = MutableLiveData<List<CryptoRow>>()
-    val rows: LiveData<List<CryptoRow>>
+    private val _rows = MutableStateFlow<List<CryptoRow>>(emptyList())
+    val rows: StateFlow<List<CryptoRow>>
         get() = _rows
 
-    private val _positions = MutableLiveData<List<Position>>()
-    val positions: LiveData<List<Position>>
+    private val _positions = MutableStateFlow<List<PieSlice>>(emptyList())
+    val positions: StateFlow<List<PieSlice>>
         get() = _positions
 
-    private val _positionsAlts = MutableLiveData<List<Position>>()
-    val positionsAlts: LiveData<List<Position>>
+    private val _positionsAlts = MutableStateFlow<List<PieSlice>>(emptyList())
+    val positionsAlts: StateFlow<List<PieSlice>>
         get() = _positionsAlts
 
-    private val _total = MutableLiveData(0.0)
-    val total: LiveData<Double>
+    private val _total = MutableStateFlow(0.0)
+    val total: StateFlow<Double>
         get() = _total
 
-    private val _busy = MutableLiveData(false)
-    val busy: LiveData<Boolean>
+    private val _busy = MutableStateFlow(false)
+    val busy: StateFlow<Boolean>
         get() = _busy
 
     private val mappings = mapOf(
@@ -109,36 +81,38 @@ class CryptoViewModel(private val context: Application) : ViewModel() {
                 mappings.values.toList()
             }
 
+            // Quotes
             _rows.value = result.sortedBy { it.name }
 
+            // Positions
             val positions = result.map {
-                val amount = if (positionFile.has(it.quote?.id))
+                val quantity = if (positionFile.has(it.quote?.id))
                     positionFile.getDouble(it.quote!!.id)
                 else
                     0.0
 
-                CryptoPosition(it, amount)
-            }.filter { it.quantity > 0 }
+                val pricePerShare = it.quote?.price ?: 0.0
+                Position(it.symbol.substringBefore("-"), quantity * pricePerShare)
 
-            val cashPosition = CashPosition(1505.0)
-            _total.value = positions.sumOf { it.totalValue } + cashPosition.totalValue
+            }.filter { it.totalValue > 0 }
 
-            val mainCoins = listOf("BTC-USD", "ETH-USD", "SOL-USD",
-                //"LTC-USD"
-            )
+            val mainCoins = listOf("BTC", "ETH", "SOL")
+            val alts = positions.filter { x -> !mainCoins.contains(x.symbol)}
+            val altPosition = Position("Alts", alts.sumOf { x -> x.totalValue })
 
-            val alts = positions.filter { x -> !mainCoins.contains(x.row.symbol)}
-            val altPosition = AltsPosition(alts.sumOf { x -> x.totalValue })
+            val cashPosition = Position("Cash", 1505.0, true)
+            val mainPositions = positions.filter { x -> mainCoins.contains(x.symbol) }.plus(altPosition).plus(
+                cashPosition)
 
-
-            val mainPositions = positions.filter { x -> mainCoins.contains(x.row.symbol) }.plus(altPosition).plus(cashPosition)
-
-            _positions.value = mainPositions
-            _positionsAlts.value = alts
-
+            _total.value = mainPositions.sumOf { it.totalValue }
+            _positions.value = mainPositions.toPieSlice()
+            _positionsAlts.value = alts.toPieSlice()
             _busy.value = false
         }
-
     }
+}
 
+fun List<Position>.toPieSlice(): List<PieSlice> {
+    val total = this.sumOf { it.totalValue }
+    return this.map { PieSlice(it.symbol, 100 * (it.totalValue / total).toFloat(), if(it.cash) LIGHT_GREEN else null) }
 }
