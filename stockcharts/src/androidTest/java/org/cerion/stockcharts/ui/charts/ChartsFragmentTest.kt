@@ -69,7 +69,7 @@ class ChartsFragmentTest : KoinTest {
             val rv = it.view?.findViewById<RecyclerView>(R.id.recycler_view)!!
             val frame = rv[0].findViewById<FrameLayout>(R.id.chart_frame)
             val chart = frame[0] as LineChart
-            Assert.assertEquals(2, chart.data.dataSetCount)
+            Assert.assertEquals(2, chart.data!!.dataSetCount)
         }
     }
 
