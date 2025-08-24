@@ -47,18 +47,20 @@ class ChartViewFactory(private val context: Context) {
         val chart: BarLineChartBase<*>
         val sets = pchart.getDataSets(table)
         if (pchart.candleData && pchart.canShowCandleData(table)) {
-            val data = CombinedData()
-            data.setData(ChartUtils.getCandleData(sets, context))
-            data.setData(ChartUtils.getLineData(sets))
-
             chart = CombinedChart(context)
             setChartDefaults(chart, pchart, table)
             chart.drawOrder = arrayOf(DrawOrder.CANDLE, DrawOrder.LINE)
+
+            val data = CombinedData()
+            // Overloaded so this sets 2 different variables
+            data.setData(ChartUtils.getCandleData(sets, context))
+            data.setData(ChartUtils.getLineData(sets))
             chart.data = data
         }
         else {
             chart = LineChart(context)
             setChartDefaults(chart, pchart, table)
+
             val lineData = ChartUtils.getLineData(sets)
             chart.data = lineData
         }

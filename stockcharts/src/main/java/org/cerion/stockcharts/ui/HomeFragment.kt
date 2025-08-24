@@ -17,12 +17,12 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.repository.PriceListSQLRepository
+import org.cerion.stockcharts.ui.charts.ComposeChartsFragment
 import org.cerion.stockcharts.ui.crypto.CryptoFragment
 import org.cerion.stockcharts.ui.crypto.PortfolioFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HomeFragment : Fragment() {
-
     private val cryptoViewModel: CryptoFragment by viewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -75,21 +75,23 @@ class HomeFragment : Fragment() {
     }
 
     private inner class ViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-        override fun getItemCount(): Int = 2
+        override fun getItemCount(): Int = 3
 
         override fun createFragment(position: Int): Fragment {
             return when(position) {
-                0 -> CryptoFragment()
+                0 -> ComposeChartsFragment.newInstance("BTC")
+                1 -> CryptoFragment()
                 //1 -> SymbolsFragment.newInstance(SymbolCategory.STOCK)
-                1 -> PortfolioFragment()
+                2 -> PortfolioFragment()
                 else -> throw NotImplementedError()
             }
         }
 
         fun getTitle(position: Int): String {
             return when (position) {
-                0 -> "Crypto"
-                1 -> "Portfolio"
+                0 -> "TEST"
+                1 -> "Crypto"
+                2 -> "Portfolio"
                 else -> throw NotImplementedError()
             }
         }

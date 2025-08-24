@@ -11,13 +11,14 @@ import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.common.isDarkTheme
 import org.cerion.stockcharts.ui.charts.views.ChartUtils
+import org.cerion.stockcharts.ui.charts.views.ChartUtils.CHART_HEIGHT_PRICE
 import org.cerion.stockcharts.ui.charts.views.ChartUtils.logScaleYAxis
-import org.cerion.marketdata.core.charts.VolumeChart as VolumeChartModel
+import org.cerion.marketdata.core.charts.PriceChart as PriceChartModel
 
 
 @Composable
-fun VolumeChart(
-    vchart: VolumeChartModel,
+fun PriceChart(
+    chartModel: PriceChartModel,
     table: OHLCVTable
 ) {
     val context = LocalContext.current
@@ -29,22 +30,30 @@ fun VolumeChart(
     AndroidView(
         modifier = Modifier.fillMaxWidth(),
         factory = { ctx ->
-            CombinedChart(ctx).apply {
-                ChartUtils.setChartDefaults(this, textColor)
-            }
+            val chart = CombinedChart(ctx)
+
+            ChartUtils.setChartDefaults(chart, textColor)
+            chart.drawOrder = arrayOf(CombinedChart.DrawOrder.CANDLE, CombinedChart.DrawOrder.LINE)
+            chart.minimumHeight = CHART_HEIGHT_PRICE
+
+            chart
         },
-        update = { chart ->
-            ChartUtils.setDateAxisLabels(chart, vchart, table)
 
-            val dataSets = vchart.getDataSets(table)
-            chart.data = CombinedData().apply {
-                setData(ChartUtils.getBarData(dataSets))
-                setData(ChartUtils.getLineData(dataSets))
+        update = { chart ->
+            ChartUtils.setDateAxisLabels(chart, chartModel, table)
+            if (chartModel.logScale)
+                chart.axisRight.valueFormatter = logScaleYAxis
+
+            val sets = chartModel.getDataSets(table)
+            val data = CombinedData()
+            if (chartModel.candleData && chartModel.canShowCandleData(table)) {
+                data.setData(ChartUtils.getCandleData(sets, context))
             }
 
-            ChartUtils.setLegend(chart, dataSets, textColor)
-            if (vchart.logScale)
-                chart.axisRight.valueFormatter = logScaleYAxis
+            data.setData(ChartUtils.getLineData(sets))
+            chart.data = data
+
+            ChartUtils.setLegend(chart, sets, textColor)
 
             // ensure redraw when inputs change
             chart.invalidate()
