@@ -29,10 +29,7 @@ import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.google.android.material.chip.Chip
-import org.cerion.marketdata.core.charts.IndicatorChart
-import org.cerion.marketdata.core.charts.PriceChart
 import org.cerion.marketdata.core.charts.StockChart
-import org.cerion.marketdata.core.charts.VolumeChart
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.Symbol
 import org.cerion.stockcharts.R
@@ -41,7 +38,6 @@ import org.cerion.stockcharts.common.SymbolSearchView
 import org.cerion.stockcharts.database.getDatabase
 import org.cerion.stockcharts.databinding.FragmentComposeChartsBinding
 import org.cerion.stockcharts.ui.AppTheme
-import org.cerion.stockcharts.ui.charts.compose.IndicatorChart
 import org.cerion.stockcharts.ui.charts.compose.ViewportPayload
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -122,9 +118,8 @@ class ComposeChartsFragment : Fragment() {
 
         viewModel.editChart.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { chart ->
-                val fm = requireActivity().supportFragmentManager
                 val dialog = EditChartDialog.newInstance(chart, viewModel)
-                dialog.show(fm, "editDialog")
+                dialog.show(childFragmentManager, "editDialog")
             }
         }
 
@@ -149,7 +144,7 @@ class ComposeChartsFragment : Fragment() {
         }
 
         binding.composeView.setContent {
-            val charts by viewModel.charts.observeAsState(listOf())
+            val charts by viewModel.chartModels.observeAsState(listOf())
             val table by viewModel.table.observeAsState(null)
             var viewPort by remember { mutableStateOf<ViewportPayload?>(null) }
 
@@ -160,24 +155,16 @@ class ComposeChartsFragment : Fragment() {
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         items(charts) { chartModel ->
-                            val listener = object : StockChartListener {
-                                override fun onClick(chart: StockChart) {
-
-                                }
-
-                                override fun onViewPortChange(matrix: Matrix) {
-                                    viewPort = ViewportPayload(matrix)
-                                }
-                            }
-
                             if(table == null)
                                 Text(text = "Loading...")
                             else
-                                when(chartModel) {
-                                    is PriceChart -> org.cerion.stockcharts.ui.charts.compose.PriceChart(chartModel, table!!, listener, viewPort)
-                                    is VolumeChart -> org.cerion.stockcharts.ui.charts.compose.VolumeChart(chartModel, table!!, listener, viewPort)
-                                    is IndicatorChart -> IndicatorChart(chartModel, table!!, listener, viewPort)
-                                }
+                                org.cerion.stockcharts.ui.charts.compose.StockChart(chartModel, table!!,
+                                    onViewPortChange = {
+                                        viewPort = ViewportPayload(it)
+                                    },
+                                    onClick = {
+                                        viewModel.editChart(it)
+                                }, viewPort)
                         }
                     }
                 }

@@ -21,6 +21,7 @@ import org.cerion.stockcharts.common.Event
 import org.cerion.stockcharts.repository.CachedPriceListRepository
 import org.cerion.stockcharts.repository.PreferenceRepository
 import org.cerion.stockcharts.repository.PriceListRepository
+import org.cerion.stockcharts.ui.charts.compose.ChartModel
 
 
 class ChartsViewModel(
@@ -69,8 +70,10 @@ class ChartsViewModel(
     )
      */
 
+    // TODO first 2 are deprecated
     private var _charts = mutableListOf<StockChart>()
     val charts: MutableLiveData<List<StockChart>> = MutableLiveData(_charts)
+    val chartModels: MutableLiveData<List<ChartModel<*>>> = MutableLiveData(emptyList())
 
     private val _busy = MutableLiveData(false)
     val busy: LiveData<Boolean>
@@ -95,6 +98,7 @@ class ChartsViewModel(
             _charts.addAll(DefaultCharts)
 
         charts.value = _charts
+        chartModels.value = _charts.map { ChartModel(it) }
 
         table.addSource(interval) {
             // Refresh only if prices are already loaded and interval was changed
@@ -211,12 +215,22 @@ class ChartsViewModel(
     fun removeChart(chart: StockChart) {
         _charts.remove(chart)
         charts.value = _charts
+        // TODO can be changed to filter
+        chartModels.value = _charts.map { ChartModel(it) }
         saveCharts()
     }
 
     fun replaceChart(old: StockChart, new: StockChart) {
-        _charts = _charts.map { if (it == old) new else it }.toMutableList()
+        val index = _charts.indexOf(old)
+        if (index < 0)
+            throw RuntimeException("TODO this should not happen")
+
+        _charts[index] = new
+        //_charts = _charts.map { if (it == old) new else it }.toMutableList()
+
         charts.value = _charts
+        // TODO can be changed to not update all
+        chartModels.value = _charts.map { ChartModel(it) }
         saveCharts()
     }
 
@@ -235,6 +249,7 @@ class ChartsViewModel(
     private fun addChart(chart: StockChart) {
         _charts.add(chart)
         charts.value = _charts
+        chartModels.value = _charts.map { ChartModel(it) }
         saveCharts()
     }
 }

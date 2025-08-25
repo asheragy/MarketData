@@ -13,7 +13,6 @@ import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.common.DefaultChartGestureListener
 import org.cerion.stockcharts.common.isDarkTheme
-import org.cerion.stockcharts.ui.charts.StockChartListener
 import org.cerion.stockcharts.ui.charts.views.ChartUtils
 import org.cerion.stockcharts.ui.charts.views.ChartUtils.CHART_HEIGHT_PRICE
 import org.cerion.stockcharts.ui.charts.views.ChartUtils.logScaleYAxis
@@ -22,9 +21,10 @@ import org.cerion.marketdata.core.charts.PriceChart as PriceChartModel
 
 @Composable
 fun PriceChart(
-    chartModel: PriceChartModel,
+    model: ChartModel<PriceChartModel>,
     table: OHLCVTable,
-    listener: StockChartListener? = null,
+    onViewPortChange: (Matrix) -> Unit = {},
+    onClick: (PriceChartModel) -> Unit = {},
     viewPort: ViewportPayload? = null
 ) {
     val context = LocalContext.current
@@ -43,36 +43,18 @@ fun PriceChart(
             chart.minimumHeight = CHART_HEIGHT_PRICE
             chart.setDrawMarkers(false) // Divide by zero bug if this isn't set
 
-            val matrix = chart.viewPortHandler.matrixTouch
-            chart.onChartGestureListener = object : DefaultChartGestureListener() {
-                override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
-                    super.onChartScale(me, scaleX, scaleY)
-                    listener?.onViewPortChange(matrix)
-                }
-
-                override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
-                    super.onChartTranslate(me, dX, dY)
-                    listener?.onViewPortChange(matrix)
-                }
-
-                override fun onChartSingleTapped(me: MotionEvent?) {
-                    super.onChartSingleTapped(me)
-                    listener?.onClick(chartModel)
-                }
-            }
-
             chart
         },
 
         update = { chart ->
             println("Updating price chart")
-            ChartUtils.setDateAxisLabels(chart, chartModel, table)
-            if (chartModel.logScale)
+            ChartUtils.setDateAxisLabels(chart, model.value, table)
+            if (model.value.logScale)
                 chart.axisRight.valueFormatter = logScaleYAxis
 
-            val sets = chartModel.getDataSets(table)
+            val sets = model.value.getDataSets(table)
             val data = CombinedData()
-            if (chartModel.candleData && chartModel.canShowCandleData(table)) {
+            if (model.value.candleData && model.value.canShowCandleData(table)) {
                 data.setData(ChartUtils.getCandleData(sets, context))
             }
 
@@ -80,6 +62,25 @@ fun PriceChart(
             chart.data = data
 
             ChartUtils.setLegend(chart, sets, textColor)
+
+            val matrix = chart.viewPortHandler.matrixTouch
+            chart.onChartGestureListener = object : DefaultChartGestureListener() {
+                override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
+                    super.onChartScale(me, scaleX, scaleY)
+                    onViewPortChange(matrix)
+                }
+
+                override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
+                    super.onChartTranslate(me, dX, dY)
+                    onViewPortChange(matrix)
+                }
+
+                override fun onChartSingleTapped(me: MotionEvent?) {
+                    super.onChartSingleTapped(me)
+                    //listener?.onClick(model.value)
+                    onClick(model.value)
+                }
+            }
 
             // TODO detect if anything else was changed and only update that
             if (viewPort != null && viewPort.matrix != chart.viewPortHandler.matrixTouch) {

@@ -88,6 +88,7 @@ class ChartViewFactory(private val context: Context) {
     private fun getVolumeChart(vchart: VolumeChart, table: OHLCVTable): Chart<*> {
         return CombinedChart(context).apply {
             setChartDefaults(this, vchart, table)
+            this.setDrawMarkers(false)
 
             val dataSets = vchart.getDataSets(table)
             data = CombinedData().apply {

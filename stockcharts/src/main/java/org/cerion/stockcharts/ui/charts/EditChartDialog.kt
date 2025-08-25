@@ -8,6 +8,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.viewModels
 import org.cerion.marketdata.core.charts.IndicatorChart
 import org.cerion.marketdata.core.charts.PriceChart
 import org.cerion.marketdata.core.charts.StockChart
@@ -21,11 +22,13 @@ import org.cerion.stockcharts.ui.charts.views.ParametersEditControl
 
 class EditChartDialog : DialogFragment(), EditChartViewModel.OnFunctionChangeListener {
 
+    private val chartsViewModel: ChartsViewModel by viewModels({ requireParentFragment() })
+
     companion object {
         fun newInstance(chart: StockChart, chartsViewModel: ChartsViewModel): EditChartDialog {
             val dialog = EditChartDialog()
             dialog.viewModel = EditChartViewModel(chart)
-            dialog.chartsViewModel = chartsViewModel
+            //dialog.chartsViewModel = chartsViewModel
             return dialog
         }
     }
@@ -33,7 +36,7 @@ class EditChartDialog : DialogFragment(), EditChartViewModel.OnFunctionChangeLis
     private lateinit var viewModel: EditChartViewModel
     private lateinit var binding: DialogChartEditBinding
     private lateinit var overlays: LinearLayout
-    private lateinit var chartsViewModel: ChartsViewModel
+    //private lateinit var chartsViewModel: ChartsViewModel
 
     private val chart: StockChart
         get() = viewModel.chart

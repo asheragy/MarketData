@@ -13,7 +13,6 @@ import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.common.DefaultChartGestureListener
 import org.cerion.stockcharts.common.isDarkTheme
-import org.cerion.stockcharts.ui.charts.StockChartListener
 import org.cerion.stockcharts.ui.charts.views.ChartUtils
 import org.cerion.stockcharts.ui.charts.views.ChartUtils.logScaleYAxis
 import org.cerion.marketdata.core.charts.VolumeChart as VolumeChartModel
@@ -21,9 +20,10 @@ import org.cerion.marketdata.core.charts.VolumeChart as VolumeChartModel
 
 @Composable
 fun VolumeChart(
-    chartModel: VolumeChartModel,
+    chartModel: ChartModel<VolumeChartModel>,
     table: OHLCVTable,
-    listener: StockChartListener? = null,
+    onViewPortChange: (Matrix) -> Unit = {},
+    onClick: (VolumeChartModel) -> Unit = {},
     viewPort: ViewportPayload? = null
 ) {
     val context = LocalContext.current
@@ -38,44 +38,44 @@ fun VolumeChart(
             println("Creating VolumeChart")
             CombinedChart(ctx).apply {
                 ChartUtils.setChartDefaults(this, textColor)
-
-                val matrix = this.viewPortHandler.matrixTouch
-                this.onChartGestureListener = object : DefaultChartGestureListener() {
-                    override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
-                        super.onChartScale(me, scaleX, scaleY)
-                        listener?.onViewPortChange(matrix)
-                    }
-
-                    override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
-                        super.onChartTranslate(me, dX, dY)
-                        listener?.onViewPortChange(matrix)
-                    }
-
-                    override fun onChartSingleTapped(me: MotionEvent?) {
-                        super.onChartSingleTapped(me)
-                        listener?.onClick(chartModel)
-                    }
-                }
             }
         },
         update = { chart ->
             println("Updating Volume Chart")
-            ChartUtils.setDateAxisLabels(chart, chartModel, table)
+            ChartUtils.setDateAxisLabels(chart, chartModel.value, table)
             chart.setDrawMarkers(false)
 
-            val dataSets = chartModel.getDataSets(table)
+            val dataSets = chartModel.value.getDataSets(table)
             chart.data = CombinedData().apply {
                 setData(ChartUtils.getBarData(dataSets))
                 setData(ChartUtils.getLineData(dataSets))
             }
 
             ChartUtils.setLegend(chart, dataSets, textColor)
-            if (chartModel.logScale)
+            if (chartModel.value.logScale)
                 chart.axisRight.valueFormatter = logScaleYAxis
 
             if (viewPort != null && viewPort.matrix != chart.viewPortHandler.matrixTouch) {
                 val matrix = Matrix(viewPort.matrix)
                 chart.viewPortHandler.refresh(matrix, chart, true)
+            }
+
+            val matrix = chart.viewPortHandler.matrixTouch
+            chart.onChartGestureListener = object : DefaultChartGestureListener() {
+                override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
+                    super.onChartScale(me, scaleX, scaleY)
+                    onViewPortChange(matrix)
+                }
+
+                override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
+                    super.onChartTranslate(me, dX, dY)
+                    onViewPortChange(matrix)
+                }
+
+                override fun onChartSingleTapped(me: MotionEvent?) {
+                    super.onChartSingleTapped(me)
+                    onClick(chartModel.value)
+                }
             }
 
             // ensure redraw when inputs change

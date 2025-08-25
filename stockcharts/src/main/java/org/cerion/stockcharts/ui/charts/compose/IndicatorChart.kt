@@ -11,16 +11,16 @@ import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.common.DefaultChartGestureListener
 import org.cerion.stockcharts.common.isDarkTheme
-import org.cerion.stockcharts.ui.charts.StockChartListener
 import org.cerion.stockcharts.ui.charts.views.ChartUtils
 import org.cerion.marketdata.core.charts.IndicatorChart as IndicatorChartModel
 
 
 @Composable
 fun IndicatorChart(
-    chartModel: IndicatorChartModel,
+    chartModel: ChartModel<IndicatorChartModel>,
     table: OHLCVTable,
-    listener: StockChartListener? = null,
+    onViewPortChange: (Matrix) -> Unit = {},
+    onClick: (IndicatorChartModel) -> Unit = {},
     viewPort: ViewportPayload? = null
 ) {
     val context = LocalContext.current
@@ -35,35 +35,35 @@ fun IndicatorChart(
             val chart = com.github.mikephil.charting.charts.LineChart(ctx)
             ChartUtils.setChartDefaults(chart, textColor)
 
-            val matrix = chart.viewPortHandler.matrixTouch
-            chart.onChartGestureListener = object : DefaultChartGestureListener() {
-                override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
-                    super.onChartScale(me, scaleX, scaleY)
-                    listener?.onViewPortChange(matrix)
-                }
-
-                override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
-                    super.onChartTranslate(me, dX, dY)
-                    listener?.onViewPortChange(matrix)
-                }
-
-                override fun onChartSingleTapped(me: MotionEvent?) {
-                    super.onChartSingleTapped(me)
-                    listener?.onClick(chartModel)
-                }
-            }
-
             chart
         },
 
         update = { chart ->
-            val sets = chartModel.getDataSets(table)
+            val sets = chartModel.value.getDataSets(table)
             chart.data = ChartUtils.getLineData(sets)
             ChartUtils.setLegend(chart, sets, textColor)
 
             if (viewPort != null && viewPort.matrix != chart.viewPortHandler.matrixTouch) {
                 val matrix = Matrix(viewPort.matrix)
                 chart.viewPortHandler.refresh(matrix, chart, true)
+            }
+
+            val matrix = chart.viewPortHandler.matrixTouch
+            chart.onChartGestureListener = object : DefaultChartGestureListener() {
+                override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
+                    super.onChartScale(me, scaleX, scaleY)
+                    onViewPortChange(matrix)
+                }
+
+                override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
+                    super.onChartTranslate(me, dX, dY)
+                    onViewPortChange(matrix)
+                }
+
+                override fun onChartSingleTapped(me: MotionEvent?) {
+                    super.onChartSingleTapped(me)
+                    onClick(chartModel.value)
+                }
             }
 
             // ensure redraw when inputs change
