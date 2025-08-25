@@ -65,6 +65,7 @@ class ChartViewFactory(private val context: Context) {
             chart.data = lineData
         }
 
+        chart.setDrawMarkers(false)
         chart.minimumHeight = CHART_HEIGHT_PRICE
         if (pchart.logScale)
             chart.axisRight.valueFormatter = logScaleYAxis

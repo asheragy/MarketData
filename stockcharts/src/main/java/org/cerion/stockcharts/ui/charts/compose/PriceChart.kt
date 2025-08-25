@@ -1,5 +1,7 @@
 package org.cerion.stockcharts.ui.charts.compose
 
+import android.graphics.Matrix
+import android.view.MotionEvent
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -9,7 +11,9 @@ import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CombinedData
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.stockcharts.R
+import org.cerion.stockcharts.common.DefaultChartGestureListener
 import org.cerion.stockcharts.common.isDarkTheme
+import org.cerion.stockcharts.ui.charts.StockChartListener
 import org.cerion.stockcharts.ui.charts.views.ChartUtils
 import org.cerion.stockcharts.ui.charts.views.ChartUtils.CHART_HEIGHT_PRICE
 import org.cerion.stockcharts.ui.charts.views.ChartUtils.logScaleYAxis
@@ -19,7 +23,9 @@ import org.cerion.marketdata.core.charts.PriceChart as PriceChartModel
 @Composable
 fun PriceChart(
     chartModel: PriceChartModel,
-    table: OHLCVTable
+    table: OHLCVTable,
+    listener: StockChartListener? = null,
+    viewPort: ViewportPayload? = null
 ) {
     val context = LocalContext.current
     val textColor = if (context.isDarkTheme())
@@ -35,11 +41,31 @@ fun PriceChart(
             ChartUtils.setChartDefaults(chart, textColor)
             chart.drawOrder = arrayOf(CombinedChart.DrawOrder.CANDLE, CombinedChart.DrawOrder.LINE)
             chart.minimumHeight = CHART_HEIGHT_PRICE
+            chart.setDrawMarkers(false) // Divide by zero bug if this isn't set
+
+            val matrix = chart.viewPortHandler.matrixTouch
+            chart.onChartGestureListener = object : DefaultChartGestureListener() {
+                override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
+                    super.onChartScale(me, scaleX, scaleY)
+                    listener?.onViewPortChange(matrix)
+                }
+
+                override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
+                    super.onChartTranslate(me, dX, dY)
+                    listener?.onViewPortChange(matrix)
+                }
+
+                override fun onChartSingleTapped(me: MotionEvent?) {
+                    super.onChartSingleTapped(me)
+                    listener?.onClick(chartModel)
+                }
+            }
 
             chart
         },
 
         update = { chart ->
+            println("Updating price chart")
             ChartUtils.setDateAxisLabels(chart, chartModel, table)
             if (chartModel.logScale)
                 chart.axisRight.valueFormatter = logScaleYAxis
@@ -54,6 +80,12 @@ fun PriceChart(
             chart.data = data
 
             ChartUtils.setLegend(chart, sets, textColor)
+
+            // TODO detect if anything else was changed and only update that
+            if (viewPort != null && viewPort.matrix != chart.viewPortHandler.matrixTouch) {
+                val matrix = Matrix(viewPort.matrix)
+                chart.viewPortHandler.refresh(matrix, chart, true)
+            }
 
             // ensure redraw when inputs change
             chart.invalidate()

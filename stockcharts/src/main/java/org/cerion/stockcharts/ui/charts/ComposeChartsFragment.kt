@@ -11,26 +11,44 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.Toast
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.google.android.material.chip.Chip
+import org.cerion.marketdata.core.charts.IndicatorChart
+import org.cerion.marketdata.core.charts.PriceChart
 import org.cerion.marketdata.core.charts.StockChart
+import org.cerion.marketdata.core.charts.VolumeChart
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.Symbol
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.appCompatActivity
 import org.cerion.stockcharts.common.SymbolSearchView
 import org.cerion.stockcharts.database.getDatabase
-import org.cerion.stockcharts.databinding.FragmentChartsBinding
+import org.cerion.stockcharts.databinding.FragmentComposeChartsBinding
+import org.cerion.stockcharts.ui.AppTheme
+import org.cerion.stockcharts.ui.charts.compose.IndicatorChart
+import org.cerion.stockcharts.ui.charts.compose.ViewportPayload
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ComposeChartsFragment : Fragment() {
 
     private val viewModel: ChartsViewModel by viewModel()
-    private lateinit var binding: FragmentChartsBinding
+    private lateinit var binding: FragmentComposeChartsBinding
     private lateinit var adapter: ChartListAdapter
 
     companion object {
@@ -44,7 +62,7 @@ class ComposeChartsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentChartsBinding.inflate(inflater, container, false)
+        binding = FragmentComposeChartsBinding.inflate(inflater, container, false)
 
         appCompatActivity?.setSupportActionBar(binding.toolbar)
         setHasOptionsMenu(true)
@@ -60,7 +78,7 @@ class ComposeChartsFragment : Fragment() {
         }
 
         adapter = ChartListAdapter(requireContext(), chartListener)
-        binding.recyclerView.adapter = adapter
+        //binding.recyclerView.adapter = adapter
 
         val chartsChangedObserver = Observer<Any?> {
             var intervals = 0
@@ -130,6 +148,42 @@ class ComposeChartsFragment : Fragment() {
                 viewModel.load()
         }
 
+        binding.composeView.setContent {
+            val charts by viewModel.charts.observeAsState(listOf())
+            val table by viewModel.table.observeAsState(null)
+            var viewPort by remember { mutableStateOf<ViewportPayload?>(null) }
+
+            AppTheme {
+                Surface(color = MaterialTheme.colorScheme.surface) {
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        items(charts) { chartModel ->
+                            val listener = object : StockChartListener {
+                                override fun onClick(chart: StockChart) {
+
+                                }
+
+                                override fun onViewPortChange(matrix: Matrix) {
+                                    viewPort = ViewportPayload(matrix)
+                                }
+                            }
+
+                            if(table == null)
+                                Text(text = "Loading...")
+                            else
+                                when(chartModel) {
+                                    is PriceChart -> org.cerion.stockcharts.ui.charts.compose.PriceChart(chartModel, table!!, listener, viewPort)
+                                    is VolumeChart -> org.cerion.stockcharts.ui.charts.compose.VolumeChart(chartModel, table!!, listener, viewPort)
+                                    is IndicatorChart -> IndicatorChart(chartModel, table!!, listener, viewPort)
+                                }
+                        }
+                    }
+                }
+            }
+        }
+
         return binding.root
     }
 
@@ -167,10 +221,13 @@ class ComposeChartsFragment : Fragment() {
 
     private val _mainVals = FloatArray(9)
     private fun syncCharts(matrix: Matrix) {
+        /*
         matrix.getValues(_mainVals)
         for(view in binding.recyclerView.children) {
             adapter.syncMatrix(matrix, _mainVals, binding.recyclerView.getChildViewHolder(view) as ChartListAdapter.ViewHolder)
         }
+
+         */
     }
 
     // Debug only

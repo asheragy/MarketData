@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.cerion.marketdata.core.charts.ChartColors
 import org.cerion.marketdata.core.charts.IndicatorChart
@@ -167,6 +168,7 @@ class ChartsViewModel(
                 sqlRepo.cleanupCache()
             }
 
+            delay(1000) // TODO temp
             val symbol = _symbol.value!!.symbol
             try {
                 table.value = repo.get(symbol, interval.value!!)
