@@ -149,6 +149,7 @@ object ChartUtils {
             xAxis.textColor = textColor
 
             setViewPortOffsets(0f, viewPortHandler.offsetTop(), 0f, viewPortHandler.offsetBottom())
+            chart.isAutoScaleMinMaxEnabled =  true
         }
     }
 

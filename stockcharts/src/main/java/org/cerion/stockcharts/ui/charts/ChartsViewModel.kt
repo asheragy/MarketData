@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.cerion.marketdata.core.charts.ChartColors
 import org.cerion.marketdata.core.charts.IndicatorChart
@@ -73,7 +72,7 @@ class ChartsViewModel(
     // TODO first 2 are deprecated
     private var _charts = mutableListOf<StockChart>()
     val charts: MutableLiveData<List<StockChart>> = MutableLiveData(_charts)
-    val chartModels: MutableLiveData<List<ChartModel<*>>> = MutableLiveData(emptyList())
+    val chartModels: MutableLiveData<List<ChartModel>> = MutableLiveData(emptyList())
 
     private val _busy = MutableLiveData(false)
     val busy: LiveData<Boolean>
@@ -172,7 +171,7 @@ class ChartsViewModel(
                 sqlRepo.cleanupCache()
             }
 
-            delay(1000) // TODO temp
+            //delay(2000)
             val symbol = _symbol.value!!.symbol
             try {
                 table.value = repo.get(symbol, interval.value!!)

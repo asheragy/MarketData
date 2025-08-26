@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +30,7 @@ import androidx.lifecycle.Observer
 import com.google.android.material.chip.Chip
 import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.model.Interval
+import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.model.Symbol
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.appCompatActivity
@@ -143,6 +143,8 @@ class ComposeChartsFragment : Fragment() {
                 viewModel.load()
         }
 
+        val emptyTable = OHLCVTable("", emptyList())
+
         binding.composeView.setContent {
             val charts by viewModel.chartModels.observeAsState(listOf())
             val table by viewModel.table.observeAsState(null)
@@ -155,10 +157,7 @@ class ComposeChartsFragment : Fragment() {
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         items(charts) { chartModel ->
-                            if(table == null)
-                                Text(text = "Loading...")
-                            else
-                                org.cerion.stockcharts.ui.charts.compose.StockChart(chartModel, table!!,
+                                org.cerion.stockcharts.ui.charts.compose.StockChart(chartModel, table ?: emptyTable,
                                     onViewPortChange = {
                                         viewPort = ViewportPayload(it)
                                     },

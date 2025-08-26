@@ -21,8 +21,9 @@ import org.cerion.marketdata.core.charts.PriceChart as PriceChartModel
 
 @Composable
 fun PriceChart(
-    model: ChartModel<PriceChartModel>,
+    model: PriceChartModel,
     table: OHLCVTable,
+    updateData: Boolean = true,
     onViewPortChange: (Matrix) -> Unit = {},
     onClick: (PriceChartModel) -> Unit = {},
     viewPort: ViewportPayload? = null
@@ -42,47 +43,47 @@ fun PriceChart(
             chart.drawOrder = arrayOf(CombinedChart.DrawOrder.CANDLE, CombinedChart.DrawOrder.LINE)
             chart.minimumHeight = CHART_HEIGHT_PRICE
             chart.setDrawMarkers(false) // Divide by zero bug if this isn't set
-
             chart
         },
 
         update = { chart ->
-            println("Updating price chart")
-            ChartUtils.setDateAxisLabels(chart, model.value, table)
-            if (model.value.logScale)
-                chart.axisRight.valueFormatter = logScaleYAxis
+            if (updateData) {
+                ChartUtils.setDateAxisLabels(chart, model, table)
+                if (model.logScale)
+                    chart.axisRight.valueFormatter = logScaleYAxis
 
-            val sets = model.value.getDataSets(table)
-            val data = CombinedData()
-            if (model.value.candleData && model.value.canShowCandleData(table)) {
-                data.setData(ChartUtils.getCandleData(sets, context))
+                val sets = model.getDataSets(table)
+                val data = CombinedData()
+                if (model.candleData && model.canShowCandleData(table)) {
+                    data.setData(ChartUtils.getCandleData(sets, context))
+                }
+
+                data.setData(ChartUtils.getLineData(sets))
+                chart.data = data
+
+                ChartUtils.setLegend(chart, sets, textColor)
+
+
+                val matrix = chart.viewPortHandler.matrixTouch
+                chart.onChartGestureListener = object : DefaultChartGestureListener() {
+                    override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
+                        super.onChartScale(me, scaleX, scaleY)
+                        onViewPortChange(matrix)
+                    }
+
+                    override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
+                        super.onChartTranslate(me, dX, dY)
+                        onViewPortChange(matrix)
+                    }
+
+                    override fun onChartSingleTapped(me: MotionEvent?) {
+                        super.onChartSingleTapped(me)
+                        //listener?.onClick(model.value)
+                        onClick(model)
+                    }
+                }
             }
 
-            data.setData(ChartUtils.getLineData(sets))
-            chart.data = data
-
-            ChartUtils.setLegend(chart, sets, textColor)
-
-            val matrix = chart.viewPortHandler.matrixTouch
-            chart.onChartGestureListener = object : DefaultChartGestureListener() {
-                override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
-                    super.onChartScale(me, scaleX, scaleY)
-                    onViewPortChange(matrix)
-                }
-
-                override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
-                    super.onChartTranslate(me, dX, dY)
-                    onViewPortChange(matrix)
-                }
-
-                override fun onChartSingleTapped(me: MotionEvent?) {
-                    super.onChartSingleTapped(me)
-                    //listener?.onClick(model.value)
-                    onClick(model.value)
-                }
-            }
-
-            // TODO detect if anything else was changed and only update that
             if (viewPort != null && viewPort.matrix != chart.viewPortHandler.matrixTouch) {
                 val matrix = Matrix(viewPort.matrix)
                 chart.viewPortHandler.refresh(matrix, chart, true)

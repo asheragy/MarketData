@@ -20,8 +20,9 @@ import org.cerion.marketdata.core.charts.VolumeChart as VolumeChartModel
 
 @Composable
 fun VolumeChart(
-    chartModel: ChartModel<VolumeChartModel>,
+    model: VolumeChartModel,
     table: OHLCVTable,
+    updateData: Boolean = true,
     onViewPortChange: (Matrix) -> Unit = {},
     onClick: (VolumeChartModel) -> Unit = {},
     viewPort: ViewportPayload? = null
@@ -38,44 +39,44 @@ fun VolumeChart(
             println("Creating VolumeChart")
             CombinedChart(ctx).apply {
                 ChartUtils.setChartDefaults(this, textColor)
+                this.setDrawMarkers(false)
             }
         },
         update = { chart ->
-            println("Updating Volume Chart")
-            ChartUtils.setDateAxisLabels(chart, chartModel.value, table)
-            chart.setDrawMarkers(false)
+            if (updateData) {
+                ChartUtils.setDateAxisLabels(chart, model, table)
 
-            val dataSets = chartModel.value.getDataSets(table)
-            chart.data = CombinedData().apply {
-                setData(ChartUtils.getBarData(dataSets))
-                setData(ChartUtils.getLineData(dataSets))
+                val dataSets = model.getDataSets(table)
+                chart.data = CombinedData().apply {
+                    setData(ChartUtils.getBarData(dataSets))
+                    setData(ChartUtils.getLineData(dataSets))
+                }
+
+                ChartUtils.setLegend(chart, dataSets, textColor)
+                if (model.logScale)
+                    chart.axisRight.valueFormatter = logScaleYAxis
+
+                chart.onChartGestureListener = object : DefaultChartGestureListener() {
+                    override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
+                        super.onChartScale(me, scaleX, scaleY)
+                        onViewPortChange(chart.viewPortHandler.matrixTouch)
+                    }
+
+                    override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
+                        super.onChartTranslate(me, dX, dY)
+                        onViewPortChange(chart.viewPortHandler.matrixTouch)
+                    }
+
+                    override fun onChartSingleTapped(me: MotionEvent?) {
+                        super.onChartSingleTapped(me)
+                        onClick(model)
+                    }
+                }
             }
-
-            ChartUtils.setLegend(chart, dataSets, textColor)
-            if (chartModel.value.logScale)
-                chart.axisRight.valueFormatter = logScaleYAxis
 
             if (viewPort != null && viewPort.matrix != chart.viewPortHandler.matrixTouch) {
                 val matrix = Matrix(viewPort.matrix)
                 chart.viewPortHandler.refresh(matrix, chart, true)
-            }
-
-            val matrix = chart.viewPortHandler.matrixTouch
-            chart.onChartGestureListener = object : DefaultChartGestureListener() {
-                override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
-                    super.onChartScale(me, scaleX, scaleY)
-                    onViewPortChange(matrix)
-                }
-
-                override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
-                    super.onChartTranslate(me, dX, dY)
-                    onViewPortChange(matrix)
-                }
-
-                override fun onChartSingleTapped(me: MotionEvent?) {
-                    super.onChartSingleTapped(me)
-                    onClick(chartModel.value)
-                }
             }
 
             // ensure redraw when inputs change
