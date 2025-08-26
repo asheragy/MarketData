@@ -1,6 +1,5 @@
 package org.cerion.stockcharts.ui.charts
 
-import android.graphics.Matrix
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -11,13 +10,16 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.Toast
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.google.android.material.chip.Chip
-import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.Symbol
 import org.cerion.stockcharts.R
@@ -25,13 +27,24 @@ import org.cerion.stockcharts.appCompatActivity
 import org.cerion.stockcharts.common.SymbolSearchView
 import org.cerion.stockcharts.database.getDatabase
 import org.cerion.stockcharts.databinding.FragmentChartsBinding
+import org.cerion.stockcharts.ui.AppTheme
+import org.cerion.stockcharts.ui.charts.compose.ChartList
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ChartsFragment : Fragment() {
 
     private val viewModel: ChartsViewModel by viewModel()
     private lateinit var binding: FragmentChartsBinding
-    private lateinit var adapter: ChartListAdapter
+
+    companion object {
+        fun newInstance(symbol: String): ChartsFragment {
+            val fragment = ChartsFragment()
+            val args = Bundle()
+            args.putString("symbol", symbol)
+            fragment.arguments = args
+            return fragment
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentChartsBinding.inflate(inflater, container, false)
@@ -39,26 +52,12 @@ class ChartsFragment : Fragment() {
         appCompatActivity?.setSupportActionBar(binding.toolbar)
         setHasOptionsMenu(true)
 
-        val chartListener = object : StockChartListener {
-            override fun onClick(chart: StockChart) {
-                viewModel.editChart(chart)
-            }
-
-            override fun onViewPortChange(matrix: Matrix) {
-                syncCharts(matrix)
-            }
-        }
-
-        adapter = ChartListAdapter(requireContext(), chartListener)
-        binding.recyclerView.adapter = adapter
-
         val chartsChangedObserver = Observer<Any?> {
             var intervals = 0
             viewModel.rangeSelect.value?.getContentIfNotHandled()?.also {
                 intervals = it
             }
 
-            adapter.setCharts(viewModel.charts.value!!, viewModel.table.value, intervals)
         }
 
         viewModel.busy.observe(viewLifecycleOwner) {
@@ -94,9 +93,8 @@ class ChartsFragment : Fragment() {
 
         viewModel.editChart.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { chart ->
-                val fm = requireActivity().supportFragmentManager
                 val dialog = EditChartDialog.newInstance(chart, viewModel)
-                dialog.show(fm, "editDialog")
+                dialog.show(childFragmentManager, "editDialog")
             }
         }
 
@@ -118,6 +116,19 @@ class ChartsFragment : Fragment() {
             }
             else
                 viewModel.load()
+        }
+
+        binding.composeView.setContent {
+            val charts by viewModel.chartModels.observeAsState(listOf())
+            val table by viewModel.table.observeAsState(null)
+
+            AppTheme {
+                Surface(color = MaterialTheme.colorScheme.surface) {
+                    ChartList(charts, table, onClick = {
+                        viewModel.editChart(it)
+                    })
+                }
+            }
         }
 
         return binding.root
@@ -153,14 +164,6 @@ class ChartsFragment : Fragment() {
         }
 
         return true
-    }
-
-    private val _mainVals = FloatArray(9)
-    private fun syncCharts(matrix: Matrix) {
-        matrix.getValues(_mainVals)
-        for(view in binding.recyclerView.children) {
-            adapter.syncMatrix(matrix, _mainVals, binding.recyclerView.getChildViewHolder(view) as ChartListAdapter.ViewHolder)
-        }
     }
 
     // Debug only

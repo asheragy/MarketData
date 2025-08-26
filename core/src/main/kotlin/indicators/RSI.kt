@@ -18,6 +18,8 @@ class RSI(period: Int = 14) : IndicatorBase(Indicator.RSI, period) {
         val arr = table.close
         val size = arr.size
         val result = FloatArray(size)
+        if (size == 0)
+            return result
 
         /*
         for(int i = period; i < size(); i++)

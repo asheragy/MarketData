@@ -17,7 +17,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import org.cerion.stockcharts.R
 import org.cerion.stockcharts.repository.PriceListSQLRepository
-import org.cerion.stockcharts.ui.charts.ComposeChartsFragment
 import org.cerion.stockcharts.ui.crypto.CryptoFragment
 import org.cerion.stockcharts.ui.crypto.PortfolioFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -75,25 +74,19 @@ class HomeFragment : Fragment() {
     }
 
     private inner class ViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-        override fun getItemCount(): Int = 3
+        private val pages: List<Pair<String, () -> Fragment>> = listOf(
+            //"TEST" to { ComposeChartsFragment.newInstance("BTC") },
+            "Crypto" to { CryptoFragment() },
+            //"Stocks" to { SymbolsFragment.newInstance(SymbolCategory.STOCK) },
+            "Portfolio" to { PortfolioFragment() }
+        )
 
-        override fun createFragment(position: Int): Fragment {
-            return when(position) {
-                0 -> ComposeChartsFragment.newInstance("BTC")
-                1 -> CryptoFragment()
-                //1 -> SymbolsFragment.newInstance(SymbolCategory.STOCK)
-                2 -> PortfolioFragment()
-                else -> throw NotImplementedError()
-            }
-        }
+        override fun getItemCount(): Int = pages.size
 
-        fun getTitle(position: Int): String {
-            return when (position) {
-                0 -> "TEST"
-                1 -> "Crypto"
-                2 -> "Portfolio"
-                else -> throw NotImplementedError()
-            }
-        }
+        override fun createFragment(position: Int): Fragment =
+            pages[position].second.invoke()
+
+        fun getTitle(position: Int): String =
+            pages[position].first
     }
 }

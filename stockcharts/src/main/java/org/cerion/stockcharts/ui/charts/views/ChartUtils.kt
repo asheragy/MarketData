@@ -153,8 +153,11 @@ object ChartUtils {
         }
     }
 
-    fun setDateAxisLabels(chart: BarLineChartBase<*>, stockchart: StockChart, table: OHLCVTable) {
-        chart.xAxis.valueFormatter = getAxisFormatter(stockchart.getDates(table), table.interval)
+    fun setDateAxisLabels(chart: BarLineChartBase<*>, stockchart: StockChart, table: OHLCVTable?) {
+        if (table != null)
+            chart.xAxis.valueFormatter = getAxisFormatter(stockchart.getDates(table), table.interval)
+        else
+            chart.xAxis.valueFormatter = getAxisFormatter(emptyArray(), Interval.DAILY)
     }
 
     fun setLegend(chart: Chart<*>, sets: List<IDataSet>, textColor: Int) {
