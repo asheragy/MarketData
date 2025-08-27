@@ -46,7 +46,7 @@ class ChartsViewModelTest {
 
     @Test
     fun chartsViewModel_defaults() {
-        assertEquals(Interval.DAILY, _viewModel.interval.value)
+        assertEquals(Interval.DAILY, _viewModel._interval.value)
         assertEquals("^GSPC", _viewModel.symbol.value!!.symbol)
         assertFalse(_viewModel.busy.value!!)
         assertEquals(2, _viewModel.charts.value!!.size)

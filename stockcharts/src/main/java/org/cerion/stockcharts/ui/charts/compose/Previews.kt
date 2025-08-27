@@ -15,7 +15,7 @@ import org.cerion.stockcharts.ui.charts.ChartColorScheme
 import java.time.LocalDate
 
 
-val data = listOf(
+private val data = listOf(
     OHLCVRow(
         date = LocalDate.parse("2023-01-01"),
         open = 105.56f,
@@ -58,7 +58,7 @@ val data = listOf(
     )
 )
 
-private val table = OHLCVTable("FOO", data)
+val table = OHLCVTable("FOO", data)
 
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable

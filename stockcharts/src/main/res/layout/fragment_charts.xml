@@ -41,51 +41,6 @@
                     tools:text="S&amp;P 500">
                 </TextView>
 
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?android:attr/windowBackground">
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/ranges"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:singleSelection="true">
-
-                        <com.google.android.material.chip.Chip
-                            style="@style/Widget.MaterialComponents.Chip.Action"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-
-                        <com.google.android.material.chip.Chip
-                            style="@style/Widget.MaterialComponents.Chip.Action"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-
-                        <com.google.android.material.chip.Chip
-                            style="@style/Widget.MaterialComponents.Chip.Action"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-
-                        <com.google.android.material.chip.Chip
-                            style="@style/Widget.MaterialComponents.Chip.Action"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-
-                    </com.google.android.material.chip.ChipGroup>
-
-                    <Spinner
-                        android:id="@+id/interval"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:entries="@array/intervals"
-                        android:layout_gravity="center_vertical">
-                    </Spinner>
-
-                </LinearLayout>
-
             </LinearLayout>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>

@@ -36,7 +36,9 @@ class ChartsViewModel(
         get() = _symbol
 
     val intervals = listOf(Interval.DAILY, Interval.WEEKLY, Interval.MONTHLY, Interval.QUARTERLY)
-    val interval = MutableLiveData(Interval.DAILY)
+    private val _interval = MutableLiveData(Interval.DAILY)
+    val interval: LiveData<Interval>
+        get() = _interval
 
     private val _editChart = MutableLiveData<Event<StockChart>>()
     val editChart: LiveData<Event<StockChart>>
@@ -81,7 +83,7 @@ class ChartsViewModel(
     private var cleanupCache = true
 
     val rangeSelect = MutableLiveData<Event<Int>>()
-    val ranges = interval.map {
+    val ranges = _interval.map {
         when (it) {
             Interval.DAILY -> listOf("1M", "6M", "1Y", "MAX")
             Interval.WEEKLY -> listOf("3M", "1Y", "5Y", "MAX")
@@ -99,7 +101,7 @@ class ChartsViewModel(
         charts.value = _charts
         chartModels.value = _charts.map { ChartModel(it) }
 
-        table.addSource(interval) {
+        table.addSource(_interval) {
             // Refresh only if prices are already loaded and interval was changed
             if (table.value != null && table.value!!.interval != it) {
                 viewModelScope.launch {
@@ -107,6 +109,11 @@ class ChartsViewModel(
                 }
             }
         }
+    }
+
+    fun setInterval(interval: Interval) {
+        // TODO should refresh and not be based on observing this field
+        _interval.value = interval
     }
 
     fun load() {
@@ -131,7 +138,7 @@ class ChartsViewModel(
     }
 
     fun setRange(position: Int) {
-        val range: Int = when(interval.value) {
+        val range: Int = when(_interval.value) {
             // TODO daily is wrong with crypto
             // Logic should be built in charts
             Interval.DAILY -> when(position) {
@@ -174,7 +181,7 @@ class ChartsViewModel(
             //delay(2000)
             val symbol = _symbol.value!!.symbol
             try {
-                table.value = repo.get(symbol, interval.value!!)
+                table.value = repo.get(symbol, _interval.value!!)
             } catch (e: Exception) {
                 _error.value = Event(e.message ?: "Failed to load $symbol")
                 table.value = null

@@ -7,19 +7,21 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.Toast
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.core.view.MenuCompat
-import androidx.core.view.children
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import com.google.android.material.chip.Chip
+import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.Symbol
 import org.cerion.stockcharts.R
@@ -29,6 +31,7 @@ import org.cerion.stockcharts.database.getDatabase
 import org.cerion.stockcharts.databinding.FragmentChartsBinding
 import org.cerion.stockcharts.ui.AppTheme
 import org.cerion.stockcharts.ui.charts.compose.ChartList
+import org.cerion.stockcharts.ui.charts.compose.IntervalDropDownMenu
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ChartsFragment : Fragment() {
@@ -52,13 +55,6 @@ class ChartsFragment : Fragment() {
         appCompatActivity?.setSupportActionBar(binding.toolbar)
         setHasOptionsMenu(true)
 
-        val chartsChangedObserver = Observer<Any?> {
-            var intervals = 0
-            viewModel.rangeSelect.value?.getContentIfNotHandled()?.also {
-                intervals = it
-            }
-
-        }
 
         viewModel.busy.observe(viewLifecycleOwner) {
             binding.loadingBar.visibility = if(it) View.VISIBLE else View.GONE
@@ -66,35 +62,12 @@ class ChartsFragment : Fragment() {
 
         viewModel.symbol.observe(viewLifecycleOwner) {
             appCompatActivity?.supportActionBar?.title = it.symbol
-            binding.title.text = it.name
-        }
-
-        // Intervals
-        binding.interval.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onNothingSelected(p0: AdapterView<*>?) {}
-            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
-                viewModel.interval.value = Interval.values()[position]
-            }
-        }
-
-        viewModel.ranges.observe(viewLifecycleOwner) {
-            it.forEachIndexed { index, label ->
-                val chip = binding.ranges[index] as Chip
-                chip.text = label
-            }
-        }
-
-        binding.ranges.children.forEachIndexed { index, view ->
-            view as Chip
-            view.setOnClickListener {
-                viewModel.setRange(index)
-            }
+            binding.title.text = it.name ?: it.symbol
         }
 
         viewModel.editChart.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { chart ->
-                val dialog = EditChartDialog.newInstance(chart, viewModel)
-                dialog.show(childFragmentManager, "editDialog")
+                onEditChart(chart)
             }
         }
 
@@ -103,10 +76,6 @@ class ChartsFragment : Fragment() {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
         }
-
-        viewModel.charts.observe(viewLifecycleOwner, chartsChangedObserver)
-        viewModel.table.observe(viewLifecycleOwner, chartsChangedObserver)
-        viewModel.rangeSelect.observe(viewLifecycleOwner, chartsChangedObserver)
 
         if (savedInstanceState == null) {
             if (arguments != null) {
@@ -118,15 +87,60 @@ class ChartsFragment : Fragment() {
                 viewModel.load()
         }
 
+        /*
+        TODO observe rangeSelect event
+        this was the old logic to adjust the range
+
+        chartView as BarLineChartBase<*>
+        if (intervals != 0) {
+            val end = table!!.close.size.toFloat()
+            val start = kotlin.math.max(0.0f, end - intervals.toFloat())
+
+            chartView.setVisibleXRangeMaximum(intervals.toFloat())
+            chartView.moveViewToX(end - start - 1)
+            chartView.setVisibleXRangeMaximum(table!!.close.size.toFloat()) // Workaround to make viewport manually adjustable again
+        }
+         */
+
         binding.composeView.setContent {
             val charts by viewModel.chartModels.observeAsState(listOf())
+            val ranges by viewModel.ranges.observeAsState(listOf())
+            val interval by viewModel.interval.observeAsState(Interval.DAILY)
             val table by viewModel.table.observeAsState(null)
 
             AppTheme {
                 Surface(color = MaterialTheme.colorScheme.surface) {
-                    ChartList(charts, table, onClick = {
-                        viewModel.editChart(it)
-                    })
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                ranges.take(4).forEach { label ->
+                                    AssistChip(
+                                        onClick = {
+                                            val index = ranges.indexOf(label)
+                                            if (index >= 0) {
+                                                Toast.makeText(context, "Not Implemented", Toast.LENGTH_SHORT).show()
+                                                viewModel.setRange(index)
+                                            }
+                                        },
+                                        label = { Text(label) }
+                                    )
+                                }
+                            }
+
+                            IntervalDropDownMenu(interval) {
+                                viewModel.setInterval(it)
+                            }
+                        }
+                        ChartList(charts, table, onClick = {
+                            onEditChart(it)
+                        })
+                    }
                 }
             }
         }
@@ -177,5 +191,10 @@ class ChartsFragment : Fragment() {
         val lists = db.priceListDao.getAll()
 
         Toast.makeText(requireContext(), "${lists.size} lists with size ${sizeInKb}kb", Toast.LENGTH_LONG).show()
+    }
+
+    private fun onEditChart(chart: StockChart) {
+        val dialog = EditChartDialog.newInstance(chart, viewModel)
+        dialog.show(childFragmentManager, "editDialog")
     }
 }
