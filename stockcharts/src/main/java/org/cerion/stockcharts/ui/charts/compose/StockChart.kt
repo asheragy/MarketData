@@ -10,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import org.cerion.marketdata.core.charts.IndicatorChart
 import org.cerion.marketdata.core.charts.PriceChart
-import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.charts.VolumeChart
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.OHLCVTable
@@ -20,7 +19,7 @@ fun StockChart(
     model: ChartModel,
     table: OHLCVTable,
     onViewPortChange: (Matrix) -> Unit = {},
-    onClick: (StockChart) -> Unit = {},
+    onClick: (ChartModel) -> Unit = {},
     viewPort: ViewportPayload? = null
 ) {
     var lastModelVersion by remember { mutableLongStateOf(0L) }
@@ -42,10 +41,19 @@ fun StockChart(
                 table = table,
                 updateData,
                 onViewPortChange = onViewPortChange,
-                onClick = onClick,
+                onClick = {
+                    onClick(model)
+                },
                 viewPort = viewPort)
         }
-        is VolumeChart -> VolumeChart(model.value, table, updateData, onViewPortChange, onClick, viewPort)
-        is IndicatorChart -> IndicatorChart(model.value, table, updateData, onViewPortChange, onClick, viewPort)
+        is VolumeChart -> VolumeChart(model.value, table, updateData, onViewPortChange,
+            onClick = {
+            onClick(model)
+        }, viewPort)
+        is IndicatorChart -> IndicatorChart(model.value, table, updateData, onViewPortChange,
+            onClick = {
+                onClick(model)
+            },
+            viewPort)
     }
 }

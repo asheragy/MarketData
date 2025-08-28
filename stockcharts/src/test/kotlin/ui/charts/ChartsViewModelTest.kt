@@ -46,12 +46,12 @@ class ChartsViewModelTest {
 
     @Test
     fun chartsViewModel_defaults() {
-        assertEquals(Interval.DAILY, _viewModel._interval.value)
+        assertEquals(Interval.DAILY, _viewModel.interval.value)
         assertEquals("^GSPC", _viewModel.symbol.value!!.symbol)
-        assertFalse(_viewModel.busy.value!!)
-        assertEquals(2, _viewModel.charts.value!!.size)
-        assertTrue(_viewModel.charts.value!![0] is PriceChart)
-        assertTrue(_viewModel.charts.value!![1] is VolumeChart)
+        assertFalse(_viewModel.busy.value)
+        assertEquals(2, _viewModel.charts.value.size)
+        assertTrue(_viewModel.charts.value[0].value is PriceChart)
+        assertTrue(_viewModel.charts.value[1].value is VolumeChart)
     }
 
     @Test
@@ -59,8 +59,8 @@ class ChartsViewModelTest {
         _prefs.saveCharts(listOf(VolumeChart()))
         _viewModel = ChartsViewModel(_cachedRepo, FakePriceListRepository(), _prefs, ChartColors())
 
-        assertEquals(1, _viewModel.charts.value!!.size)
-        assertTrue(_viewModel.charts.value!![0] is VolumeChart)
+        assertEquals(1, _viewModel.charts.value.size)
+        assertTrue(_viewModel.charts.value[0].value is VolumeChart)
     }
 
     @Test
@@ -74,21 +74,21 @@ class ChartsViewModelTest {
 
     @Test
     fun chartsViewModel_removeChart() {
-        val chartToRemove = _viewModel.charts.value!![0]
+        val chartToRemove = _viewModel.charts.value[0].value
         _viewModel.removeChart(chartToRemove)
 
-        assertEquals(1, _viewModel.charts.value!!.size)
-        assertTrue(_viewModel.charts.value!![0] is VolumeChart)
+        assertEquals(1, _viewModel.charts.value.size)
+        assertTrue(_viewModel.charts.value[0].value is VolumeChart)
     }
 
     @Test
     fun chartsViewModel_replace() {
-        val chartToReplace = _viewModel.charts.value!![0]
+        val chartToReplace = _viewModel.charts.value[0]
         val chartToAdd = IndicatorChart(RSI(14))
 
-        _viewModel.replaceChart(chartToReplace, chartToAdd)
-        assertEquals(2, _viewModel.charts.value!!.size)
-        assertTrue(_viewModel.charts.value!![0] is IndicatorChart)
+        _viewModel.replaceChart(chartToReplace.value, chartToAdd)
+        assertEquals(2, _viewModel.charts.value.size)
+        assertTrue(_viewModel.charts.value[0].value is IndicatorChart)
     }
 
     @ExperimentalCoroutinesApi

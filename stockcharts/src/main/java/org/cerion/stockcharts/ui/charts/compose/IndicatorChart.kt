@@ -21,7 +21,7 @@ fun IndicatorChart(
     table: OHLCVTable,
     updateData: Boolean = true,
     onViewPortChange: (Matrix) -> Unit = {},
-    onClick: (IndicatorChartModel) -> Unit = {},
+    onClick: () -> Unit = {},
     viewPort: ViewportPayload? = null
 ) {
     val context = LocalContext.current
@@ -58,7 +58,7 @@ fun IndicatorChart(
 
                     override fun onChartSingleTapped(me: MotionEvent?) {
                         super.onChartSingleTapped(me)
-                        onClick(model)
+                        onClick()
                     }
                 }
             }

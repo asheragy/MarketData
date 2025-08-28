@@ -24,7 +24,7 @@ fun VolumeChart(
     table: OHLCVTable,
     updateData: Boolean = true,
     onViewPortChange: (Matrix) -> Unit = {},
-    onClick: (VolumeChartModel) -> Unit = {},
+    onClick: () -> Unit = {},
     viewPort: ViewportPayload? = null
 ) {
     val context = LocalContext.current
@@ -69,7 +69,7 @@ fun VolumeChart(
 
                     override fun onChartSingleTapped(me: MotionEvent?) {
                         super.onChartSingleTapped(me)
-                        onClick(model)
+                        onClick()
                     }
                 }
             }

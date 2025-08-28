@@ -41,8 +41,8 @@ class ChartsViewModel(
     val interval: LiveData<Interval>
         get() = _interval
 
-    private val _editChart = MutableLiveData<Event<StockChart>>()
-    val editChart: LiveData<Event<StockChart>>
+    private val _editChart = MutableLiveData<Event<ChartModel>>()
+    val editChart: LiveData<Event<ChartModel>>
         get() = _editChart
 
     private val _error = MutableLiveData<Event<String>>()
@@ -199,7 +199,7 @@ class ChartsViewModel(
         }
     }
 
-    fun editChart(chart: StockChart) {
+    fun editChart(chart: ChartModel) {
         _editChart.value = Event(chart)
     }
 
@@ -212,7 +212,7 @@ class ChartsViewModel(
     fun addIndicatorChart() {
         val newChart = IndicatorChart(MACD(), colors)
         addChart(newChart)
-        editChart(newChart)
+        editChart(ChartModel(newChart))
     }
 
     fun addVolumeChart() {

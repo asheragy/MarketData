@@ -20,7 +20,6 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.Symbol
 import org.cerion.stockcharts.R
@@ -30,6 +29,7 @@ import org.cerion.stockcharts.database.getDatabase
 import org.cerion.stockcharts.databinding.FragmentChartsBinding
 import org.cerion.stockcharts.ui.AppTheme
 import org.cerion.stockcharts.ui.charts.compose.ChartList
+import org.cerion.stockcharts.ui.charts.compose.ChartModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ChartsFragment : Fragment() {
@@ -178,8 +178,8 @@ class ChartsFragment : Fragment() {
         Toast.makeText(requireContext(), "${lists.size} lists with size ${sizeInKb}kb", Toast.LENGTH_LONG).show()
     }
 
-    private fun onEditChart(chart: StockChart) {
-        val dialog = EditChartDialog.newInstance(chart, viewModel)
+    private fun onEditChart(chart: ChartModel) {
+        val dialog = EditChartDialog.newInstance(chart.value, viewModel)
         dialog.show(childFragmentManager, "editDialog")
     }
 }

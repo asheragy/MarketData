@@ -25,7 +25,7 @@ fun PriceChart(
     table: OHLCVTable,
     updateData: Boolean = true,
     onViewPortChange: (Matrix) -> Unit = {},
-    onClick: (PriceChartModel) -> Unit = {},
+    onClick: () -> Unit = {},
     viewPort: ViewportPayload? = null
 ) {
     val context = LocalContext.current
@@ -79,7 +79,7 @@ fun PriceChart(
                     override fun onChartSingleTapped(me: MotionEvent?) {
                         super.onChartSingleTapped(me)
                         //listener?.onClick(model.value)
-                        onClick(model)
+                        onClick()
                     }
                 }
             }
