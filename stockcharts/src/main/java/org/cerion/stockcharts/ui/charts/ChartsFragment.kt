@@ -9,18 +9,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.core.view.MenuCompat
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.Symbol
@@ -31,7 +29,6 @@ import org.cerion.stockcharts.database.getDatabase
 import org.cerion.stockcharts.databinding.FragmentChartsBinding
 import org.cerion.stockcharts.ui.AppTheme
 import org.cerion.stockcharts.ui.charts.compose.ChartList
-import org.cerion.stockcharts.ui.charts.compose.IntervalDropDownMenu
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ChartsFragment : Fragment() {
@@ -53,16 +50,53 @@ class ChartsFragment : Fragment() {
         binding = FragmentChartsBinding.inflate(inflater, container, false)
 
         appCompatActivity?.setSupportActionBar(binding.toolbar)
-        setHasOptionsMenu(true)
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.charts_menu, menu)
+                MenuCompat.setGroupDividerEnabled(menu, true)
 
+                val menuItem = menu.findItem(R.id.action_search)
+                val searchView = menuItem.actionView as? SymbolSearchView
 
-        viewModel.busy.observe(viewLifecycleOwner) {
-            binding.loadingBar.visibility = if(it) View.VISIBLE else View.GONE
-        }
+                searchView?.setOnSymbolClickListener(object : SymbolSearchView.OnSymbolClickListener {
+                    override fun onClick(symbol: Symbol) {
+                        viewModel.load(symbol)
+                        menuItem.collapseActionView()
+                    }
+                })
+            }
+
+            override fun onMenuItemSelected(item: MenuItem): Boolean {
+                return when (item.itemId) {
+                    R.id.add_indicator -> {
+                        viewModel.addIndicatorChart()
+                        true
+                    }
+                    R.id.add_price -> {
+                        viewModel.addPriceChart()
+                        true
+                    }
+                    R.id.add_volume -> {
+                        viewModel.addVolumeChart()
+                        true
+                    }
+                    R.id.clear_cache -> {
+                        viewModel.clearCache()
+                        true
+                    }
+                    R.id.stats -> {
+                        showStats()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         viewModel.symbol.observe(viewLifecycleOwner) {
             appCompatActivity?.supportActionBar?.title = it.symbol
-            binding.title.text = it.name ?: it.symbol
+            //binding.title.text = it.name ?: it.symbol
         }
 
         viewModel.editChart.observe(viewLifecycleOwner) { event ->
@@ -103,81 +137,31 @@ class ChartsFragment : Fragment() {
          */
 
         binding.composeView.setContent {
+            val nestedScroll = rememberNestedScrollInteropConnection()
             val charts by viewModel.chartModels.observeAsState(listOf())
             val ranges by viewModel.ranges.observeAsState(listOf())
             val interval by viewModel.interval.observeAsState(Interval.DAILY)
             val table by viewModel.table.observeAsState(null)
+            val loading by viewModel.busy.observeAsState(false)
 
             AppTheme {
                 Surface(color = MaterialTheme.colorScheme.surface) {
                     Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                ranges.take(4).forEach { label ->
-                                    AssistChip(
-                                        onClick = {
-                                            val index = ranges.indexOf(label)
-                                            if (index >= 0) {
-                                                Toast.makeText(context, "Not Implemented", Toast.LENGTH_SHORT).show()
-                                                viewModel.setRange(index)
-                                            }
-                                        },
-                                        label = { Text(label) }
-                                    )
-                                }
-                            }
-
-                            IntervalDropDownMenu(interval) {
-                                viewModel.setInterval(it)
-                            }
-                        }
-                        ChartList(charts, table, onClick = {
-                            onEditChart(it)
-                        })
+                        ChartList(
+                            charts,
+                            table,
+                            scrollConnection = nestedScroll,
+                            loading = loading,
+                            interval = interval,
+                            ranges = ranges,
+                            viewModel = viewModel
+                        )
                     }
                 }
             }
         }
 
         return binding.root
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.charts_menu, menu)
-        MenuCompat.setGroupDividerEnabled(menu, true)
-
-        val menuItem = menu.findItem(R.id.action_search)
-        val searchView = menuItem.actionView as SymbolSearchView
-
-        searchView.setOnSymbolClickListener(object : SymbolSearchView.OnSymbolClickListener {
-            override fun onClick(symbol: Symbol) {
-                viewModel.load(symbol)
-                menuItem.collapseActionView()
-            }
-        })
-
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.add_indicator -> viewModel.addIndicatorChart()
-            R.id.add_price -> viewModel.addPriceChart()
-            R.id.add_volume -> viewModel.addVolumeChart()
-            R.id.clear_cache -> viewModel.clearCache()
-            R.id.stats -> showStats()
-            else -> return super.onContextItemSelected(item)
-        }
-
-        return true
     }
 
     // Debug only
