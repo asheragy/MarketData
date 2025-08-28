@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import java.text.DecimalFormat
 
 data class QuoteRowUi(
@@ -90,9 +91,17 @@ private fun CryptoRow(
 @Composable
 fun CryptoList(
     quotes: List<QuoteRowUi>,
+    total: Double,
     onClick: (QuoteRowUi) -> Unit
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item {
+            Text(text = "$" + android.icu.text.DecimalFormat("#.##").format(total),
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                textAlign = TextAlign.Center,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold)
+        }
         items(quotes) { quote ->
             CryptoRow(quote) {
                 onClick(quote)
@@ -111,5 +120,5 @@ fun PreviewCryptoList() {
         QuoteRowUi("Solana", 45.67, 0.15, 0.80, -1.20)
     )
 
-    CryptoList(sampleData, onClick = {})
+    CryptoList(sampleData, 1000.00, onClick = {})
 }

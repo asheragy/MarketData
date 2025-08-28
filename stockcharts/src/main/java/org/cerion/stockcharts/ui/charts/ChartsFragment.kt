@@ -19,6 +19,7 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.Symbol
@@ -138,11 +139,11 @@ class ChartsFragment : Fragment() {
 
         binding.composeView.setContent {
             val nestedScroll = rememberNestedScrollInteropConnection()
-            val charts by viewModel.chartModels.observeAsState(listOf())
+            val charts by viewModel.charts.collectAsStateWithLifecycle()
             val ranges by viewModel.ranges.observeAsState(listOf())
             val interval by viewModel.interval.observeAsState(Interval.DAILY)
-            val table by viewModel.table.observeAsState(null)
-            val loading by viewModel.busy.observeAsState(false)
+            val table by viewModel.table.collectAsStateWithLifecycle()
+            val loading by viewModel.busy.collectAsStateWithLifecycle()
 
             AppTheme {
                 Surface(color = MaterialTheme.colorScheme.surface) {

@@ -33,6 +33,7 @@ class CryptoFragment : Fragment() {
                 val rows by viewModel.rows.collectAsStateWithLifecycle()
                 val converted = rows.map { QuoteRowUi(it.name, it.quote!!.price, it.quote!!.changeDay, it.quote!!.changeWeek, it.quote!!.changeMonth) }
                 val refreshing by viewModel.busy.collectAsStateWithLifecycle()
+                val total by viewModel.total.collectAsStateWithLifecycle()
 
                 AppTheme {
                     Surface(color = MaterialTheme.colorScheme.surface) {
@@ -43,7 +44,7 @@ class CryptoFragment : Fragment() {
                                 viewModel.load()
                             },
                         ) {
-                            CryptoList(converted) { clicked ->
+                            CryptoList(converted, total) { clicked ->
                                 val symbol = rows.first { clicked.name == it.name }.symbol
                                 navigate(symbol)
                             }

@@ -1,12 +1,13 @@
 package org.cerion.stockcharts.ui.charts
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.cerion.marketdata.core.charts.ChartColors
 import org.cerion.marketdata.core.charts.IndicatorChart
@@ -36,7 +37,6 @@ class ChartsViewModel(
     val symbol: LiveData<Symbol>
         get() = _symbol
 
-    val intervals = listOf(Interval.DAILY, Interval.WEEKLY, Interval.MONTHLY, Interval.QUARTERLY)
     private val _interval = MutableLiveData(Interval.DAILY)
     val interval: LiveData<Interval>
         get() = _interval
@@ -48,8 +48,6 @@ class ChartsViewModel(
     private val _error = MutableLiveData<Event<String>>()
     val error: LiveData<Event<String>>
         get() = _error
-
-    val table = MediatorLiveData<OHLCVTable?>()
 
     private val DefaultCharts = mutableListOf(
             PriceChart(colors),
@@ -72,18 +70,23 @@ class ChartsViewModel(
     )
      */
 
-    // TODO first 2 are deprecated
-    private var _charts = mutableListOf<StockChart>()
-    val charts: MutableLiveData<List<StockChart>> = MutableLiveData(_charts)
-    val chartModels: MutableLiveData<List<ChartModel>> = MutableLiveData(emptyList())
+    private val _table = MutableStateFlow<OHLCVTable?>(null)
+    val table: StateFlow<OHLCVTable?> = _table
 
-    private val _busy = MutableLiveData(false)
-    val busy: LiveData<Boolean>
+    private val _charts = MutableStateFlow<List<ChartModel>>(emptyList())
+    val charts: StateFlow<List<ChartModel>> = _charts
+
+    private val _busy = MutableStateFlow(false)
+    val busy: StateFlow<Boolean>
         get() = _busy
 
-    private var cleanupCache = true
-
-    val rangeSelect = MutableLiveData<Event<Int>>()
+    /*
+        TODO
+        - ranges should be set on load since stock/crypto is different
+        - result should be List<Pair<String, Int>>
+        - Composable handles onClick and viewmodel doesn't need rangeSelect
+     */
+    private val rangeSelect = MutableLiveData<Event<Int>>()
     val ranges = _interval.map {
         when (it) {
             Interval.DAILY -> listOf("1M", "6M", "1Y", "MAX")
@@ -95,26 +98,19 @@ class ChartsViewModel(
 
     init {
         // Load saved charts
-        _charts.addAll(prefs.getCharts(colors))
-        if (_charts.isEmpty())
-            _charts.addAll(DefaultCharts)
+        val charts = prefs.getCharts(colors).toMutableList()
+        if (charts.isEmpty())
+            charts.addAll(DefaultCharts)
 
-        charts.value = _charts
-        chartModels.value = _charts.map { ChartModel(it) }
-
-        table.addSource(_interval) {
-            // Refresh only if prices are already loaded and interval was changed
-            if (table.value != null && table.value!!.interval != it) {
-                viewModelScope.launch {
-                    refresh()
-                }
-            }
-        }
+        _charts.value = charts.map { ChartModel(it) }
     }
 
     fun setInterval(interval: Interval) {
-        // TODO should refresh and not be based on observing this field
-        _interval.value = interval
+        if (_interval.value != interval) {
+            _interval.value = interval
+
+            refresh()
+        }
     }
 
     fun load() {
@@ -122,20 +118,15 @@ class ChartsViewModel(
         if (lastSymbol != null)
             _symbol.value = lastSymbol
 
-        viewModelScope.launch {
-            refresh()
-        }
+        refresh()
     }
 
+    private var saveSymbolAfterLoad = false
     fun load(symbol: Symbol) {
         _symbol.value = symbol
 
-        viewModelScope.launch {
-            refresh()
-            // If successfully loaded prices save symbol history
-            if (table.value != null)
-                prefs.addSymbolHistory(symbol)
-        }
+        saveSymbolAfterLoad = true
+        refresh()
     }
 
     fun setRange(position: Int) {
@@ -171,21 +162,30 @@ class ChartsViewModel(
         rangeSelect.value = Event(range)
     }
 
-    private suspend fun refresh() {
-        runBusy {
-            // On the 2nd fetch of this app instance, cleanup database if needed
-            if (table.value != null && cleanupCache) {
-                cleanupCache = false
-                sqlRepo.cleanupCache()
-            }
+    private var cleanupCache = true
+    private fun refresh() {
+        viewModelScope.launch {
+            runBusy {
+                // On the 2nd fetch of this app instance, cleanup database if needed
+                if (table.value != null && cleanupCache) {
+                    cleanupCache = false
+                    sqlRepo.cleanupCache()
+                }
 
-            delay(2000)
-            val symbol = _symbol.value!!.symbol
-            try {
-                table.value = repo.get(symbol, _interval.value!!)
-            } catch (e: Exception) {
-                _error.value = Event(e.message ?: "Failed to load $symbol")
-                table.value = null
+                // TODO for debugging to catch unnecessary refreshes
+                delay(200)
+                val symbol = _symbol.value!!
+                try {
+                    _table.value = repo.get(symbol.symbol, _interval.value!!)
+
+                    if (saveSymbolAfterLoad) {
+                        prefs.addSymbolHistory(symbol)
+                        saveSymbolAfterLoad = false
+                    }
+                } catch (e: Exception) {
+                    _error.value = Event(e.message ?: "Failed to load $symbol")
+                    _table.value = null
+                }
             }
         }
     }
@@ -220,24 +220,18 @@ class ChartsViewModel(
     }
 
     fun removeChart(chart: StockChart) {
-        _charts.remove(chart)
-        charts.value = _charts
-        // TODO can be changed to filter
-        chartModels.value = _charts.map { ChartModel(it) }
+        _charts.value = _charts.value.filter { it.value != chart }
         saveCharts()
     }
 
     fun replaceChart(old: StockChart, new: StockChart) {
-        val index = _charts.indexOf(old)
-        if (index < 0)
-            throw RuntimeException("TODO this should not happen")
+        _charts.value = _charts.value.map {
+            if (it.value == old)
+                ChartModel(new)
+            else
+                it
+        }
 
-        _charts[index] = new
-        //_charts = _charts.map { if (it == old) new else it }.toMutableList()
-
-        charts.value = _charts
-        // TODO can be changed to not update all
-        chartModels.value = _charts.map { ChartModel(it) }
         saveCharts()
     }
 
@@ -250,13 +244,11 @@ class ChartsViewModel(
     }
 
     private fun saveCharts() {
-        prefs.saveCharts(_charts)
+        prefs.saveCharts(_charts.value.map { it.value })
     }
 
     private fun addChart(chart: StockChart) {
-        _charts.add(chart)
-        charts.value = _charts
-        chartModels.value = _charts.map { ChartModel(it) }
+        _charts.value += ChartModel(chart)
         saveCharts()
     }
 }
