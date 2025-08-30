@@ -140,6 +140,8 @@ object ChartUtils {
             //Set Y axis
             axisLeft.setDrawLabels(false)
             axisRight.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART)
+            // Workaround for not being able to right align text
+            axisRight.labelXOffset = -20f
             axisRight.setLabelCount(3, false)
             axisRight.textColor = textColor
 

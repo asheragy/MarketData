@@ -51,12 +51,14 @@ class CryptoViewModel(context: Application) : ViewModel() {
         "algorand" to CryptoRow("Algorand","ALGO-USD"),
         "ethereum" to CryptoRow("Ethereum","ETH-USD"),
         "solana" to CryptoRow("Solana","SOL-USD"),
-        //"binancecoin" to CryptoRow("BNB","BNB-USD"),
+        "binancecoin" to CryptoRow("BNB","BNB-USD"),
         "litecoin" to CryptoRow("Litecoin","LTC-USD"),
         "cardano" to CryptoRow("Cardano", "ADA-USD"),
         "dogecoin" to CryptoRow("Dogecoin", "DOGE-USD"),
         "hedera-hashgraph" to CryptoRow("Hedera", "HBAR-USD"),
-        "ripple" to CryptoRow("XRP", "XRP-USD")
+        "ripple" to CryptoRow("XRP", "XRP-USD"),
+        "chainlink" to CryptoRow("Chainlink", "LINK-USD"),
+        "tron" to CryptoRow("TRON", "TRX-USD")
     )
 
     init {
