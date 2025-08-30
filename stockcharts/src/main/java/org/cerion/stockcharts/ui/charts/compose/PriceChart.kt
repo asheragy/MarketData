@@ -49,8 +49,7 @@ fun PriceChart(
         update = { chart ->
             if (updateData) {
                 ChartUtils.setDateAxisLabels(chart, model, table)
-                if (model.logScale)
-                    chart.axisRight.valueFormatter = logScaleYAxis
+                chart.axisRight.valueFormatter = if (model.logScale) logScaleYAxis else null
 
                 val sets = model.getDataSets(table)
                 val data = CombinedData()

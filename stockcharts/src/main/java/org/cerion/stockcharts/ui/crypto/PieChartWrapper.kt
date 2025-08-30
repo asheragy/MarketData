@@ -50,6 +50,7 @@ fun SimplePieChart(
                 description.isEnabled = false
                 legend.isEnabled = false
                 setEntryLabelColor(Color.BLACK)
+                isRotationEnabled = false
             }
         },
         update = { chart ->

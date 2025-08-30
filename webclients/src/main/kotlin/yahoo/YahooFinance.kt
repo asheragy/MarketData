@@ -59,18 +59,26 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
             ZoneId.systemDefault()).toLocalDate(); }
 
         val ohlcv = json.getJSONObject("indicators").getJSONArray("quote").getJSONObject(0)
-        // TODO bad data fix
-        val volume = ohlcv.getJSONArray("volume").asIterable().map { if (it is Number) it else 0 }.map { t -> (t as Integer).toFloat() }
-        val open = ohlcv.getJSONArray("open").asIterable().map { if (it is Number) it else 0.0 }.map { t -> (t as Double).toFloat() }
-        val high = ohlcv.getJSONArray("high").asIterable().map { if (it is Number) it else 0.0 }.map { t -> (t as Double).toFloat() }
-        val low = ohlcv.getJSONArray("low").asIterable().map { if (it is Number) it else 0.0 }.map { t -> (t as Double).toFloat() }
-        val close = ohlcv.getJSONArray("close").asIterable().map { if (it is Number) it else 0.0 }.map { t -> (t as Double).toFloat() }
-
-        check(dates.size == volume.size) { "Array lengths should be equal" }
+        val volumes = ohlcv.getJSONArray("volume").asIterable().map { if (it is Number) it.toFloat() else null }
+        val opens = ohlcv.getJSONArray("open").asIterable().map { if (it is Number) it.toFloat() else null }
+        val highs = ohlcv.getJSONArray("high").asIterable().map { if (it is Number) it.toFloat() else null }
+        val lows = ohlcv.getJSONArray("low").asIterable().map { if (it is Number) it.toFloat() else null }
+        val closes = ohlcv.getJSONArray("close").asIterable().map { if (it is Number) it.toFloat() else null }
+        check(dates.size == volumes.size && dates.size == opens.size) { "Array lengths should be equal" }
 
         return dates.mapIndexed { i, date ->
-            OHLCVRow(date, open[i], high[i], low[i], close[i], volume[i])
-        }
+            val open = opens[i]
+            val high = highs[i]
+            val low = lows[i]
+            val close = closes[i]
+            val volume = volumes[i]
+            if (open != null && high != null && low != null && close != null && volume != null)
+                OHLCVRow(date, open, high, low, close, volume)
+            else {
+                println("Bad data at $date")
+                null
+            }
+        }.filterNotNull()
     }
 
     fun getDividends(symbol: String): List<Dividend> {

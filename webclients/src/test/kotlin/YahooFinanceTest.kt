@@ -3,11 +3,11 @@
 import org.cerion.marketdata.webclients.FetchInterval
 import org.cerion.marketdata.webclients.yahoo.YahooFinance
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class YahooFinanceTest {
-
     private val api = YahooFinance.instance
     private val oneYearAgo = LocalDate.now().minusYears(1)
 
@@ -21,6 +21,18 @@ class YahooFinanceTest {
     fun bitcoin() {
         val prices = api.getPrices("BTC-USD", FetchInterval.DAILY, oneYearAgo)
         assertTrue(prices.size > 0)
+    }
+
+   @Test
+   @Disabled
+    fun coins() {
+       val start = LocalDate.now().minusDays(90)
+       val coins = listOf("BCH", "ALGO", "ETH", "SOL", "LTC", "ADA", "DOGE", "HBAR", "XRP")
+
+       coins.forEach {
+           val prices = api.getPrices("$it-USD", FetchInterval.DAILY, start)
+           assertTrue(prices.isNotEmpty())
+       }
     }
 
     @Test

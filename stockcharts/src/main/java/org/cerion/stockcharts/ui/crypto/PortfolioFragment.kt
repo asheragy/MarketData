@@ -46,10 +46,8 @@ class PortfolioFragment : Fragment() {
                                 textAlign = TextAlign.Center,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold)
-                            SimplePieChart(positions1, modifier = Modifier.weight(1f)
-                                .fillMaxWidth())
-                            SimplePieChart(positions2, modifier = Modifier.weight(1f)
-                                .fillMaxWidth())
+                            SimplePieChart(positions1, modifier = Modifier.weight(1f).fillMaxWidth())
+                            SimplePieChart(positions2, modifier = Modifier.weight(1f).fillMaxWidth())
                         }
                     }
                 }

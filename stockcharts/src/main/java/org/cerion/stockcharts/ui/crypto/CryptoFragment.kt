@@ -58,8 +58,7 @@ class CryptoFragment : Fragment() {
 
     private fun navigate(symbol: String) {
         if (true) {
-            val assetId = symbol.replace("-USD", "")
-            val action = HomeFragmentDirections.actionFragmentHomeToChartsFragment(assetId)
+            val action = HomeFragmentDirections.actionFragmentHomeToChartsFragment(symbol)
             findNavController().navigate(action)
         } else {
             val i = Intent(Intent.ACTION_VIEW)

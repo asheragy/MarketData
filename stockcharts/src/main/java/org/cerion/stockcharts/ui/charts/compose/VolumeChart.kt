@@ -53,8 +53,7 @@ fun VolumeChart(
                 }
 
                 ChartUtils.setLegend(chart, dataSets, textColor)
-                if (model.logScale)
-                    chart.axisRight.valueFormatter = logScaleYAxis
+                chart.axisRight.valueFormatter = if (model.logScale) logScaleYAxis else null
 
                 chart.onChartGestureListener = object : DefaultChartGestureListener() {
                     override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
