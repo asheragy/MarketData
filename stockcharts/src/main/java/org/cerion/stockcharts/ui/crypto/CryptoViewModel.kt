@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.cerion.marketdata.webclients.coingecko.CoinGecko
 import org.cerion.stockcharts.R
+import org.json.JSONArray
 import org.json.JSONObject
 
 
@@ -64,6 +65,13 @@ class CryptoViewModel(context: Application) : ViewModel() {
     init {
         val fileStream = context.resources.openRawResource(R.raw.crypto)
         positionFile = JSONObject(fileStream.bufferedReader().use { it.readText() })
+
+        positionFile.keys().forEach { key ->
+            val value = positionFile.get(key)
+            if (value is JSONArray) {
+                positionFile.put(key, value.getDouble(0) + value.getDouble(1))
+            }
+        }
         load()
     }
 
@@ -102,7 +110,7 @@ class CryptoViewModel(context: Application) : ViewModel() {
             val alts = positions.filter { x -> !mainCoins.contains(x.symbol)}
             val altPosition = Position("Alts", alts.sumOf { x -> x.totalValue })
 
-            val cashPosition = Position("Cash", 1505.0, true)
+            val cashPosition = Position("Cash", 455.19 + 699.17, true)
             val mainPositions = positions.filter { x -> mainCoins.contains(x.symbol) }.plus(altPosition).plus(
                 cashPosition)
 

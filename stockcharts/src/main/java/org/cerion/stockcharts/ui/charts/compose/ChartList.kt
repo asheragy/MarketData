@@ -184,7 +184,7 @@ fun ChartListPreview() {
         Surface(color = MaterialTheme.colorScheme.surface) {
             ChartList(
                 listOf(ChartModel(chart)),
-                table,
+                previewTable,
                 scrollBehavior.nestedScrollConnection,
                 false,
                 Interval.DAILY,

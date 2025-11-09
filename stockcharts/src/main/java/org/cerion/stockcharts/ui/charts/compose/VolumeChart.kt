@@ -43,7 +43,7 @@ fun VolumeChart(
             }
         },
         update = { chart ->
-            if (updateData) {
+            if (updateData && table.size > 0) {
                 ChartUtils.setDateAxisLabels(chart, model, table)
 
                 val dataSets = model.getDataSets(table)

@@ -40,7 +40,7 @@ fun IndicatorChart(
         },
 
         update = { chart ->
-            if (updateData) {
+            if (updateData && table.size > 0) {
                 val sets = model.getDataSets(table)
                 chart.data = ChartUtils.getLineData(sets)
                 ChartUtils.setLegend(chart, sets, textColor)

@@ -47,7 +47,7 @@ fun PriceChart(
         },
 
         update = { chart ->
-            if (updateData) {
+            if (updateData && table.size > 0) {
                 ChartUtils.setDateAxisLabels(chart, model, table)
                 chart.axisRight.valueFormatter = if (model.logScale) logScaleYAxis else null
 

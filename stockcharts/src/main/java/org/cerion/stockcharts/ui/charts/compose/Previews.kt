@@ -58,7 +58,7 @@ private val data = listOf(
     )
 )
 
-val table = OHLCVTable("FOO", data)
+val previewTable = OHLCVTable("FOO", data)
 
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
@@ -69,8 +69,8 @@ fun PriceChartPreview() {
     val candleChart = chart.copy() as PriceChart
     candleChart.candleData = true
     Column {
-        PriceChart(chart, table)
-        PriceChart(candleChart, table)
+        PriceChart(chart, previewTable)
+        PriceChart(candleChart, previewTable)
     }
 }
 
@@ -81,12 +81,12 @@ fun VolumeChartPreview() {
         org.cerion.marketdata.core.charts.VolumeChart(ChartColorScheme(LocalContext.current))
     vchart.addOverlay(SimpleMovingAverage(20))
 
-    VolumeChart(vchart, table)
+    VolumeChart(vchart, previewTable)
 }
 
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun IndicatorChartPreview() {
     val model = IndicatorChart(MACD(), ChartColorScheme(LocalContext.current))
-    IndicatorChart(model, table)
+    IndicatorChart(model, previewTable)
 }
