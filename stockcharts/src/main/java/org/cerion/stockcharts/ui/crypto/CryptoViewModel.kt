@@ -110,7 +110,7 @@ class CryptoViewModel(context: Application) : ViewModel() {
             val alts = positions.filter { x -> !mainCoins.contains(x.symbol)}
             val altPosition = Position("Alts", alts.sumOf { x -> x.totalValue })
 
-            val cashPosition = Position("Cash", 455.19 + 699.17, true)
+            val cashPosition = Position("Cash", 5.00 + 748.00, true)
             val mainPositions = positions.filter { x -> mainCoins.contains(x.symbol) }.plus(altPosition).plus(
                 cashPosition)
 
