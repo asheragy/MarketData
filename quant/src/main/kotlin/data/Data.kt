@@ -17,5 +17,5 @@ interface DataDef {
 interface DataRepository {
     fun upsert(data: DataDef)
 
-    fun get(data: DataDef): DataSet
+    fun get(data: DataDef, upsert: Boolean = false): DataSet
 }

@@ -1,12 +1,10 @@
 package data
 
-import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.webclients.FetchInterval
 
-class SectorDataDef : DataDef {
+class SectorETFDef : DataDef {
     override val symbols: List<String>
-    // TODO add remaining
-        get() = listOf("XLE", "XLK", "XLF")
+        get() = Sectors.map { it.etf }
 
     override val index: String = "SPY"
     override val interval = FetchInterval.WEEKLY

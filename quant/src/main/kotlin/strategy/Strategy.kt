@@ -14,18 +14,18 @@ abstract class Strategy {
     val trades: List<Trade>
         get() = _trades
 
-    private val startingCash = 100.0
+    val startingCash = 1000.0
     var cash: Double = startingCash
         private set
 
     val profit: Double
-        get() = (cash - startingCash) / startingCash
+        get() = (cash - startingCash)
 
     abstract fun eval(data: DataSet, index: Int)
 
     protected fun open(symbol: String, buy: OHLCVRow, amount: Double) {
         if (amount > cash)
-            throw IllegalArgumentException("Not enough money")
+            throw IllegalArgumentException("Not enough money {$amount} > {$cash}")
 
         _positions.add(Position(symbol, buy, amount / buy.close))
         cash -= amount

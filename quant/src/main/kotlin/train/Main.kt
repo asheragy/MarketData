@@ -1,6 +1,6 @@
 package train
 
-import data.SectorDataDef
+import data.SectorETFDef
 import data.TextDataRepository
 import org.cerion.marketdata.core.indicators.*
 import org.cerion.marketdata.core.model.OHLCVTable
@@ -10,7 +10,7 @@ data class Result(val indicator: Float, val wins: Int)
 
 fun main() {
     val dataSource = TextDataRepository()
-    val dataSet = dataSource.get(SectorDataDef())
+    val dataSet = dataSource.get(SectorETFDef())
     val results = arrayListOf<Result>()
     val stats = mutableMapOf<Int, Int>()
 

@@ -22,7 +22,10 @@ class TextDataRepository: DataRepository {
         }
     }
 
-    override fun get(data: DataDef): DataSet {
+    override fun get(data: DataDef, upsert: Boolean): DataSet {
+        if (upsert)
+            this.upsert(data)
+
         val lists = data.symbols.map { symbol -> getList(symbol, data.interval) }
         val index = if (data.index != null) getList(data.index!!, data.interval) else null
 
@@ -61,8 +64,10 @@ class TextDataRepository: DataRepository {
     }
 
     fun saveFile(prices: List<OHLCVRow>, symbol: String, interval: FetchInterval) {
+        println("Saving ${prices.size} prices for $symbol")
         val fileName = "./history_data/${interval.toString().lowercase()}/$symbol.txt"
         val file = File(fileName)
+        file.parentFile?.mkdirs()
         if (!file.exists())
             file.createNewFile()
 

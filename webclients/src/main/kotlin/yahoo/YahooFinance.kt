@@ -58,6 +58,7 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
         val dates = json.getJSONArray("timestamp").asIterable().map { t -> Instant.ofEpochMilli((t as Int).toLong() * 1000).atZone(
             ZoneId.systemDefault()).toLocalDate(); }
 
+        // TODO adjClose, may need to adjust others
         val ohlcv = json.getJSONObject("indicators").getJSONArray("quote").getJSONObject(0)
         val volumes = ohlcv.getJSONArray("volume").asIterable().map { if (it is Number) it.toFloat() else null }
         val opens = ohlcv.getJSONArray("open").asIterable().map { if (it is Number) it.toFloat() else null }
@@ -72,8 +73,12 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
             val low = lows[i]
             val close = closes[i]
             val volume = volumes[i]
-            if (open != null && high != null && low != null && close != null && volume != null)
-                OHLCVRow(date, open, high, low, close, volume)
+            if (open != null && high != null && low != null && close != null && volume != null) {
+                if (symbol.startsWith("^") && volume == 0.0f && open == 0.0f && high == open && low == open)
+                    OHLCVRow(date, close, close, close, close, volume)
+                else
+                    OHLCVRow(date, open, high, low, close, volume)
+            }
             else {
                 println("Bad data at $date")
                 null
