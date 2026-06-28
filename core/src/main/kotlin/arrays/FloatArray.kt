@@ -7,6 +7,8 @@ import org.cerion.marketdata.core.overlays.SimpleMovingAverage
 import kotlin.math.ln
 import kotlin.math.sqrt
 
+// TODO FloatSeries
+// TODO move most functions to extension functions on kotlin.FloatArray
 open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float>() {
 
     constructor(length: Int) : this(kotlin.FloatArray(length))

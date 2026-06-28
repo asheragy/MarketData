@@ -14,7 +14,8 @@ import java.net.HttpURLConnection
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.util.Date
+import java.util.*
+import kotlin.math.max
 
 class YahooFinance private constructor() : PriceHistoryDataSource {
     private val client = OkHttpClient()
@@ -58,24 +59,34 @@ class YahooFinance private constructor() : PriceHistoryDataSource {
         val dates = json.getJSONArray("timestamp").asIterable().map { t -> Instant.ofEpochMilli((t as Int).toLong() * 1000).atZone(
             ZoneId.systemDefault()).toLocalDate(); }
 
-        // TODO adjClose, may need to adjust others
         val ohlcv = json.getJSONObject("indicators").getJSONArray("quote").getJSONObject(0)
         val volumes = ohlcv.getJSONArray("volume").asIterable().map { if (it is Number) it.toFloat() else null }
         val opens = ohlcv.getJSONArray("open").asIterable().map { if (it is Number) it.toFloat() else null }
         val highs = ohlcv.getJSONArray("high").asIterable().map { if (it is Number) it.toFloat() else null }
         val lows = ohlcv.getJSONArray("low").asIterable().map { if (it is Number) it.toFloat() else null }
         val closes = ohlcv.getJSONArray("close").asIterable().map { if (it is Number) it.toFloat() else null }
+        val adjCloses = json.getJSONObject("indicators").getJSONArray("adjclose").getJSONObject(0).getJSONArray("adjclose").asIterable().map { if (it is Number) it.toFloat() else null }
         check(dates.size == volumes.size && dates.size == opens.size) { "Array lengths should be equal" }
 
         return dates.mapIndexed { i, date ->
-            val open = opens[i]
-            val high = highs[i]
-            val low = lows[i]
-            val close = closes[i]
+            val adjClose = adjCloses[i]
+            var close = closes[i]
+            var adj = 1.0 // Double not float to increase accuracy
+            if (close != adjClose && close != null && adjClose != null) {
+                adj = adjClose.toDouble() / close
+                close = adjClose
+            }
+
+            val open = opens[i]?.times(adj)?.toFloat()
+            val high = highs[i]?.times(adj)?.toFloat()
+            val low = lows[i]?.times(adj)?.toFloat()
             val volume = volumes[i]
+
             if (open != null && high != null && low != null && close != null && volume != null) {
-                if (symbol.startsWith("^") && volume == 0.0f && open == 0.0f && high == open && low == open)
-                    OHLCVRow(date, close, close, close, close, volume)
+                // Indexes aren't real stocks so might be missing data, only close is important usually
+                if (symbol.startsWith("^") && volume == 0.0f) {
+                    OHLCVRow(date, open, max(close, high), if (low != 0.0f) low else open.coerceAtMost(close), close, volume)
+                }
                 else
                     OHLCVRow(date, open, high, low, close, volume)
             }

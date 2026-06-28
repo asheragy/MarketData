@@ -1,8 +1,9 @@
 package strategy
 
 import data.DataSet
-import model.Trade
+import model.Money
 import model.Position
+import model.Trade
 import org.cerion.marketdata.core.model.OHLCVRow
 
 abstract class Strategy {
@@ -14,20 +15,20 @@ abstract class Strategy {
     val trades: List<Trade>
         get() = _trades
 
-    val startingCash = 1000.0
-    var cash: Double = startingCash
+    val startingCash = Money.of(1000.0)
+    var cash: Money = startingCash
         private set
 
-    val profit: Double
+    val profit: Money
         get() = (cash - startingCash)
 
     abstract fun eval(data: DataSet, index: Int)
 
-    protected fun open(symbol: String, buy: OHLCVRow, amount: Double) {
+    protected fun open(symbol: String, buy: OHLCVRow, amount: Money) {
         if (amount > cash)
             throw IllegalArgumentException("Not enough money {$amount} > {$cash}")
 
-        _positions.add(Position(symbol, buy, amount / buy.close))
+        _positions.add(Position(symbol, buy, amount.maxShares(buy)))
         cash -= amount
     }
 
@@ -35,7 +36,7 @@ abstract class Strategy {
         val current = data.getBySymbol(position.symbol)!![index]
         val trade = position.close(current)
         _trades.add(trade)
-        cash += trade.value
+        cash += trade.proceeds
 
         _positions.remove(position)
     }
@@ -49,7 +50,7 @@ abstract class Strategy {
             val current = data.getBySymbol(position.symbol)!![index]
             val trade = position.close(current)
             _trades.add(trade)
-            cash += trade.value
+            cash += trade.proceeds
         }
 
         _positions.clear()

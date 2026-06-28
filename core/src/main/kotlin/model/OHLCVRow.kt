@@ -13,8 +13,14 @@ data class OHLCVRow(
 ) {
     init {
         //Error checking
-        if (open < low || close < low || open > high || close > high)
-            throw RuntimeException("OHLCV range inconsistency ${date}: $open, $high, $low, $close")
+        if (open < low)
+            throw RuntimeException("OHLCV range inconsistency ${date}: Open $open < Low $low")
+        else if (close < low)
+            throw RuntimeException("OHLCV range inconsistency ${date}: Close $close < Low $low")
+        else if (open > high)
+            throw RuntimeException("OHLCV range inconsistency ${date}: Open $open > High $high")
+        else if (close > high)
+            throw RuntimeException("OHLCV range inconsistency ${date}: Close $close > High $high")
     }
 
     //Typical price

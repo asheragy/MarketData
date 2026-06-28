@@ -25,8 +25,8 @@ import strategy.SectorStrategy
 fun main() {
 
     val dataSource = TextDataRepository()
-    val sectorIndex = dataSource.get(SectorIndexDef(), false)
     val dataSet = dataSource.get(SectorETFDef(), false)
+    val sectorIndex = dataSource.get(SectorIndexDef(), false)
 
     val strategy = SectorStrategy(sectorIndex)
 

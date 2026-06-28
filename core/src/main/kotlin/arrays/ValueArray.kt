@@ -1,6 +1,8 @@
 package org.cerion.marketdata.core.arrays
 
 
+// TODO make sealed and change to interface?
+// TODO name Series and rename other types
 abstract class ValueArray<T> : Iterable<T> {
 
     abstract val size: Int

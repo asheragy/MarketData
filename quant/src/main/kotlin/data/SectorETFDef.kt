@@ -6,7 +6,7 @@ class SectorETFDef : DataDef {
     override val symbols: List<String>
         get() = Sectors.map { it.etf }
 
-    override val index: String = "SPY"
+    override val index: String = "VTI"
     override val interval = FetchInterval.WEEKLY
 
     // TODO increase to appropriate value
