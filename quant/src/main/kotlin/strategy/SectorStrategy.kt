@@ -37,7 +37,7 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
         if (index == 0) {
             // TODO add init() before eval
             // Init
-            rsi = data.lists.associate { Pair(it.symbol, RSI(5).eval(it)) }
+            rsi = data.lists.associate { Pair(it.symbol, RSI(3).eval(it)) }
         }
 
         // Sell all at end
@@ -48,18 +48,25 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
             closeAll(data, index)
 
             val weights = indexWeightsByDate[data.lists[0][index].date]!!.toMutableMap()
-            /*
             if (index >= 10) {
-                val currRsi = data.lists.associate { Pair(it.symbol, rsi[it.symbol]!![index]) }
-                val sorted = currRsi.toList().sortedByDescending { it.second }
 
-                var weight = 1.25f
-                sorted.forEach {
-                    weights[it.first] = weights[it.first]!! * weight
-                    weight -= 0.05f
+                data.lists.forEach { list ->
+                    val currRsi = rsi[list.symbol]!![index]
+                    if (currRsi <= 33.64 || currRsi >= 81.32) {
+                        // Good
+                        weights[list.symbol] = weights[list.symbol]!! * 1.2f
+                    }
+                    else if (currRsi in 52.97..67.64) {
+                        // neutral
+
+                    }
+                    else {
+                        // bad
+                        weights[list.symbol] = weights[list.symbol]!! * 0.8f
+                    }
                 }
             }
-             */
+            /*
             if (index < data.lists[0].size - 2) {
                 val change = data.lists.associate {
                     val curr = it[index]
@@ -76,6 +83,8 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
                     weight -= 0.05f
                 }
             }
+
+             */
 
             normalize(weights)
 
