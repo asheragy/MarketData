@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.ValueArray
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.Series
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.abs
@@ -10,15 +10,15 @@ class CommodityChannelIndex(period: Int = 20) : IndicatorBase(Indicator.CCI, per
 
     override val name: String = "Commodity Channel Index"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return commodityChannelIndex(table, getInt(0))
     }
 
-    private fun commodityChannelIndex(table: OHLCVTable, period: Int): FloatArray {
+    private fun commodityChannelIndex(table: OHLCVTable, period: Int): FloatSeries {
         val size = table.size
-        val result = FloatArray(size)
+        val result = FloatSeries(size)
 
-        val tp = FloatArray(size)
+        val tp = FloatSeries(size)
         for (i in 0 until size)
             tp[i] = table[i].tp
 
@@ -26,7 +26,7 @@ class CommodityChannelIndex(period: Int = 20) : IndicatorBase(Indicator.CCI, per
 
         for (i in 1 until size) {
             val sma = smaArr[i]
-            val count = ValueArray.maxPeriod(i, period)
+            val count = Series.maxPeriod(i, period)
 
             //Mean deviation is different than standard deviation
             var dev = 0f

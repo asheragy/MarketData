@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.max
@@ -9,11 +9,11 @@ class CoppockCurve(roc1: Int = 14, roc2: Int = 11, period: Int = 10) : Indicator
 
     override val name = "Coppock Curve"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         val roc1 = table.close.roc(getInt(0))
         val roc2 = table.close.roc(getInt(1))
         val period = getInt(2)
-        val result = FloatArray(table.size)
+        val result = FloatSeries(table.size)
 
         val start = max(getInt(0), getInt(1)) + period - 1
         for(i in 0 until table.size) {

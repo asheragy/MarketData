@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -8,12 +8,12 @@ class AccumulationDistributionLine : IndicatorBase(Indicator.ADL) {
 
     override val name: String = "Accumulation Distribution Line"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return accumulationDistributionLine(table)
     }
 
-    private fun accumulationDistributionLine(table: OHLCVTable): FloatArray {
-        val result = FloatArray(table.size)
+    private fun accumulationDistributionLine(table: OHLCVTable): FloatSeries {
+        val result = FloatSeries(table.size)
 
         result[0] = 0f
         for (i in 1 until table.size) {

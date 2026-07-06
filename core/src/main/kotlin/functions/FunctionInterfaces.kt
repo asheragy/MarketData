@@ -1,7 +1,6 @@
 package org.cerion.marketdata.core.functions
 
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.ValueArray
+import org.cerion.marketdata.core.series.Series
 import org.cerion.marketdata.core.functions.types.IFunctionEnum
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
@@ -13,7 +12,7 @@ interface IFunction {
     val resultType: KClass<*>
     val id: IFunctionEnum
     val params: List<Number>
-    fun eval(table: OHLCVTable): ValueArray<*>
+    fun eval(table: OHLCVTable): Series<*>
     fun setParams(vararg params: Number)
     fun serialize(): String
 }
@@ -27,5 +26,5 @@ interface IOverlay : IFunction
 interface IPriceOverlay : IOverlay
 
 interface ISimpleOverlay : IOverlay {
-    fun eval(arr: org.cerion.marketdata.core.arrays.FloatArray): ValueArray<*>
+    fun eval(arr: org.cerion.marketdata.core.series.FloatSeries): Series<*>
 }

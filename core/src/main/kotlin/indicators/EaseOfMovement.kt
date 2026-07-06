@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.ValueArray
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.Series
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -9,13 +9,13 @@ class EaseOfMovement(period: Int = 14) : IndicatorBase(Indicator.EMV, period) {
 
     override val name: String = "Ease of Movement"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return easeOfMovement(table, getInt(0))
     }
 
     //1-period EMV
-    private fun easeOfMovement(table: OHLCVTable): FloatArray {
-        val result = FloatArray(table.size)
+    private fun easeOfMovement(table: OHLCVTable): FloatSeries {
+        val result = FloatSeries(table.size)
 
         //Distance Moved = ((H + L)/2 - (Prior H + Prior L)/2)
         //Box Ratio = ((V/100,000,000)/(H - L))
@@ -36,14 +36,14 @@ class EaseOfMovement(period: Int = 14) : IndicatorBase(Indicator.EMV, period) {
     }
 
     //TODO, double check results again with current arrays
-    private fun easeOfMovement(table: OHLCVTable, period: Int): FloatArray {
-        val result = FloatArray(table.size)
+    private fun easeOfMovement(table: OHLCVTable, period: Int): FloatSeries {
+        val result = FloatSeries(table.size)
 
         //N-Period Ease of Movement = N-Period simple moving average of 1-period EMV
         val emv = easeOfMovement(table)
 
         for (i in 1 until table.size) {
-            val count = ValueArray.maxPeriod(i, period)
+            val count = Series.maxPeriod(i, period)
             var total = 0f
             for (j in i - count + 1..i)
                 total += emv[j]

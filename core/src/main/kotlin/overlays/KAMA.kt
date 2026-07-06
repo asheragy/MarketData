@@ -1,22 +1,22 @@
 package org.cerion.marketdata.core.overlays
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Overlay
 import kotlin.math.abs
 
-class KAMA(er: Int, fast: Int, slow: Int) : OverlayBase<FloatArray>(Overlay.KAMA, er, fast, slow) {
+class KAMA(er: Int, fast: Int, slow: Int) : OverlayBase<FloatSeries>(Overlay.KAMA, er, fast, slow) {
 
     constructor() : this(10, 2, 30)
 
     override val name: String = "Adaptive Moving Average"
 
-    override fun eval(arr: FloatArray): FloatArray {
+    override fun eval(arr: FloatSeries): FloatSeries {
         val p1 = getInt(0)
         val p2 = getInt(1)
         val p3 = getInt(2)
 
 
-        val result = FloatArray(arr.size)
+        val result = FloatSeries(arr.size)
         result[0] = arr[0]
 
         //p1 Efficiency Ratio (ER)

@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -8,12 +8,12 @@ class PringsSpecialK : IndicatorBase(Indicator.SPECIALK) {
 
     override val name: String = "Pring's Special K"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return specialK(table)
     }
 
-    private fun specialK(table: OHLCVTable): FloatArray {
-        val result = FloatArray(table.size)
+    private fun specialK(table: OHLCVTable): FloatSeries {
+        val result = FloatSeries(table.size)
 
         /*
 		Special K = 10 Period Simple Moving Average of ROC(10) * 1

@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.functions.conditions
 
 import org.cerion.marketdata.core.TestBase
-import org.cerion.marketdata.core.arrays.BandArray
+import org.cerion.marketdata.core.series.BandSeries
 import org.cerion.marketdata.core.functions.IFunction
 import org.cerion.marketdata.core.indicators.RSI
 import org.cerion.marketdata.core.overlays.BollingerBands
@@ -39,7 +39,7 @@ class ValueIndicatorConditionTest : TestBase() {
 
     private fun runValue(value: Float, expectedCondition: Condition, function: IFunction) = runPriceTest {
         for (c in Condition.values()) {
-            if (c == Condition.INSIDE && function.resultType != BandArray::class)
+            if (c == Condition.INSIDE && function.resultType != BandSeries::class)
                 continue
 
             if (c == expectedCondition)

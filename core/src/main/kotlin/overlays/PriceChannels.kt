@@ -1,23 +1,23 @@
 package org.cerion.marketdata.core.overlays
 
-import org.cerion.marketdata.core.arrays.BandArray
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.BandSeries
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.PriceOverlay
 import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.max
 
 class PriceChannels(period: Int = 20) : PriceOverlayBase(PriceOverlay.CHAN, period) {
 
-    override fun eval(table: OHLCVTable): BandArray {
+    override fun eval(table: OHLCVTable): BandSeries {
         return priceChannels(table, getInt(0))
     }
 
     override val name: String = "Price Channels"
 
-    private fun priceChannels(table: OHLCVTable, period: Int): BandArray {
+    private fun priceChannels(table: OHLCVTable, period: Int): BandSeries {
         val size = table.size
-        val upper = FloatArray(size)
-        val lower = FloatArray(size)
+        val upper = FloatSeries(size)
+        val lower = FloatSeries(size)
 
         upper[0] = table.high[0]
         lower[0] = table.low[0]
@@ -34,6 +34,6 @@ class PriceChannels(period: Int = 20) : PriceOverlayBase(PriceOverlay.CHAN, peri
             lower[i] = table.low.min(start, i - 1)
         }
 
-        return BandArray(table.close, upper, lower)
+        return BandSeries(table.close, upper, lower)
     }
 }

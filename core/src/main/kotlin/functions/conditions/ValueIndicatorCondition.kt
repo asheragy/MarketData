@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.functions.conditions
 
-import org.cerion.marketdata.core.arrays.BandArray
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.BandSeries
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.charts.IndicatorChart
 import org.cerion.marketdata.core.charts.PriceChart
 import org.cerion.marketdata.core.charts.StockChart
@@ -31,15 +31,15 @@ class ValueIndicatorCondition
         }
 
     init {
-        if (condition === Condition.INSIDE && indicator.resultType != BandArray::class)
-            throw IllegalArgumentException(Condition.INSIDE.toString() + " must be applied to " + BandArray::class.simpleName)
+        if (condition === Condition.INSIDE && indicator.resultType != BandSeries::class)
+            throw IllegalArgumentException(Condition.INSIDE.toString() + " must be applied to " + BandSeries::class.simpleName)
     }
 
     override fun eval(table: OHLCVTable): Boolean {
 
         // Value vs Indicator
         val va = indicator.eval(table)
-        if (va is BandArray) {
+        if (va is BandSeries) {
             val last = va.size - 1
             when (condition) {
                 Condition.ABOVE -> return value > va.upper(last)
@@ -49,7 +49,7 @@ class ValueIndicatorCondition
         }
 
         // FloatArray
-        val arr = indicator.eval(table) as FloatArray
+        val arr = indicator.eval(table) as FloatSeries
         return if (condition === Condition.ABOVE)
             value > arr.last
         else

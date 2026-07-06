@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.functions.conditions
 
 import org.cerion.marketdata.core.TestBase
-import org.cerion.marketdata.core.arrays.BandArray
+import org.cerion.marketdata.core.series.BandSeries
 import org.cerion.marketdata.core.functions.IPriceOverlay
 import org.cerion.marketdata.core.overlays.BollingerBands
 import org.cerion.marketdata.core.overlays.SimpleMovingAverage
@@ -39,7 +39,7 @@ class PriceConditionTest : TestBase() {
 
     private fun testCondition(trueCondition: Condition, overlay: IPriceOverlay) = runPriceTest {
         for (c in Condition.values()) {
-            if (c == Condition.INSIDE && overlay.resultType != BandArray::class)
+            if (c == Condition.INSIDE && overlay.resultType != BandSeries::class)
                 continue
 
             val condition = PriceCondition(c, overlay)

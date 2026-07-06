@@ -1,10 +1,10 @@
-package org.cerion.marketdata.core.arrays
+package org.cerion.marketdata.core.series
 
 import org.cerion.marketdata.core.TestBase
 import org.cerion.marketdata.core.overlays.SimpleMovingAverage
 import kotlin.test.Test
 
-class FloatArrayTest : TestBase() {
+class FloatSeriesTest : TestBase() {
 
     @Test
     fun sma_callsSimpleMovingAverage() {
@@ -37,7 +37,7 @@ class FloatArrayTest : TestBase() {
 
     @Test
     fun zeroLengthArrays() {
-        val arr = FloatArray(0)
+        val arr = FloatSeries(0)
         arr.ema(20) // No exception thrown
     }
 
@@ -78,7 +78,7 @@ class FloatArrayTest : TestBase() {
     @Test
     fun variance() {
         val input = floatArrayOf(1.21f, 3.4f, 2f, 4.66f, 1.5f, 5.61f, 7.22f)
-        val arr = FloatArray(input)
+        val arr = FloatSeries(input)
 
         assertEquals(5.16122, arr.variance(7).last)
         assertEquals(3.23155, arr.variance(7)[5])
@@ -93,8 +93,8 @@ class FloatArrayTest : TestBase() {
 
     @Test
     fun covariance() {
-        val arr1 = FloatArray(floatArrayOf(2f, 1.5f, 3f, 5f, 10f))
-        val arr2 = FloatArray(floatArrayOf(5f, 2f, 1.25f, 15f, 8f))
+        val arr1 = FloatSeries(floatArrayOf(2f, 1.5f, 3f, 5f, 10f))
+        val arr2 = FloatSeries(floatArrayOf(5f, 2f, 1.25f, 15f, 8f))
 
         val covar = arr1.covariance(arr2, 5)
         assertEquals(9.34375, covar.last)

@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.model
 
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.toFloatArray
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.toFloatSeries
 import utils.diff
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -18,11 +18,11 @@ open class OHLCVTable(
 
     // TODO check usages of these, might be better to replace with price in some calculations
     val dates: Array<LocalDate> by lazy { map { it.date }.toTypedArray() }
-    val open: FloatArray by lazy { map { it.open }.toFloatArray() }
-    val high: FloatArray by lazy { map { it.high }.toFloatArray() }
-    val low: FloatArray by lazy { map { it.low }.toFloatArray() }
-    val close: FloatArray by lazy { map { it.close }.toFloatArray() }
-    val volume: FloatArray by lazy { map { it.volume }.toFloatArray() }
+    val open: FloatSeries by lazy { map { it.open }.toFloatSeries() }
+    val high: FloatSeries by lazy { map { it.high }.toFloatSeries() }
+    val low: FloatSeries by lazy { map { it.low }.toFloatSeries() }
+    val close: FloatSeries by lazy { map { it.close }.toFloatSeries() }
+    val volume: FloatSeries by lazy { map { it.volume }.toFloatSeries() }
 
     init {
         val sortedList = rows.sortedBy { it.date }
@@ -244,7 +244,7 @@ open class OHLCVTable(
         return OHLCVTable(symbol, prices)
     }
 
-    fun beta(index: OHLCVTable, period: Int): FloatArray {
+    fun beta(index: OHLCVTable, period: Int): FloatSeries {
         if (size != index.size)
             throw IllegalArgumentException("Must be same size")
 
@@ -253,7 +253,7 @@ open class OHLCVTable(
 
         val covar = stockChange.covariance(indexChange, period)
         val variance = indexChange.variance(period)
-        val result = FloatArray(size)
+        val result = FloatSeries(size)
 
         for(i in 1 until size)
             result[i] = covar[i] / variance[i]

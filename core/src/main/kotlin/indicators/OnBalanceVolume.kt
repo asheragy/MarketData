@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -8,14 +8,14 @@ class OnBalanceVolume : IndicatorBase(Indicator.OBV) {
 
     override val name: String = "On Balance Volume"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return onBalanceVolume(table)
     }
 
-    private fun onBalanceVolume(table: OHLCVTable): FloatArray {
+    private fun onBalanceVolume(table: OHLCVTable): FloatSeries {
         val close = table.close
         val volume = table.volume
-        val result = FloatArray(table.size)
+        val result = FloatSeries(table.size)
 
         result[0] = 0f
         for (i in 1 until table.size) {

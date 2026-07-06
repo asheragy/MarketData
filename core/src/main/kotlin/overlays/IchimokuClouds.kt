@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.overlays
 
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.PairArray
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.PairSeries
 import org.cerion.marketdata.core.functions.types.PriceOverlay
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -9,16 +9,16 @@ class IchimokuClouds(p1: Int, p2: Int, p3: Int) : PriceOverlayBase(PriceOverlay.
 
     constructor() : this(9, 26, 52)
 
-    override fun eval(table: OHLCVTable): PairArray {
+    override fun eval(table: OHLCVTable): PairSeries {
         return ichimokuCloud(table, getInt(0), getInt(1), getInt(2))
     }
 
     override val name: String = "Ichimoku Clouds"
 
-    private fun ichimokuCloud(table: OHLCVTable, conversion: Int, base: Int, span: Int): PairArray {
+    private fun ichimokuCloud(table: OHLCVTable, conversion: Int, base: Int, span: Int): PairSeries {
         val size = table.size
-        val spanA = FloatArray(size)
-        val spanB = FloatArray(size)
+        val spanA = FloatSeries(size)
+        val spanB = FloatSeries(size)
 
         val highs = table.high
         val lows = table.low
@@ -43,6 +43,6 @@ class IchimokuClouds(p1: Int, p2: Int, p3: Int) : PriceOverlayBase(PriceOverlay.
             spanB[i] = (high + low) / 2
         }
 
-        return PairArray(spanA, spanB)
+        return PairSeries(spanA, spanB)
     }
 }

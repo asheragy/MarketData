@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -8,12 +8,12 @@ class MoneyFlowIndex(period: Int = 14) : IndicatorBase(Indicator.MFI, period) {
 
     override val name: String = "Money Flow Index"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return moneyFlowIndex(table, getInt(0))
     }
 
-    private fun moneyFlowIndex(table: OHLCVTable, period: Int): FloatArray {
-        val result = FloatArray(table.size)
+    private fun moneyFlowIndex(table: OHLCVTable, period: Int): FloatSeries {
+        val result = FloatSeries(table.size)
 
         //Typical Price = (High + Low + Close)/3
         //Raw Money Flow = Typical Price x Volume

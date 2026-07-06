@@ -1,8 +1,7 @@
 package org.cerion.marketdata.core.overlays
 
 
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.ValueArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.PriceOverlay
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -10,10 +9,10 @@ class VolumeWeightedMovingAverage(period: Int = 20) : PriceOverlayBase(PriceOver
 
     override val name: String = "Volume Weighted Moving Average"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         val size = table.size
         val period = getInt(0)
-        val result = FloatArray(size)
+        val result = FloatSeries(size)
 
         for (i in 0 until size) {
             if (i < period - 1) {

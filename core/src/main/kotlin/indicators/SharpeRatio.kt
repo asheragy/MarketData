@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.indicators
 
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.core.model.OHLCVTable
@@ -14,7 +14,7 @@ class SharpeRatio(period: Int, riskFreeRate: Double) : IndicatorBase(Indicator.S
 
     override val name: String = "Sharpe Ratio"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         val years = getInt(0)
         val multiplier: Int
 
@@ -36,7 +36,7 @@ class SharpeRatio(period: Int, riskFreeRate: Double) : IndicatorBase(Indicator.S
         val avg = change.sma(years * multiplier)
         val std = change.std(years * multiplier)
 
-        val result = FloatArray(table.size)
+        val result = FloatSeries(table.size)
         for (i in table.indices) {
             if (i >= multiplier) {
                 result[i] = avg[i] / std[i]

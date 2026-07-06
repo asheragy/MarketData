@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.charts
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.ISimpleOverlay
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -35,7 +35,7 @@ class VolumeChart(colors: ChartColors = ChartColors()) : StockChart(colors) {
         logScale = (params["logScale"] ?: "false").toBoolean()
     }
 
-    private fun getOverlayDataSets(volume: FloatArray): List<IDataSet> {
+    private fun getOverlayDataSets(volume: FloatSeries): List<IDataSet> {
         resetNextColor()
         val result = mutableListOf<IDataSet>()
 

@@ -1,8 +1,7 @@
-package org.cerion.marketdata.core.arrays
+package org.cerion.marketdata.core.series
 
 
-// TODO name Series and rename other types
-sealed interface ValueArray<T> : Iterable<T> {
+sealed interface Series<T> : Iterable<T> {
 
     val size: Int
     operator fun get(i: Int): T

@@ -1,4 +1,4 @@
-package org.cerion.marketdata.core.arrays
+package org.cerion.marketdata.core.series
 
 import org.cerion.marketdata.core.overlays.BollingerBands
 import org.cerion.marketdata.core.overlays.ExpMovingAverage
@@ -7,11 +7,10 @@ import org.cerion.marketdata.core.overlays.SimpleMovingAverage
 import kotlin.math.ln
 import kotlin.math.sqrt
 
-// TODO FloatSeries
 // TODO move most functions to extension functions on kotlin.FloatArray
-open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
+open class FloatSeries(private val mVal: FloatArray) : Series<Float> {
 
-    constructor(length: Int) : this(kotlin.FloatArray(length))
+    constructor(length: Int) : this(FloatArray(length))
 
     override val size: Int = mVal.size
 
@@ -25,9 +24,9 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
      * Calculates percent difference between each entry
      * @return array of percent change from previous element
      */
-    val percentChange: FloatArray
+    val percentChange: FloatSeries
         get() {
-            val arr = FloatArray(size)
+            val arr = FloatSeries(size)
 
             for (i in 1 until size)
                 arr[i] = (this[i] - this[i - 1]) / this[i - 1]
@@ -87,16 +86,16 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
         return sum
     }
 
-    fun sma(period: Int): FloatArray = SimpleMovingAverage(period).eval(this)
-    fun ema(period: Int): FloatArray = ExpMovingAverage(period).eval(this)
-    fun bb(period: Int, multiplier: Float): BandArray = BollingerBands(period, multiplier.toDouble()).eval(this)
+    fun sma(period: Int): FloatSeries = SimpleMovingAverage(period).eval(this)
+    fun ema(period: Int): FloatSeries = ExpMovingAverage(period).eval(this)
+    fun bb(period: Int, multiplier: Float): BandSeries = BollingerBands(period, multiplier.toDouble()).eval(this)
 
     /**
      * Converts current array values to log(val)
      * @return FloatArray to log scale
      */
-    fun log(): FloatArray {
-        val result = FloatArray(size)
+    fun log(): FloatSeries {
+        val result = FloatSeries(size)
         for (i in 0 until size)
             result[i] = ln(get(i).toDouble()).toFloat()
 
@@ -113,8 +112,8 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
         return (this[pos] - this[x]) * 100 / this[x]
     }
 
-    fun roc(period: Int): FloatArray {
-        val result = FloatArray(size)
+    fun roc(period: Int): FloatSeries {
+        val result = FloatSeries(size)
         for(i in 0 until size) {
             if (i < period)
                 result[i] = Float.NaN
@@ -131,11 +130,11 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
      * @return standard deviation of the average in period
      */
     //If the SimpleMovingAverage is available this function can be called directly to avoid re-calculating
-    fun std(period: Int, arr_sma: FloatArray = sma(period)): FloatArray {
-        val result = FloatArray(size)
+    fun std(period: Int, arr_sma: FloatSeries = sma(period)): FloatSeries {
+        val result = FloatSeries(size)
 
         for (i in 1 until size) {
-            val count = ValueArray.maxPeriod(i, period)
+            val count = Series.maxPeriod(i, period)
 
             val sma = arr_sma[i]
             var total = 0f
@@ -153,7 +152,7 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
 
     fun slope(period: Int, pos: Int): Float {
         var p = period
-        p = ValueArray.maxPeriod(pos, p)
+        p = Series.maxPeriod(pos, p)
         val ab = getLinearRegressionEquation(pos - p + 1, pos)
 
         return ab[1]
@@ -164,14 +163,14 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
     }
 
     fun regressionLinePoint(period: Int, pos: Int): Float {
-        val count = ValueArray.maxPeriod(pos, period)
+        val count = Series.maxPeriod(pos, period)
         val slope = slope(period, pos)
         val sumY = sum(pos - count + 1, pos)
 
         return (sumY - slope * count) / count
     }
 
-    fun linearRegressionLine(): FloatArray {
+    fun linearRegressionLine(): FloatSeries {
         return LinearRegressionLine().eval(this)
     }
 
@@ -179,7 +178,7 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
      * Finds linear regression equation "y = a + bx" for arr with start and end point positions
      * @return pair [a,b]
      */
-    fun getLinearRegressionEquation(start: Int, end: Int): kotlin.FloatArray {
+    fun getLinearRegressionEquation(start: Int, end: Int): FloatArray {
         // http://www.statisticshowto.com/how-to-find-a-linear-regression-equation/
         // TODO check this on fake data like a straight line to verify any 1 off issues
         val count = end - start + 1
@@ -212,7 +211,7 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
         return floatArrayOf(a / divideBy, b / divideBy)
     }
 
-    fun correlation(arr: FloatArray): Float {
+    fun correlation(arr: FloatSeries): Float {
         val size = kotlin.math.min(size, arr.size).toFloat()
 
         var sumXX = 0f
@@ -242,8 +241,8 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
         return Sxy / sqrt((Sxx * Syy).toDouble()).toFloat()
     }
 
-    fun variance(period: Int): FloatArray {
-        val result = FloatArray(size)
+    fun variance(period: Int): FloatSeries {
+        val result = FloatSeries(size)
         val sma = sma(period)
 
         for(i in 1 until size) {
@@ -258,8 +257,8 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
         return result
     }
 
-    fun covariance(other: FloatArray, period: Int): FloatArray {
-        val result = FloatArray(size)
+    fun covariance(other: FloatSeries, period: Int): FloatSeries {
+        val result = FloatSeries(size)
         val sma1 = sma(period)
         val sma2 = other.sma(period)
 
@@ -290,15 +289,15 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
         return result
     }
 
-    fun toFloatArray(): kotlin.FloatArray {
-        val result = kotlin.FloatArray(size)
+    fun toFloatArray(): FloatArray {
+        val result = FloatArray(size)
         this.mVal.forEachIndexed { index, value -> result[index] = value }
         return result
     }
 }
 
-fun List<Float>.toFloatArray(): FloatArray {
-    val result = FloatArray(size)
+fun List<Float>.toFloatSeries(): FloatSeries {
+    val result = FloatSeries(size)
     this.forEachIndexed { index, value -> result[index] = value }
     return result
 }

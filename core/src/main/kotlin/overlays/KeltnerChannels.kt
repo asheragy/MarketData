@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.overlays
 
-import org.cerion.marketdata.core.arrays.BandArray
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.BandSeries
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.PriceOverlay
 import org.cerion.marketdata.core.indicators.AverageTrueRange
 import org.cerion.marketdata.core.model.OHLCVTable
@@ -12,7 +12,7 @@ class KeltnerChannels(period: Int, multiplier: Double, atr: Int) : PriceOverlayB
 
     override val name: String = "Keltner Channels"
 
-    override fun eval(table: OHLCVTable): BandArray {
+    override fun eval(table: OHLCVTable): BandSeries {
         val emaPeriod = getInt(0)
         val multiplier = getFloat(1)
         val atrPeriod = getInt(2)
@@ -22,8 +22,8 @@ class KeltnerChannels(period: Int, multiplier: Double, atr: Int) : PriceOverlayB
         //Upper Channel Line: 20-day ExpMovingAverage + (2 x ATR(10))
         //Lower Channel Line: 20-day ExpMovingAverage - (2 x ATR(10))
 
-        val upper = FloatArray(table.size)
-        val lower = FloatArray(table.size)
+        val upper = FloatSeries(table.size)
+        val lower = FloatSeries(table.size)
         val atr = AverageTrueRange(atrPeriod).eval(table)
 
         for (i in 1 until table.size) {
@@ -31,6 +31,6 @@ class KeltnerChannels(period: Int, multiplier: Double, atr: Int) : PriceOverlayB
             lower[i] = ema[i] - multiplier * atr[i]
         }
 
-        return BandArray(table.close, upper, lower)
+        return BandSeries(table.close, upper, lower)
     }
 }

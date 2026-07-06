@@ -2,7 +2,7 @@ package train
 
 import data.SectorETFDef
 import data.TextDataRepository
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.indicators.RSI
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.overlays.ExpMovingAverage
@@ -27,16 +27,16 @@ fun main() {
 }
 
 sealed interface Expr {
-    fun eval(ctx: EvalContext): FloatArray
+    fun eval(ctx: EvalContext): FloatSeries
 }
 
 data class NumberExpr(val value: Number) : Expr {
-    override fun eval(ctx: EvalContext): FloatArray =
-        FloatArray(ctx.size)// { value }
+    override fun eval(ctx: EvalContext): FloatSeries =
+        FloatSeries(ctx.size)// { value }
 }
 
 data class FieldExpr(val name: String) : Expr {
-    override fun eval(ctx: EvalContext): FloatArray =
+    override fun eval(ctx: EvalContext): FloatSeries =
         ctx.series(name)
 }
 
@@ -44,7 +44,7 @@ data class CallExpr(
     val name: String,
     val args: List<Expr>
 ) : Expr {
-    override fun eval(ctx: EvalContext): FloatArray =
+    override fun eval(ctx: EvalContext): FloatSeries =
         ctx.call(name, args)
 
     constructor(name: String, vararg args: Number) : this(name, args.map { NumberExpr(it) }) {}
@@ -55,11 +55,11 @@ data class BinaryExpr(
     val op: Op,
     val right: Expr
 ) : Expr {
-    override fun eval(ctx: EvalContext): FloatArray {
+    override fun eval(ctx: EvalContext): FloatSeries {
         val a = ctx.eval(left)
         val b = ctx.eval(right)
 
-        return FloatArray(ctx.size) /*{ i ->
+        return FloatSeries(ctx.size) /*{ i ->
             when (op) {
                 Op.ADD -> a[i] + b[i]
                 Op.SUB -> a[i] - b[i]
@@ -75,7 +75,7 @@ data class LagExpr(
     val source: Expr,
     val periods: Int
 ) : Expr {
-    override fun eval(ctx: EvalContext): FloatArray =
+    override fun eval(ctx: EvalContext): FloatSeries =
         ctx.eval(source)//.lag(periods)
 }
 
@@ -84,7 +84,7 @@ enum class Op {
 }
 
 
-typealias IndicatorFn = (EvalContext, List<Expr>) -> FloatArray
+typealias IndicatorFn = (EvalContext, List<Expr>) -> FloatSeries
 
 class EvalContext(
     val table: OHLCVTable,
@@ -92,21 +92,21 @@ class EvalContext(
 ) {
     val size: Int get() = table.size
 
-    private val cache = mutableMapOf<Expr, FloatArray>()
+    private val cache = mutableMapOf<Expr, FloatSeries>()
 
     // TODO sub expr caching
     // RSI14 - EMA(RSI14)
-    fun eval(expr: Expr): FloatArray =
+    fun eval(expr: Expr): FloatSeries =
         cache.getOrPut(expr) { expr.eval(this) }
 
-    fun call(name: String, args: List<Expr>): FloatArray {
+    fun call(name: String, args: List<Expr>): FloatSeries {
         val fn = functions[name.uppercase()]
             ?: error("Unknown function: $name")
 
         return fn(this, args)
     }
 
-    fun series(name: String): FloatArray {
+    fun series(name: String): FloatSeries {
         return when (name.uppercase()) {
             "CLOSE" -> table.close
             "OPEN" -> table.open

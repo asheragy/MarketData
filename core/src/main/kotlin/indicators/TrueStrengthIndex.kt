@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.abs
@@ -11,13 +11,13 @@ class TrueStrengthIndex(p1: Int, p2: Int) : IndicatorBase(Indicator.TSI, p1, p2)
 
     override val name: String = "True Strength Index"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return trueStrengthIndex(table, getInt(0), getInt(1))
     }
 
-    private fun trueStrengthIndex(table: OHLCVTable, p1: Int, p2: Int): FloatArray {
+    private fun trueStrengthIndex(table: OHLCVTable, p1: Int, p2: Int): FloatSeries {
         val size = table.size
-        val result = FloatArray(table.size)
+        val result = FloatSeries(table.size)
         /*
     	-Double Smoothed PC
     	PC = Current Price less Prior Price
@@ -32,8 +32,8 @@ class TrueStrengthIndex(p1: Int, p2: Int) : IndicatorBase(Indicator.TSI, p1, p2)
     	TSI = 100 x (Double Smoothed PC / Double Smoothed Absolute PC)
     	*/
 
-        var PC = FloatArray(size)
-        var PCabs = FloatArray(size)
+        var PC = FloatSeries(size)
+        var PCabs = FloatSeries(size)
         for (i in 1 until size) {
             PC[i] = table.close[i] - table.close[i - 1]
             PCabs[i] = abs(PC[i])

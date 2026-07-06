@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.ValueArray
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.Series
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -16,18 +16,18 @@ class Stochastic() : IndicatorBase(Indicator.STOCH, 14, 3, 3) {
 
     override val name: String = "Stochastic Oscillator"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return stochastic(table, getInt(0), getInt(1), getInt(2))
     }
 
-    private fun stochastic(table: OHLCVTable, K: Int): FloatArray {
-        val result = FloatArray(table.size)
+    private fun stochastic(table: OHLCVTable, K: Int): FloatSeries {
+        val result = FloatSeries(table.size)
         val highs = table.high
         val lows = table.low
 
         //K = period
         for (i in table.indices) {
-            val period = ValueArray.maxPeriod(i, K)
+            val period = Series.maxPeriod(i, K)
 
             val high = highs.max(i - period + 1, i)
             val low = lows.min(i - period + 1, i)
@@ -39,12 +39,12 @@ class Stochastic() : IndicatorBase(Indicator.STOCH, 14, 3, 3) {
         return result
     }
 
-    private fun stochastic(table: OHLCVTable, K: Int, D: Int): FloatArray {
+    private fun stochastic(table: OHLCVTable, K: Int, D: Int): FloatSeries {
         val result = stochastic(table, K)
         return result.sma(D)
     }
 
-    private fun stochastic(table: OHLCVTable, K: Int, fastD: Int, slowD: Int): FloatArray {
+    private fun stochastic(table: OHLCVTable, K: Int, fastD: Int, slowD: Int): FloatSeries {
         val result = stochastic(table, K, fastD)
         return result.sma(slowD)
     }

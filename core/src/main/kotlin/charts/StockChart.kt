@@ -1,9 +1,9 @@
 package org.cerion.marketdata.core.charts
 
-import org.cerion.marketdata.core.arrays.BandArray
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.PairArray
-import org.cerion.marketdata.core.arrays.ValueArray
+import org.cerion.marketdata.core.series.BandSeries
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.PairSeries
+import org.cerion.marketdata.core.series.Series
 import org.cerion.marketdata.core.functions.FunctionBase
 import org.cerion.marketdata.core.functions.IIndicator
 import org.cerion.marketdata.core.functions.IOverlay
@@ -62,14 +62,14 @@ abstract class StockChart(protected val _colors: ChartColors) {
         _nextColor = 0
     }
 
-    protected fun getDefaultOverlayDataSets(arr: ValueArray<*>, overlay: IOverlay, ignoreColor: Int): List<DataSet> {
+    protected fun getDefaultOverlayDataSets(arr: Series<*>, overlay: IOverlay, ignoreColor: Int): List<DataSet> {
         val label = overlay.toString()
 
         return when (arr) {
-            is BandArray -> arr.getDataSets(label, label, getNextColor(ignoreColor))
+            is BandSeries -> arr.getDataSets(label, label, getNextColor(ignoreColor))
             // TODO these are more complex for colors, look into later, using primary as placeholder
-            is PairArray -> arr.getDataSets(label, label, _colors.primary, _colors.primary)
-            is FloatArray -> {
+            is PairSeries -> arr.getDataSets(label, label, _colors.primary, _colors.primary)
+            is FloatSeries -> {
                 val dataSet = arr.toDataSet(label, getNextColor(ignoreColor))
                 if (overlay is ParabolicSAR)
                     dataSet.lineType = LineType.DOTTED

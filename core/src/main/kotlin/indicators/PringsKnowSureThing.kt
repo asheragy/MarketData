@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -11,7 +11,7 @@ class PringsKnowSureThing(p1: Int, p2: Int, p3: Int, p4: Int, p5: Int, p6: Int, 
 
     override val name: String = "Pring's Know Sure Thing"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return knowSureThing(table.close, getInt(0), getInt(1), getInt(2), getInt(3),
                 getInt(4), getInt(5), getInt(6), getInt(7))
     }
@@ -22,14 +22,14 @@ class PringsKnowSureThing(p1: Int, p2: Int, p3: Int, p4: Int, p5: Int, p6: Int, 
     Long-term Monthly = KST(9,12,18,24,6,6,6,9)
     Default signal is 9 period SimpleMovingAverage (not ExpMovingAverage)
     */
-    private fun knowSureThing(close: FloatArray, roc1: Int, roc2: Int, roc3: Int, roc4: Int, sma1: Int, sma2: Int, sma3: Int, sma4: Int): FloatArray {
+    private fun knowSureThing(close: FloatSeries, roc1: Int, roc2: Int, roc3: Int, roc4: Int, sma1: Int, sma2: Int, sma3: Int, sma4: Int): FloatSeries {
         val size = close.size
-        val result = FloatArray(size)
+        val result = FloatSeries(size)
 
-        var r1 = FloatArray(size)
-        var r2 = FloatArray(size)
-        var r3 = FloatArray(size)
-        var r4 = FloatArray(size)
+        var r1 = FloatSeries(size)
+        var r2 = FloatSeries(size)
+        var r3 = FloatSeries(size)
+        var r4 = FloatSeries(size)
 
         /*
 		RCMA1 = 10-Period SimpleMovingAverage of 10-Period Rate-of-Change

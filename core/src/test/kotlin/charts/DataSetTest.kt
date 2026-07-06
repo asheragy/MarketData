@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.charts
 
 import org.cerion.marketdata.core.TestBase
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -9,7 +9,7 @@ class DataSetTest : TestBase() {
 
     @Test
     fun sizeOffsetByOne() {
-        val arr = FloatArray(5)
+        val arr = FloatSeries(5)
         val data = DataSet(arr, "", 0)
 
         assertEquals(arr.size - 1, data.size, "size should be 1 less")
@@ -18,7 +18,7 @@ class DataSetTest : TestBase() {
 
     @Test
     fun dataSet_iterator() {
-        val arr = FloatArray(5) // Length 5 but iterator skips first element and returns 4
+        val arr = FloatSeries(5) // Length 5 but iterator skips first element and returns 4
         for(i in 0 until 5)
             arr[i] = (i * i).toFloat()
 

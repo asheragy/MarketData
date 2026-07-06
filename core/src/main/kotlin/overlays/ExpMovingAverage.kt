@@ -1,15 +1,15 @@
 package org.cerion.marketdata.core.overlays
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Overlay
 
-class ExpMovingAverage(period: Int = 20) : OverlayBase<FloatArray>(Overlay.EMA, period) {
+class ExpMovingAverage(period: Int = 20) : OverlayBase<FloatSeries>(Overlay.EMA, period) {
 
     override val name: String = "Exp. Moving Average"
 
-    override fun eval(arr: FloatArray): FloatArray {
+    override fun eval(arr: FloatSeries): FloatSeries {
         val period = getInt(0)
-        val result = FloatArray(arr.size)
+        val result = FloatSeries(arr.size)
 
         if (arr.size > 0) {
             val mult = 2.0f / (1f + period) //ExpMovingAverage multiplier

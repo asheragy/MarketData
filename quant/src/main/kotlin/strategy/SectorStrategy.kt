@@ -2,7 +2,7 @@ package strategy
 
 import data.DataSet
 import data.SectorIndexToETF
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.indicators.AverageDirectionalIndex
 import org.cerion.marketdata.core.indicators.RSI
 import java.time.LocalDate
@@ -32,10 +32,10 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
             ?.forEach { (symbol, weight) -> println("$symbol=$weight") }
     }
 
-    private lateinit var rsi: Map<String, FloatArray>
-    private lateinit var adi: Map<String, FloatArray>
-    private lateinit var rsi14: Map<String, FloatArray>
-    private lateinit var rsi14index: FloatArray
+    private lateinit var rsi: Map<String, FloatSeries>
+    private lateinit var adi: Map<String, FloatSeries>
+    private lateinit var rsi14: Map<String, FloatSeries>
+    private lateinit var rsi14index: FloatSeries
 
     override fun eval(data: DataSet, index: Int) {
         if (index == 0) {

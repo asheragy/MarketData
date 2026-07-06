@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.ValueArray
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.Series
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.abs
@@ -10,14 +10,14 @@ class RSI(period: Int = 14) : IndicatorBase(Indicator.RSI, period) {
 
     override val name: String = "RSI"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return rsi(table, getInt(0))
     }
 
-    private fun rsi(table: OHLCVTable, period: Int): FloatArray {
+    private fun rsi(table: OHLCVTable, period: Int): FloatSeries {
         val arr = table.close
         val size = arr.size
-        val result = FloatArray(size)
+        val result = FloatSeries(size)
         if (size == 0)
             return result
 
@@ -78,7 +78,7 @@ class RSI(period: Int = 14) : IndicatorBase(Indicator.RSI, period) {
         for (i in 1 until size) {
             var gain = 0f
             var loss = 0f
-            val p = ValueArray.maxPeriod(i, period)
+            val p = Series.maxPeriod(i, period)
 
             val diff = arr[i] - arr[i - 1]
             if (diff > 0)

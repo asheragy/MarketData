@@ -1,4 +1,4 @@
-package org.cerion.marketdata.core.arrays
+package org.cerion.marketdata.core.series
 
 /** Pair of related lines with opposing directional meaning
  * @param positive Higher value or positive directional value
@@ -12,7 +12,7 @@ data class PairValue(val positive: Float, val negative: Float) {
 // Refer to these as positive and negative, BandArray will use upper/lower so the differences are more clear
 // Higher value OR positive direction value (DI+, VI+, Aroon Up)
 // Lower value OR negative direction value  (DI-, VI-, Aroon Down)
-class PairArray(val positive: FloatArray, val negative: FloatArray) : ValueArray<PairValue> {
+class PairSeries(val positive: FloatSeries, val negative: FloatSeries) : Series<PairValue> {
 
     override val size: Int = positive.size
     override fun get(i: Int) = PairValue(pos(i), neg(i))

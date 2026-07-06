@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -10,12 +10,12 @@ class PriceMomentumOscillator(p1: Int, p2: Int) : IndicatorBase(Indicator.PMO, p
 
     override val name: String = "Price Momentum Oscillator"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return priceMomentumOscillator(table, getInt(0), getInt(1))
     }
 
-    private fun priceMomentumOscillator(table: OHLCVTable, p1: Int, p2: Int): FloatArray {
-        val result = FloatArray(table.size)
+    private fun priceMomentumOscillator(table: OHLCVTable, p1: Int, p2: Int): FloatSeries {
+        val result = FloatSeries(table.size)
 
         val m1 = 2.0f / p1
         val m2 = 2.0f / p2

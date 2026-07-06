@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.functions.conditions
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.charts.IndicatorChart
 import org.cerion.marketdata.core.charts.PriceChart
 import org.cerion.marketdata.core.charts.StockChart
@@ -36,9 +36,9 @@ class IndicatorCondition
 
     init {
         // Only valid to compare two float arrays with each other
-        if (indicator1.resultType != FloatArray::class)
+        if (indicator1.resultType != FloatSeries::class)
             throw IllegalArgumentException("indicator1 must return type FloatArray")
-        if (indicator2.resultType != FloatArray::class)
+        if (indicator2.resultType != FloatSeries::class)
             throw IllegalArgumentException("indicator2 must return type FloatArray")
 
         if (condition === Condition.INSIDE)
@@ -46,8 +46,8 @@ class IndicatorCondition
     }
 
     override fun eval(table: OHLCVTable): Boolean {
-        val arr1 = indicator1.eval(table) as FloatArray
-        val arr2 = indicator2.eval(table) as FloatArray
+        val arr1 = indicator1.eval(table) as FloatSeries
+        val arr2 = indicator2.eval(table) as FloatSeries
 
         return if (condition === Condition.ABOVE)
             arr1.last > arr2.last

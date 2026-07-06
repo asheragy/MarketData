@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.overlays
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.PriceOverlay
 import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.max
@@ -10,14 +10,14 @@ class ParabolicSAR(step: Double, maxStep: Double) : PriceOverlayBase(PriceOverla
 
     constructor() : this(0.02, 0.2)
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return parabolicSAR(table, getFloat(0), getFloat(1))
     }
 
     override val name: String = "Parabolic SAR"
 
-    private fun parabolicSAR(table: OHLCVTable, step: Float, max: Float): FloatArray {
-        val result = FloatArray(table.size)
+    private fun parabolicSAR(table: OHLCVTable, step: Float, max: Float): FloatSeries {
+        val result = FloatSeries(table.size)
         val close = table.close
         var start = 1
 
@@ -33,7 +33,7 @@ class ParabolicSAR(step: Double, maxStep: Double) : PriceOverlayBase(PriceOverla
         return result
     }
 
-    private fun sarRising(table: OHLCVTable, result: FloatArray, start: Int, sar_start: Float, step: Float, max: Float) {
+    private fun sarRising(table: OHLCVTable, result: FloatSeries, start: Int, sar_start: Float, step: Float, max: Float) {
         result[start] = sar_start
 
         var alpha = step
@@ -60,7 +60,7 @@ class ParabolicSAR(step: Double, maxStep: Double) : PriceOverlayBase(PriceOverla
 
     }
 
-    private fun sarFalling(table: OHLCVTable, result: FloatArray, start: Int, sar_start: Float, step: Float, max: Float) {
+    private fun sarFalling(table: OHLCVTable, result: FloatSeries, start: Int, sar_start: Float, step: Float, max: Float) {
         //System.out.println(p.date + "\t" + sar_start + "\tFalling");
         result[start] = sar_start
 

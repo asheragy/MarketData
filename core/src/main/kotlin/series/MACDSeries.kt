@@ -1,11 +1,11 @@
-package org.cerion.marketdata.core.arrays
+package org.cerion.marketdata.core.series
 
 data class MACD(val value: Float, val signal: Float, val hist: Float)
 
 // TODO stop inheriting from single array
-class MACDArray(size: Int, private val signalPeriod: Int) : FloatArray(size) {
+class MACDSeries(size: Int, private val signalPeriod: Int) : FloatSeries(size) {
 
-    private val signal: FloatArray by lazy {
+    private val signal: FloatSeries by lazy {
         ema(signalPeriod)
     }
 

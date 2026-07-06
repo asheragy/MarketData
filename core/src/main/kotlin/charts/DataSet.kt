@@ -1,11 +1,11 @@
 package org.cerion.marketdata.core.charts
 
-import org.cerion.marketdata.core.arrays.BandArray
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.MACDArray
-import org.cerion.marketdata.core.arrays.PairArray
+import org.cerion.marketdata.core.series.BandSeries
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.MACDSeries
+import org.cerion.marketdata.core.series.PairSeries
 
-class DataSet(private val values: FloatArray, override val label: String, override var color: Int) : IDataSet, Iterable<Float> {
+class DataSet(private val values: FloatSeries, override val label: String, override var color: Int) : IDataSet, Iterable<Float> {
 
     override var lineType = LineType.LINE
     override val size: Int = values.size - 1
@@ -22,21 +22,21 @@ class DataSet(private val values: FloatArray, override val label: String, overri
     }
 }
 
-fun FloatArray.toDataSet(label: String, color: Int) = DataSet(this, label, color)
+fun FloatSeries.toDataSet(label: String, color: Int) = DataSet(this, label, color)
 
-fun BandArray.getDataSets(labelUpper: String, labelLower: String, color: Int): List<DataSet> {
+fun BandSeries.getDataSets(labelUpper: String, labelLower: String, color: Int): List<DataSet> {
     return listOf(DataSet(upper, labelUpper, color), DataSet(lower, labelLower, color))
 }
 
-fun PairArray.getDataSets(labelPos: String, labelNeg: String, colorPos: Int, colorNeg: Int): List<DataSet> {
+fun PairSeries.getDataSets(labelPos: String, labelNeg: String, colorPos: Int, colorNeg: Int): List<DataSet> {
     return listOf(DataSet(positive, labelPos, colorPos), DataSet(negative, labelNeg, colorNeg))
 }
 
-fun MACDArray.getDataSets(labelMACD: String, labelSignal: String, labelHist: String,
-                          colorMACD: Int, colorSignal: Int, colorHist: Int): List<DataSet> {
+fun MACDSeries.getDataSets(labelMACD: String, labelSignal: String, labelHist: String,
+                           colorMACD: Int, colorSignal: Int, colorHist: Int): List<DataSet> {
 
-    val signal = FloatArray(size)
-    val hist = FloatArray(size)
+    val signal = FloatSeries(size)
+    val hist = FloatSeries(size)
 
     // TODO make function to get signal/hist arrays directly
     for (i in 0 until size) {

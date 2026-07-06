@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.max
@@ -12,19 +12,19 @@ class UltimateOscillator(p1: Int, p2: Int, p3: Int) : IndicatorBase(Indicator.UO
 
     override val name: String = "Ultimate Oscillator"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return ultimateOscillator(table, getInt(0), getInt(1), getInt(2))
     }
 
-    private fun ultimateOscillator(table: OHLCVTable, p1: Int, p2: Int, p3: Int): FloatArray {
+    private fun ultimateOscillator(table: OHLCVTable, p1: Int, p2: Int, p3: Int): FloatSeries {
         val size = table.size
-        val result = FloatArray(size)
+        val result = FloatSeries(size)
 
-        val bp = kotlin.FloatArray(size)
+        val bp = FloatArray(size)
         for (i in 1 until size)
             bp[i] = table.close[i] - min(table.low[i], table.close[i - 1])
 
-        val average = Array(size) { kotlin.FloatArray(3) }
+        val average = Array(size) { FloatArray(3) }
 
         //First Period
         for (i in p1 until size) {

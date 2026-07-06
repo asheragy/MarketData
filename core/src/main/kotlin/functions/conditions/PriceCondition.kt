@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.functions.conditions
 
-import org.cerion.marketdata.core.arrays.BandArray
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.BandSeries
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.charts.PriceChart
 import org.cerion.marketdata.core.charts.StockChart
 import org.cerion.marketdata.core.functions.IPriceOverlay
@@ -20,16 +20,16 @@ class PriceCondition(private val condition: Condition, private val overlay: IPri
         }
 
     init {
-        if (condition === Condition.INSIDE && overlay.resultType != BandArray::class)
+        if (condition === Condition.INSIDE && overlay.resultType != BandSeries::class)
             throw IllegalArgumentException("condition")
     }
 
     override fun eval(table: OHLCVTable): Boolean {
         val arr = overlay.eval(table)
 
-        return if (arr is FloatArray) {
+        return if (arr is FloatSeries) {
             evalFloatArray(arr, table.last())
-        } else if (arr is BandArray) {
+        } else if (arr is BandSeries) {
             evalBandArray(arr)
         } else
             throw UnsupportedOperationException()
@@ -39,7 +39,7 @@ class PriceCondition(private val condition: Condition, private val overlay: IPri
         return "Price " + condition.toString().lowercase() + " " + overlay.toString()
     }
 
-    private fun evalBandArray(arr: BandArray): Boolean {
+    private fun evalBandArray(arr: BandSeries): Boolean {
         val percent = arr.percent(arr.size - 1)
 
         if (condition === Condition.ABOVE && percent > 1)
@@ -51,7 +51,7 @@ class PriceCondition(private val condition: Condition, private val overlay: IPri
 
     }
 
-    private fun evalFloatArray(arr: FloatArray, last: OHLCVRow): Boolean {
+    private fun evalFloatArray(arr: FloatSeries, last: OHLCVRow): Boolean {
         val v = arr.last
 
         if (condition === Condition.ABOVE && last.close > v)

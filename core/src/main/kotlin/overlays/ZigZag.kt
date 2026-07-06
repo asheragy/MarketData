@@ -1,12 +1,12 @@
 package org.cerion.marketdata.core.overlays
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.PriceOverlay
 import org.cerion.marketdata.core.model.OHLCVTable
 
 class ZigZag(percent: Double = 5.0) : PriceOverlayBase(PriceOverlay.ZIGZAG, percent) {
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return zigzag(table, getFloat(0))
     }
 
@@ -16,9 +16,9 @@ class ZigZag(percent: Double = 5.0) : PriceOverlayBase(PriceOverlay.ZIGZAG, perc
         return 100 * (curr - prev) / prev
     }
 
-    private fun zigzag(table: OHLCVTable, percent: Float): FloatArray {
+    private fun zigzag(table: OHLCVTable, percent: Float): FloatSeries {
         val size = table.size
-        val result = FloatArray(table.size)
+        val result = FloatSeries(table.size)
 
         // start=-1, down=0, up=1
         var direction = -1

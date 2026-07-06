@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.charts
 
-import org.cerion.marketdata.core.arrays.*
+import org.cerion.marketdata.core.series.*
 import org.cerion.marketdata.core.functions.IIndicator
 import org.cerion.marketdata.core.functions.ISimpleOverlay
 import org.cerion.marketdata.core.functions.types.Indicator
@@ -51,29 +51,29 @@ class IndicatorChart(indicator: IIndicator, colors: ChartColors = ChartColors())
         return result
     }
 
-    private fun getOverlayDataSets(arr: ValueArray<*>, ignoreColor: Int): List<DataSet> {
+    private fun getOverlayDataSets(arr: Series<*>, ignoreColor: Int): List<DataSet> {
         resetNextColor()
         val result = mutableListOf<DataSet>()
 
         for (overlay in _overlays) {
             val ol = overlay as ISimpleOverlay
 
-            val temp = ol.eval(arr as org.cerion.marketdata.core.arrays.FloatArray)
+            val temp = ol.eval(arr as org.cerion.marketdata.core.series.FloatSeries)
             result += getDefaultOverlayDataSets(temp, ol, ignoreColor)
         }
 
         return result
     }
 
-    private fun getIndicatorDataSets(arr: ValueArray<*>, indicator: IIndicator): List<DataSet> {
+    private fun getIndicatorDataSets(arr: Series<*>, indicator: IIndicator): List<DataSet> {
         val label = indicator.toString()
 
         // TODO look at all uses and see if any colors should be non-defaults (there are some that will)
         return when (arr) {
-            is BandArray -> throw NotImplementedError() // No indicators seem to be using this
-            is MACDArray -> arr.getDataSets(label, label, label, _colors.primaryPurple, _colors.orange, _colors.secondaryBlue)
-            is PairArray -> arr.getDataSets(label, label, _colors.positiveGreen, _colors.negativeRed)
-            is org.cerion.marketdata.core.arrays.FloatArray -> {
+            is BandSeries -> throw NotImplementedError() // No indicators seem to be using this
+            is MACDSeries -> arr.getDataSets(label, label, label, _colors.primaryPurple, _colors.orange, _colors.secondaryBlue)
+            is PairSeries -> arr.getDataSets(label, label, _colors.positiveGreen, _colors.negativeRed)
+            is org.cerion.marketdata.core.series.FloatSeries -> {
                 // TODO add more special cases
                 var color = _colors.primary
                 if (indicator.id == Indicator.RSI)

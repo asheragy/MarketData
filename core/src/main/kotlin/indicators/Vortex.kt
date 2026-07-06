@@ -1,8 +1,8 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.PairArray
-import org.cerion.marketdata.core.arrays.ValueArray
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.PairSeries
+import org.cerion.marketdata.core.series.Series
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.abs
@@ -11,16 +11,16 @@ class Vortex(period: Int = 14) : IndicatorBase(Indicator.VORTEX, period) {
 
     override val name: String = "Vortex"
 
-    override fun eval(table: OHLCVTable): PairArray {
+    override fun eval(table: OHLCVTable): PairSeries {
         return vortex(table, getInt(0))
     }
 
-    private fun vortex(table: OHLCVTable, period: Int): PairArray {
+    private fun vortex(table: OHLCVTable, period: Int): PairSeries {
         val size = table.size
-        val posVI = FloatArray(size)
-        val negVI = FloatArray(size)
+        val posVI = FloatSeries(size)
+        val negVI = FloatSeries(size)
 
-        val vm = Array(size) { kotlin.FloatArray(2) } // +VM/-VM
+        val vm = Array(size) { FloatArray(2) } // +VM/-VM
 
         for (i in 1 until size) {
             vm[i][0] = abs(table.high[i] - table.low[i - 1])
@@ -32,7 +32,7 @@ class Vortex(period: Int = 14) : IndicatorBase(Indicator.VORTEX, period) {
         negVI[0] = 1f
 
         for (i in 1 until size) {
-            val count = ValueArray.maxPeriod(i, period)
+            val count = Series.maxPeriod(i, period)
             var vip = 0f
             var vin = 0f
             var tr = 0f
@@ -46,7 +46,7 @@ class Vortex(period: Int = 14) : IndicatorBase(Indicator.VORTEX, period) {
             negVI[i] = vin / tr
         }
 
-        return PairArray(posVI, negVI)
+        return PairSeries(posVI, negVI)
     }
 
 }

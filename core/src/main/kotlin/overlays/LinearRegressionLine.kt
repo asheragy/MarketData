@@ -1,17 +1,17 @@
 package org.cerion.marketdata.core.overlays
 
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Overlay
 
-class LinearRegressionLine : OverlayBase<FloatArray>(Overlay.LINREG) {
+class LinearRegressionLine : OverlayBase<FloatSeries>(Overlay.LINREG) {
 
     override val name: String = "Linear Regression Line"
 
-    override fun eval(arr: FloatArray): FloatArray {
+    override fun eval(arr: FloatSeries): FloatSeries {
 
         val pos = arr.size - 1
-        val result = FloatArray(arr.size)
+        val result = FloatSeries(arr.size)
 
         val ab = arr.getLinearRegressionEquation(0, pos)
         val slope = ab[1]

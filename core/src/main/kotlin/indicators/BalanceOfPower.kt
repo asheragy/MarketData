@@ -1,18 +1,16 @@
 package org.cerion.marketdata.core.indicators
 
-import com.tictactec.ta.lib.Core
 import com.tictactec.ta.lib.MInteger
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.toFloatArray
 import org.cerion.marketdata.core.functions.types.Indicator
-import org.cerion.marketdata.core.indicators.IndicatorBase
 import org.cerion.marketdata.core.model.OHLCVTable
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.toFloatSeries
 
 class BalanceOfPower(period: Int = 14) : IndicatorBase(Indicator.BOP, period) {
 
     override val name: String = "Balance of Power"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         val outIdx = MInteger()
         val outElement = MInteger()
         val result = DoubleArray(table.size)
@@ -23,6 +21,6 @@ class BalanceOfPower(period: Int = 14) : IndicatorBase(Indicator.BOP, period) {
             table.close.toFloatArray(),
             outIdx, outElement, result)
 
-        return result.map { it.toFloat() }.toFloatArray()
+        return result.map { it.toFloat() }.toFloatSeries()
     }
 }

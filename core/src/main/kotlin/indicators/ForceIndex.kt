@@ -1,6 +1,6 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -8,14 +8,14 @@ class ForceIndex(period: Int = 13) : IndicatorBase(Indicator.FORCE_INDEX, period
 
     override val name: String = "Force Index"
 
-    override fun eval(table: OHLCVTable): FloatArray {
+    override fun eval(table: OHLCVTable): FloatSeries {
         return forceIndex(table, getInt(0))
     }
 
-    private fun forceIndex(table: OHLCVTable, period: Int): FloatArray {
+    private fun forceIndex(table: OHLCVTable, period: Int): FloatSeries {
         val close = table.close
         val size = table.size
-        val result = FloatArray(size)
+        val result = FloatSeries(size)
 
         val mult = 2.0f / (1f + period)
 

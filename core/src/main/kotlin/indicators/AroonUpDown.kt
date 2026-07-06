@@ -1,7 +1,7 @@
 package org.cerion.marketdata.core.indicators
 
-import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.PairArray
+import org.cerion.marketdata.core.series.FloatSeries
+import org.cerion.marketdata.core.series.PairSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -9,14 +9,14 @@ class AroonUpDown(period: Int = 25) : IndicatorBase(Indicator.AROON, period) {
 
     override val name: String = "Aroon Up/Down"
 
-    override fun eval(table: OHLCVTable): PairArray {
+    override fun eval(table: OHLCVTable): PairSeries {
         return aroon(table, getInt(0))
     }
 
-    private fun aroon(table: OHLCVTable, period: Int): PairArray {
+    private fun aroon(table: OHLCVTable, period: Int): PairSeries {
         val size = table.size
-        val up = FloatArray(size)
-        val down = FloatArray(size)
+        val up = FloatSeries(size)
+        val down = FloatSeries(size)
         //Aroon Up = 100 x (25 - Days Since 25-day High)/25
         //Aroon Down = 100 x (25 - Days Since 25-day Low)/25
         //Aroon Oscillator = Aroon-Up  -  Aroon-Down
@@ -29,6 +29,6 @@ class AroonUpDown(period: Int = 25) : IndicatorBase(Indicator.AROON, period) {
             down[i] = (100 * (period - low) / period).toFloat()
         }
 
-        return PairArray(up, down)
+        return PairSeries(up, down)
     }
 }

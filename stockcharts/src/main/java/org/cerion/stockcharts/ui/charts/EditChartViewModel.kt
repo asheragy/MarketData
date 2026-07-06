@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.charts.IndicatorChart
 import org.cerion.marketdata.core.charts.PriceChart
 import org.cerion.marketdata.core.charts.StockChart
@@ -112,6 +112,6 @@ class EditChartViewModel(val originalChart: StockChart) : ViewModel() {
 
     private fun functionAllowOverlays(): Boolean {
         val ii = function!!
-        return ii.resultType == FloatArray::class
+        return ii.resultType == FloatSeries::class
     }
 }
