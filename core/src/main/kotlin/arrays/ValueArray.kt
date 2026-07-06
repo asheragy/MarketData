@@ -1,20 +1,17 @@
 package org.cerion.marketdata.core.arrays
 
 
-// TODO make sealed and change to interface?
 // TODO name Series and rename other types
-abstract class ValueArray<T> : Iterable<T> {
+sealed interface ValueArray<T> : Iterable<T> {
 
-    abstract val size: Int
-    abstract operator fun get(i: Int): T
+    val size: Int
+    operator fun get(i: Int): T
 
-    val first: T by lazy {
-        this[0]
-    }
+    val first: T
+        get() = this[0]
 
-    val last: T by lazy {
-        this[size - 1]
-    }
+    val last: T
+        get() = this[size - 1]
 
     override fun iterator(): Iterator<T> {
         return object : Iterator<T> {

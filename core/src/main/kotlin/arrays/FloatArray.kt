@@ -9,7 +9,7 @@ import kotlin.math.sqrt
 
 // TODO FloatSeries
 // TODO move most functions to extension functions on kotlin.FloatArray
-open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float>() {
+open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float> {
 
     constructor(length: Int) : this(kotlin.FloatArray(length))
 
@@ -135,7 +135,7 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float>()
         val result = FloatArray(size)
 
         for (i in 1 until size) {
-            val count = maxPeriod(i, period)
+            val count = ValueArray.maxPeriod(i, period)
 
             val sma = arr_sma[i]
             var total = 0f
@@ -153,7 +153,7 @@ open class FloatArray(private val mVal: kotlin.FloatArray) : ValueArray<Float>()
 
     fun slope(period: Int, pos: Int): Float {
         var p = period
-        p = maxPeriod(pos, p)
+        p = ValueArray.maxPeriod(pos, p)
         val ab = getLinearRegressionEquation(pos - p + 1, pos)
 
         return ab[1]

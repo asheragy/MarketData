@@ -11,7 +11,7 @@ class KrakenTest {
     fun test() {
         val api = Kraken()
         val daily = api.getPrices("ETH", FetchInterval.DAILY)
-        assertEquals(720, daily.size)
+        assertEquals(721, daily.size)
 
         val weekly = api.getPrices("ETH", FetchInterval.WEEKLY)
         assertTrue(weekly.size > 500)

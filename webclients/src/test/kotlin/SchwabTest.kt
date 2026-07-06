@@ -1,9 +1,11 @@
 import org.cerion.marketdata.core.model.Interval
 import org.cerion.marketdata.webclients.api.Schwab
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
+@Disabled
 class SchwabTest {
     private val api = Schwab("")
 

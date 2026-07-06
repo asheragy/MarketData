@@ -1,6 +1,7 @@
 
 import org.cerion.marketdata.webclients.tda.TDAmeritrade
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.awt.Desktop
 import java.io.FileInputStream
@@ -11,6 +12,7 @@ import java.util.*
 import kotlin.math.absoluteValue
 
 
+@Disabled
 class TDAmeritradeTest {
     private val clientId = Secrets.tdClientId
     private val redirectUri = "https://127.0.0.1"

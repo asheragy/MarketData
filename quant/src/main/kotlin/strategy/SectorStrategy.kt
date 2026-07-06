@@ -3,6 +3,7 @@ package strategy
 import data.DataSet
 import data.SectorIndexToETF
 import org.cerion.marketdata.core.arrays.FloatArray
+import org.cerion.marketdata.core.indicators.AverageDirectionalIndex
 import org.cerion.marketdata.core.indicators.RSI
 import java.time.LocalDate
 
@@ -32,12 +33,18 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
     }
 
     private lateinit var rsi: Map<String, FloatArray>
+    private lateinit var adi: Map<String, FloatArray>
+    private lateinit var rsi14: Map<String, FloatArray>
+    private lateinit var rsi14index: FloatArray
 
     override fun eval(data: DataSet, index: Int) {
         if (index == 0) {
             // TODO add init() before eval
             // Init
             rsi = data.lists.associate { Pair(it.symbol, RSI(3).eval(it)) }
+            rsi14 = data.lists.associate { Pair(it.symbol, RSI(14).eval(it)) }
+            adi = data.lists.associate { Pair(it.symbol, AverageDirectionalIndex().eval(it)) }
+            rsi14index  = RSI(14).eval(data.index!!)
         }
 
         // Sell all at end
@@ -54,7 +61,7 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
                     val currRsi = rsi[list.symbol]!![index]
                     if (currRsi <= 33.64 || currRsi >= 81.32) {
                         // Good
-                        weights[list.symbol] = weights[list.symbol]!! * 1.2f
+                        weights[list.symbol] = weights[list.symbol]!! * 1.1f
                     }
                     else if (currRsi in 52.97..67.64) {
                         // neutral
@@ -62,7 +69,38 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
                     }
                     else {
                         // bad
-                        weights[list.symbol] = weights[list.symbol]!! * 0.8f
+                        weights[list.symbol] = weights[list.symbol]!! * 0.9f
+                    }
+                }
+
+                data.lists.forEach { list ->
+                    val curr = adi[list.symbol]!![index]
+                    if (curr in 16.37..20.81 ||  curr in 25.30..31.48) {
+                        // Good
+                        weights[list.symbol] = weights[list.symbol]!! * 1.1f
+                    }
+                    else if (curr in 20.81..25.30) {
+                        // neutral
+                    }
+                    else {
+                        // bad
+                        weights[list.symbol] = weights[list.symbol]!! * 0.9f
+                    }
+                }
+
+
+                data.lists.forEach { list ->
+                    val curr = rsi14[list.symbol]!![index] - rsi14index[index]
+                    if (curr in -0.50..4.19 || curr < -9.88) {
+                        // Good
+                        weights[list.symbol] = weights[list.symbol]!! * 1.1f
+                    }
+                    else if (curr in -4.30..-0.50) {
+                        // neutral
+                    }
+                    else {
+                        // bad
+                        weights[list.symbol] = weights[list.symbol]!! * 0.9f
                     }
                 }
             }

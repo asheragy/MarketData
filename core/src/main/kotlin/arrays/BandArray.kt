@@ -2,7 +2,7 @@ package org.cerion.marketdata.core.arrays
 
 data class BandValue(val upper: Float, val lower: Float, val mid: Float, val bandwidth: Float, val percent: Float)
 
-class BandArray(private val source: FloatArray, val upper: FloatArray, val lower: FloatArray) : ValueArray<BandValue>() {
+class BandArray(private val source: FloatArray, val upper: FloatArray, val lower: FloatArray) : ValueArray<BandValue> {
 
     override val size = source.size
 

@@ -2,7 +2,6 @@ package org.cerion.marketdata.core.overlays
 
 import org.cerion.marketdata.core.arrays.BandArray
 import org.cerion.marketdata.core.arrays.FloatArray
-import org.cerion.marketdata.core.arrays.ValueArray
 import org.cerion.marketdata.core.functions.types.PriceOverlay
 import org.cerion.marketdata.core.model.OHLCVTable
 import kotlin.math.max

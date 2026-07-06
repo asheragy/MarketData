@@ -1,4 +1,5 @@
 import data.DataSet
+import model.Money
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
@@ -32,8 +33,8 @@ class BacktesterTest {
         val testResult = Backtester.run(data, strategy)
 
         assertEquals(13, testResult.trades.size)
-        assertEquals(3.9239816, testResult.indexProfit, 0.005)
-        assertEquals(3.9239816, testResult.strategyProfit, 0.005)
+        assertMoneyEquals("3923.99", testResult.indexProfit)
+        assertMoneyEquals("3924.17", testResult.strategyProfit)
     }
 
     /**
@@ -44,10 +45,10 @@ class BacktesterTest {
         val strategy = object: Strategy() {
             override fun eval(data: DataSet, index: Int) {
                 if (index == 0) {
-                    val percent = 1.0 / data.lists.size
+                    val percent = 1.0f / data.lists.size
                     val currentCash = cash
                     data.lists.forEach {
-                        open(it.symbol, it[0], currentCash * percent)
+                        open(it.symbol, it[0], currentCash.weighted(percent))
                     }
                 }
 
@@ -60,8 +61,8 @@ class BacktesterTest {
         val testResult = Backtester.run(data, strategy)
 
         assertEquals(3, testResult.trades.size)
-        assertEquals(3.9239816, testResult.indexProfit, 0.005)
-        assertEquals(3.5143908, testResult.strategyProfit, 0.005)
+        assertMoneyEquals("3923.99", testResult.indexProfit)
+        assertMoneyEquals("3514.37", testResult.strategyProfit)
     }
 
     /**
@@ -73,10 +74,10 @@ class BacktesterTest {
         val strategy = object: Strategy() {
             override fun eval(data: DataSet, index: Int) {
                 if (index % 500 == 0) {
-                    val percent = 1.0 / data.lists.size
+                    val percent = 1.0f / data.lists.size
                     val currentCash = cash
                     data.lists.forEach {
-                        open(it.symbol, it[index], currentCash * percent)
+                        open(it.symbol, it[index], currentCash.weighted(percent))
                     }
                 }
 
@@ -93,7 +94,7 @@ class BacktesterTest {
         val testResult = Backtester.run(data, strategy)
 
         //assertEquals(39, testResult.trades.size)
-        assertEquals(1.3927826, testResult.strategyProfit, 0.005)
+        assertMoneyEquals("1.39", testResult.strategyProfit)
     }
 
     /**
@@ -145,6 +146,10 @@ class BacktesterTest {
 
         val testResult = Backtester.run(data, strategy)
         //assertEquals(925, testResult.trades.size)
-        assertEquals(3.5143908, testResult.strategyProfit, 0.005)
+        assertMoneyEquals("3.51", testResult.strategyProfit)
     }
+}
+
+fun assertMoneyEquals(a: String, b: Money) {
+    assertEquals(a, b.amount.toString())
 }
