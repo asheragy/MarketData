@@ -20,14 +20,14 @@ class PercentagePriceOscillator(p1: Int, p2: Int, signal: Int) : IndicatorBase(I
 
         // Shared with PVO
         fun getPercentMACD(arr: FloatSeries, p1: Int, p2: Int, signal: Int): MACDSeries {
-            val result = MACDSeries(arr.size, signal)
+            val macd = FloatSeries(arr.size)
             val ema1 = arr.ema(p1)
             val ema2 = arr.ema(p2)
 
             for (i in 0 until arr.size)
-                result[i] = 100 * (ema1[i] - ema2[i]) / ema2[i]
+                macd[i] = 100 * (ema1[i] - ema2[i]) / ema2[i]
 
-            return result
+            return MACDSeries(macd, macd.ema(signal))
         }
     }
 

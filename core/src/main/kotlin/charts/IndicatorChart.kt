@@ -1,10 +1,10 @@
 package org.cerion.marketdata.core.charts
 
-import org.cerion.marketdata.core.series.*
 import org.cerion.marketdata.core.functions.IIndicator
 import org.cerion.marketdata.core.functions.ISimpleOverlay
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
+import org.cerion.marketdata.core.series.*
 
 class IndicatorChart(indicator: IIndicator, colors: ChartColors = ChartColors()) : StockChart(colors) {
 
@@ -54,11 +54,19 @@ class IndicatorChart(indicator: IIndicator, colors: ChartColors = ChartColors())
     private fun getOverlayDataSets(arr: Series<*>, ignoreColor: Int): List<DataSet> {
         resetNextColor()
         val result = mutableListOf<DataSet>()
+        if (_overlays.isEmpty())
+            return result
+
+        val overlayInput = when (arr) {
+            is FloatSeries -> arr
+            is MACDSeries -> arr.macd
+            else -> throw IllegalArgumentException("overlays can only be applied to single-line indicators")
+        }
 
         for (overlay in _overlays) {
             val ol = overlay as ISimpleOverlay
 
-            val temp = ol.eval(arr as org.cerion.marketdata.core.series.FloatSeries)
+            val temp = ol.eval(overlayInput)
             result += getDefaultOverlayDataSets(temp, ol, ignoreColor)
         }
 

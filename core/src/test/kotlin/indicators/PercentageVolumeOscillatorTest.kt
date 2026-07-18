@@ -10,6 +10,6 @@ class PercentageVolumeOscillatorTest : TestBase() {
         // TODO temp to quick check PPO and PVO
 
         val arr = PercentageVolumeOscillator(12, 26, 9).eval(it)
-        assertEquals(-10.86, arr.last, "pvo last")
+        assertEquals(-10.86, arr.macd.last, "pvo last")
     }
 }

@@ -10,7 +10,7 @@ class MACDTest : TestBase() {
         val arr = MACD().eval(it)
 
         val last = arr.size - 1
-        assertEquals(-1.69, arr[last], "last")
+        assertEquals(-1.69, arr.value(last), "last")
         assertEquals(1.84, arr.hist(last), "hist")
         assertEquals(-3.54, arr.signal(last), "signal")
     }

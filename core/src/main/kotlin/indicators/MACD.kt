@@ -1,6 +1,7 @@
 package org.cerion.marketdata.core.indicators
 
 import org.cerion.marketdata.core.series.MACDSeries
+import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.types.Indicator
 import org.cerion.marketdata.core.model.OHLCVTable
 
@@ -15,13 +16,13 @@ class MACD(p1: Int, p2: Int, signal: Int) : IndicatorBase(Indicator.MACD, p1, p2
     }
 
     private fun macd(table: OHLCVTable, p1: Int, p2: Int, signal: Int): MACDSeries {
-        val result = MACDSeries(table.size, signal)
+        val macd = FloatSeries(table.size)
         val ema1 = table.close.ema(p1)
         val ema2 = table.close.ema(p2)
 
         for (i in table.indices)
-            result[i] = ema1[i] - ema2[i]
+            macd[i] = ema1[i] - ema2[i]
 
-        return result
+        return MACDSeries(macd, macd.ema(signal))
     }
 }

@@ -34,17 +34,7 @@ fun PairSeries.getDataSets(labelPos: String, labelNeg: String, colorPos: Int, co
 
 fun MACDSeries.getDataSets(labelMACD: String, labelSignal: String, labelHist: String,
                            colorMACD: Int, colorSignal: Int, colorHist: Int): List<DataSet> {
-
-    val signal = FloatSeries(size)
-    val hist = FloatSeries(size)
-
-    // TODO make function to get signal/hist arrays directly
-    for (i in 0 until size) {
-        signal[i] = signal(i)
-        hist[i] = hist(i)
-    }
-
-    return listOf(DataSet(this, labelMACD, colorMACD),
+    return listOf(DataSet(macd, labelMACD, colorMACD),
             DataSet(signal, labelSignal, colorSignal),
             DataSet(hist, labelHist, colorHist))
 }
