@@ -26,6 +26,6 @@ class BollingerBands(period: Int, stddev: Double) : OverlayBase<BandSeries>(Over
             lower[i] = sma[i] - multiplier * std[i]
         }
 
-        return BandSeries(arr, upper, lower)
+        return BandSeries(upper, lower, arr)
     }
 }

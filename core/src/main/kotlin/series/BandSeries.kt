@@ -1,26 +1,36 @@
 package org.cerion.marketdata.core.series
 
-data class BandValue(val upper: Float, val lower: Float, val mid: Float, val bandwidth: Float, val percent: Float)
+data class BandValue(val upper: Float, val lower: Float, val value: Float) {
+    val width: Float
+        get() = upper - lower
 
-class BandSeries(private val source: FloatSeries, val upper: FloatSeries, val lower: FloatSeries) : Series<BandValue> {
+    val mid: Float
+        get() = (lower + upper) / 2
 
-    override val size = source.size
+    val bandwidth: Float
+        get() = width / mid * 100
+
+    val percent: Float
+        get() = (value - lower) / width
+}
+
+class BandSeries(val upper: FloatSeries, val lower: FloatSeries, private val values: FloatSeries) : Series<BandValue> {
+
+    init {
+        require(upper.size == lower.size) { "upper and lower series must be the same size" }
+        require(upper.size == values.size) { "band and value series must be the same size" }
+    }
+
+    override val size = upper.size
 
     override fun get(i: Int): BandValue {
-        return BandValue(upper(i), lower(i), mid(i), bandwidth(i), percent(i))
+        return BandValue(upper(i), lower(i), values[i])
     }
 
-    fun mid(pos: Int): Float = (lower[pos] + upper[pos]) / 2
     fun lower(pos: Int): Float = lower[pos]
     fun upper(pos: Int): Float = upper[pos]
-
-    fun bandwidth(pos: Int): Float {
-        //(Upper Band - Lower Band)/Middle Band
-        return (upper(pos) - lower(pos)) / mid(pos) * 100
-    }
-
-    fun percent(pos: Int): Float {
-        //%B = (Price - Lower Band)/(Upper Band - Lower Band)
-        return (source[pos] - lower(pos)) / (upper(pos) - lower(pos))
-    }
+    fun width(pos: Int): Float = get(pos).width
+    fun mid(pos: Int): Float = get(pos).mid
+    fun bandwidth(pos: Int): Float = get(pos).bandwidth
+    fun percent(pos: Int): Float = get(pos).percent
 }

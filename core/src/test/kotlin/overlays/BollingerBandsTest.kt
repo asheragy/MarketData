@@ -12,6 +12,7 @@ class BollingerBandsTest : TestBase() {
 
         // TODO need to verify online
         assertEquals(4.32, arr.bandwidth(arr.size - 1), "bandwidth")
+        assertEquals(88.66, arr.width(arr.size - 1), "width")
         assertEquals(2006.05, arr.lower(arr.size - 1), "lower")
         assertEquals(2050.38, arr.mid(arr.size - 1), "mid")
         assertEquals(0.43, arr.percent(arr.size - 1), "percent")

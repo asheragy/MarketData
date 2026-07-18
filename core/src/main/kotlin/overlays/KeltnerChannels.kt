@@ -31,6 +31,6 @@ class KeltnerChannels(period: Int, multiplier: Double, atr: Int) : PriceOverlayB
             lower[i] = ema[i] - multiplier * atr[i]
         }
 
-        return BandSeries(table.close, upper, lower)
+        return BandSeries(upper, lower, table.close)
     }
 }

@@ -24,6 +24,7 @@ class PriceChannelsTest : TestBase() {
         assertEquals(2104.27, last.upper, "priceChannels upper last")
         assertEquals(1993.26, last.lower, "priceChannels lower last")
         assertEquals(2048.77, last.mid, "mid last")
+        assertEquals(111.01, last.width, "width last")
         assertEquals(5.42, last.bandwidth, "bandwidth last")
         assertEquals(0.46, last.percent, "percent last")
     }
