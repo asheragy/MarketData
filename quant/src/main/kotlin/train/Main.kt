@@ -2,7 +2,7 @@ package train
 
 import data.SectorETFDef
 import data.TextDataRepository
-import org.cerion.marketdata.core.indicators.*
+import org.cerion.marketdata.core.indicators.RSI
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.overlays.ExpMovingAverage
 
@@ -18,10 +18,11 @@ import org.cerion.marketdata.core.overlays.ExpMovingAverage
 
 // TODO conditional output, only care about compute value if other conditions are true
 class InputData<T, U>(
-    val name: String,
-    val init: (OHLCVTable) -> T,
-    val initIndex: ((OHLCVTable) -> U),
-    val compute: (indexCache: U, cache: T, curr: OHLCVTable, index: Int) -> Float,
+    val name: String? = null,
+    val init: ((OHLCVTable) -> T)? = null,
+    val initIndex: (((OHLCVTable) -> U))? = null,
+    val compute: ((indexCache: U, cache: T, curr: OHLCVTable, index: Int) -> Float)? = null,
+    val expr: Expr? = null,
     val buckets: Int = 5)
 
 data class RunResult(val input: InputData<*, *>, val buckets: List<Bucket>, val lookahead: Int) {
@@ -33,7 +34,8 @@ data class RunResult(val input: InputData<*, *>, val buckets: List<Bucket>, val 
     var score = 0.0
 
     fun print() {
-        println("LA:$lookahead S:${score.decimal2()} ${input.name}")
+        val name = if (input.expr != null)  input.expr.toString() else input.name
+        println("LA:$lookahead S:${score.decimal2()} ${name}")
         Table.print(
             rows = buckets,
             columns = listOf(
@@ -68,56 +70,17 @@ fun main() {
     val runs = mutableListOf<RunResult>()
 
     val inputs = listOf(
-        InputData(
-            "RSI 3",
-            init = { table -> RSI(3).eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] }
-        ),
-        InputData(
-            "RSI 7",
-            init = { table -> RSI(7).eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] }
-        ),
-        InputData(
-            "RSI 14",
-            init = { table -> RSI(14).eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] }
-        ),
-        InputData(
-            "RSI 14 - RSI 14[1 period ago]",
-            init = { table -> RSI(14).eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] - cache[index - 1] }
-        ),
-        InputData(
-            "RSI 7 - 14",
-            init = { table -> Pair(RSI(7).eval(table), RSI(14).eval(table)) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache.first[index] - cache.second[index] }
-        ),
-        InputData(
-            "RSI(14) / EMA(RSI(14), 3)",
-            init = { table ->
-                val rsi = RSI(14).eval(table)
-                val ema = ExpMovingAverage(3).eval(rsi)
-                Pair(rsi, ema)
-            },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache.first[index] / cache.second[index] },
-        ),
-        InputData(
-            "RSI(14) - EMA(RSI(14), 3)",
-            init = { table ->
-                val rsi = RSI(14).eval(table)
-                val ema = ExpMovingAverage(3).eval(rsi)
-                Pair(rsi, ema)
-            },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache.first[index] - cache.second[index] },
-        ),
+        //InputData(expr = CallExpr("RSI", 3)),
+        //InputData(expr = CallExpr("RSI", 7)),
+        //InputData(expr = CallExpr("RSI", 14)),
+        //InputData(expr = CallExpr("RSI", 14) - LagExpr(CallExpr("RSI", 14), 1)),
+        //InputData(expr = CallExpr("RSI", 7) - CallExpr("RSI", 14)),
+        //InputData(expr = CallExpr("RSI", 14) / CallExpr("EMA", CallExpr("RSI", 14), NumberExpr(3))),
+        //InputData(expr = CallExpr("RSI", 14) - CallExpr("EMA", CallExpr("RSI", 14), NumberExpr(3))),
+
+        /*
+
+
         InputData(
             "RSI 14 Bollinger Bands",
             init = { table -> RSI(14).eval(table).bb(20, 2.0f) },
@@ -130,6 +93,8 @@ fun main() {
             initIndex = { index -> RSI(14).eval(index) },
             compute = { indexRsi, rsi, _, i -> rsi[i] - indexRsi[i]  }
         ),
+
+         */
         InputData(
             "Conditional low/high diff",
             init = { table ->
@@ -182,6 +147,7 @@ RSI(14) - EMA(RSI(14), 3) is negative
         // TODO should be able to calculate RSI on a FloatArray
         // Also this needs init to take both
         // RSI(stock / SPY, 14) // need index to calculate new closing array
+        /*
         InputData(
             "True Strength Index",
             init = { table -> TrueStrengthIndex().eval(table) },
@@ -225,24 +191,36 @@ RSI(14) - EMA(RSI(14), 3) is negative
             compute = { _, cache, _, index -> cache[index] }
         )
 
+         */
+
     )
+
+    val ctxMap = dataSet.lists.map { EvalContext(it) }.associateBy { it.table.symbol }
 
     for (rawInput in inputs) {
         val input = rawInput as InputData<Any, Any>
-        val indexCache = input.initIndex(index)
+        val indexCache = input.initIndex?.let { it(index) }
         val resultsAll = arrayListOf<Pair<Float, Float>>()
 
         for (table in dataSet.lists) {
-            val cache = input.init(table)
+            val cache = input.init?.let { it(table) }
             val resultsMap = hashMapOf<Int, ArrayList<Pair<Float, Float>>>()
+            val ctx = ctxMap[table.symbol]!!
+            // TODO cache is a bit less important here, useful for core computations like RSI(14) but dont need to save everything
+            val exprEval = if (input.expr != null) ctx.eval(input.expr) else null
 
-            for (lookahead in listOf(1,2,3)) {
+            for (lookahead in listOf(1)) {
                 val results = resultsMap.getOrPut(lookahead) { arrayListOf() }
 
                 for (i in 20 until table.size - 1 - lookahead) {
                     val p1 = index[i + lookahead].getPercentDiff(index[i])
                     val p2 = table[i + lookahead].getPercentDiff(table[i])
-                    val ind = input.compute(indexCache, cache, table, i)
+
+                    val ind = if (exprEval != null) {
+                        exprEval[i]
+                    } else {
+                        input.compute?.let { it(indexCache!!, cache!!, table, i) }!!
+                    }
 
                     val result = Pair(ind, p2 - p1)
                     results.add(result)

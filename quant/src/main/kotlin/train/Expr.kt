@@ -2,11 +2,10 @@ package train
 
 import data.SectorETFDef
 import data.TextDataRepository
-import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.indicators.RSI
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.overlays.ExpMovingAverage
-
+import org.cerion.marketdata.core.series.FloatSeries
 
 
 fun main() {
@@ -16,23 +15,27 @@ fun main() {
 
     val rsi: Expr = CallExpr("RSI", 2)
     val rsi2: Expr = CallExpr("RSI", 2)
-    val ctx = EvalContext(index, functions)
+    val ctx = EvalContext(index)
 
     ctx.eval(rsi)
     ctx.eval(rsi2)
-
-
 
     println(rsi)
 }
 
 sealed interface Expr {
     fun eval(ctx: EvalContext): FloatSeries
+
+    operator fun minus(other: Expr) = BinaryExpr(this, Op.SUB, other)
+    operator fun div(other: Expr) = BinaryExpr(this, Op.DIV, other)
 }
 
 data class NumberExpr(val value: Number) : Expr {
-    override fun eval(ctx: EvalContext): FloatSeries =
-        FloatSeries(ctx.size)// { value }
+    override fun eval(ctx: EvalContext) = TODO() //FloatSeries(ctx.size)
+
+    override fun toString(): String {
+        return value.toString()
+    }
 }
 
 data class FieldExpr(val name: String) : Expr {
@@ -47,7 +50,12 @@ data class CallExpr(
     override fun eval(ctx: EvalContext): FloatSeries =
         ctx.call(name, args)
 
-    constructor(name: String, vararg args: Number) : this(name, args.map { NumberExpr(it) }) {}
+    constructor(name: String, vararg args: Number) : this(name, args.map { NumberExpr(it) })
+    constructor(name: String, vararg args: Expr) : this(name, args.asList())
+
+    override fun toString(): String {
+        return "$name(${args.joinToString(", ")})"
+    }
 }
 
 data class BinaryExpr(
@@ -59,24 +67,36 @@ data class BinaryExpr(
         val a = ctx.eval(left)
         val b = ctx.eval(right)
 
-        return FloatSeries(ctx.size) /*{ i ->
-            when (op) {
-                Op.ADD -> a[i] + b[i]
-                Op.SUB -> a[i] - b[i]
-                Op.MUL -> a[i] * b[i]
-                Op.DIV -> a[i] / b[i]
-            }
+        return when(op) {
+            Op.ADD -> TODO()
+            Op.SUB -> a.subtract(b)
+            Op.MUL -> TODO()
+            Op.DIV -> a.divide(b)
         }
-        */
+    }
+
+    override fun toString(): String {
+        val str = when (op) {
+            Op.ADD -> "+"
+            Op.SUB -> "-"
+            Op.MUL -> "*"
+            Op.DIV -> "/"
+        }
+
+        return "$left $str $right"
     }
 }
 
+// TODO add good unit test for this one
 data class LagExpr(
     val source: Expr,
     val periods: Int
 ) : Expr {
-    override fun eval(ctx: EvalContext): FloatSeries =
-        ctx.eval(source)//.lag(periods)
+    override fun eval(ctx: EvalContext) = ctx.eval(source).offset(periods)
+
+    override fun toString(): String {
+        return "$source[${-periods}]"
+    }
 }
 
 enum class Op {
@@ -87,8 +107,7 @@ enum class Op {
 typealias IndicatorFn = (EvalContext, List<Expr>) -> FloatSeries
 
 class EvalContext(
-    val table: OHLCVTable,
-    val functions: Map<String, IndicatorFn>
+    val table: OHLCVTable
 ) {
     val size: Int get() = table.size
 

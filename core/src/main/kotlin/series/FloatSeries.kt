@@ -2,12 +2,9 @@ package org.cerion.marketdata.core.series
 
 import org.cerion.marketdata.core.overlays.BollingerBands
 import org.cerion.marketdata.core.overlays.ExpMovingAverage
-import org.cerion.marketdata.core.overlays.LinearRegressionLine
 import org.cerion.marketdata.core.overlays.SimpleMovingAverage
-import kotlin.math.ln
 import kotlin.math.sqrt
 
-// TODO move most functions to extension functions on kotlin.FloatArray
 open class FloatSeries(private val mVal: FloatArray) : Series<Float> {
 
     constructor(length: Int) : this(FloatArray(length))
@@ -90,18 +87,6 @@ open class FloatSeries(private val mVal: FloatArray) : Series<Float> {
     fun ema(period: Int): FloatSeries = ExpMovingAverage(period).eval(this)
     fun bb(period: Int, multiplier: Float): BandSeries = BollingerBands(period, multiplier.toDouble()).eval(this)
 
-    /**
-     * Converts current array values to log(val)
-     * @return FloatArray to log scale
-     */
-    fun log(): FloatSeries {
-        val result = FloatSeries(size)
-        for (i in 0 until size)
-            result[i] = ln(get(i).toDouble()).toFloat()
-
-        return result
-    }
-
     //Rate of change
     @Deprecated(message = "use FloatArray version")
     fun roc(pos: Int, period: Int): Float {
@@ -158,20 +143,12 @@ open class FloatSeries(private val mVal: FloatArray) : Series<Float> {
         return ab[1]
     }
 
-    fun getPercentChange(index: Int): Float {
-        return (this[size - 1] - this[index]) / this[index]
-    }
-
     fun regressionLinePoint(period: Int, pos: Int): Float {
         val count = Series.maxPeriod(pos, period)
         val slope = slope(period, pos)
         val sumY = sum(pos - count + 1, pos)
 
         return (sumY - slope * count) / count
-    }
-
-    fun linearRegressionLine(): FloatSeries {
-        return LinearRegressionLine().eval(this)
     }
 
     /**
@@ -272,6 +249,38 @@ open class FloatSeries(private val mVal: FloatArray) : Series<Float> {
             val sum = squares.sum()
             result[i] = sum / N
         }
+
+        return result
+    }
+
+    /**
+     * Shifts array right N periods, [x] = [x-N]
+     */
+    // TODO should work forwards and backwards although forwards is uncommon
+    fun offset(periods: Int): FloatSeries {
+        val result = FloatSeries(size)
+        for(i in 0 until size) {
+            if (i < periods)
+                result[i] = Float.NaN
+            else
+                result[i] = this[i - periods]
+        }
+
+        return result
+    }
+
+    fun subtract(other: FloatSeries): FloatSeries {
+        val result = FloatSeries(size)
+        for(i in 0 until size)
+            result[i] = this[i] - other[i]
+
+        return result
+    }
+
+    fun divide(other: FloatSeries): FloatSeries {
+        val result = FloatSeries(size)
+        for(i in 0 until size)
+            result[i] = this[i] / other[i]
 
         return result
     }

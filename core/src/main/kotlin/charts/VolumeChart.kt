@@ -1,8 +1,8 @@
 package org.cerion.marketdata.core.charts
 
-import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.functions.ISimpleOverlay
 import org.cerion.marketdata.core.model.OHLCVTable
+import org.cerion.marketdata.core.series.FloatSeries
 
 class VolumeChart(colors: ChartColors = ChartColors()) : StockChart(colors) {
     var logScale = false
@@ -17,6 +17,8 @@ class VolumeChart(colors: ChartColors = ChartColors()) : StockChart(colors) {
         val data = DataSet(volume, "Volume", barColor)
         data.lineType = LineType.BAR
         result += data
+        // TODO if logScale not sure this should get passed
+        // TODO same anywhere logScale is used
         result += getOverlayDataSets(volume)
 
         return result
