@@ -43,6 +43,11 @@ data class FieldExpr(val name: String) : Expr {
         ctx.series(name)
 }
 
+data class CustomExpr(val name: String, val eval: (EvalContext) -> FloatSeries) : Expr {
+    override fun eval(ctx: EvalContext) = eval.invoke(ctx)
+    override fun toString() = name
+}
+
 data class CallExpr(
     val name: String,
     val args: List<Expr>

@@ -57,7 +57,15 @@ data class Bucket(private val list: List<Pair<Float, Float>>) {
 
 fun createBuckets(results: List<Pair<Float, Float>>, split: Int): List<Bucket> {
     val buckets = results.sortedBy { it.first }.splitIntoExactly(split).map { Bucket(it) }
+    return rankBuckets(buckets)
+}
 
+fun createBuckets(results: List<Pair<Float, Float>>, split: (List<Pair<Float, Float>>) -> List<List<Pair<Float, Float>>>): List<Bucket> {
+    val buckets = split.invoke(results).map { Bucket(it) }
+    return rankBuckets(buckets)
+}
+
+private fun rankBuckets(buckets: List<Bucket>): List<Bucket> {
     buckets.sortedBy { it.averageGain }.forEachIndexed { index, bucket ->
         bucket.rank += index + 1
     }
@@ -70,7 +78,7 @@ fun createBuckets(results: List<Pair<Float, Float>>, split: Int): List<Bucket> {
 
     buckets.sortedWith( compareByDescending<Bucket> { it.rank }
         .thenByDescending { it.averageGain + it.medianGain }).forEachIndexed { index, bucket ->
-            bucket.rank = index + 1
+        bucket.rank = index + 1
     }
 
     return buckets

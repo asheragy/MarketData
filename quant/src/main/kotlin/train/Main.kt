@@ -4,7 +4,6 @@ import data.SectorETFDef
 import data.TextDataRepository
 import org.cerion.marketdata.core.indicators.RSI
 import org.cerion.marketdata.core.model.OHLCVTable
-import org.cerion.marketdata.core.overlays.ExpMovingAverage
 
 
 /*
@@ -23,6 +22,9 @@ class InputData<T, U>(
     val initIndex: (((OHLCVTable) -> U))? = null,
     val compute: ((indexCache: U, cache: T, curr: OHLCVTable, index: Int) -> Float)? = null,
     val expr: Expr? = null,
+    // TODO name buckets
+    // TODO show counts (doesn't matter when even splits)
+    val split: ((List<Pair<Float, Float>>) -> List<List<Pair<Float, Float>>>)? = null,
     val buckets: Int = 5)
 
 data class RunResult(val input: InputData<*, *>, val buckets: List<Bucket>, val lookahead: Int) {
@@ -79,7 +81,65 @@ fun main() {
         //InputData(expr = CallExpr("RSI", 14) - CallExpr("EMA", CallExpr("RSI", 14), NumberExpr(3))),
 
         /*
+        InputData(expr = CustomExpr("Conditional low/high diff", eval = { ctx ->
+            val rsi = RSI(14).eval(ctx.table)
+            val ema = ExpMovingAverage(3).eval(rsi)
 
+            val result = FloatSeries(ctx.table.size)
+            for(i in ctx.table.indices) {
+                val diff = rsi[i] - ema[i]
+                // RSI(14) is low AND RSI(14) - EMA(RSI(14), 3) is positive
+                if (rsi[i] < 50 && diff > 0)
+                    result[i] = rsi[i]
+                // RSI(14) is high AND RSI(14) - EMA(RSI(14), 3) is negative
+                else if (rsi[i] > 50 && diff < 0)
+                    result[i] = -rsi[i]
+                else
+                    result[i] = 0.0f
+            }
+
+            result
+        }),
+            split = { result ->
+                val pos = result.filter { it.first > 0 }.sortedBy { it.first }
+                val neg = result.filter { it.first < 0 }.sortedBy { it.first }
+                val zero = result.filter { it.first == 0.0f }
+                listOf(pos, neg, zero)
+            }),
+
+         */
+
+        /*
+        InputData(
+            // Would be EMA200 for daily
+            expr = CustomExpr("RSI(14) when price <> EMA(price, 50)", { ctx ->
+                val rsi = RSI(14).eval(ctx.table)
+                val ema = ExpMovingAverage(50).eval(ctx.table)
+                val price = ctx.table.close
+
+                val result = FloatSeries(ctx.table.size)
+                for(i in ctx.table.indices) {
+                    if (price[i] < ema[i])
+                        result[i] = -rsi[i]
+                    else
+                        result[i] = rsi[i]
+                }
+
+                result
+            }),
+            split = { result ->
+                val pos = result.filter { it.first > 0 }.sortedBy { it.first }.splitIntoExactly(2)
+                val neg = result.filter { it.first < 0 }.sortedBy { it.first }.splitIntoExactly(2)
+                pos + neg
+            }
+        ),
+         */
+
+        InputData(
+            expr = CustomExpr("RSI 14 Bollinger Bands", { ctx ->
+                RSI(14).eval(ctx.table).bb(20, 2.0f).percent()
+            })
+        ),
 
         InputData(
             "RSI 14 Bollinger Bands",
@@ -87,62 +147,15 @@ fun main() {
             initIndex = {},
             compute = { _, cache, _, index -> cache.percent(index) }
         ),
+        /*
+
         InputData(
             "RSI(stock, 14) - RSI(SPY, 14)",
             init = { table -> RSI(14).eval(table) },
             initIndex = { index -> RSI(14).eval(index) },
             compute = { indexRsi, rsi, _, i -> rsi[i] - indexRsi[i]  }
         ),
-
-         */
-        InputData(
-            "Conditional low/high diff",
-            init = { table ->
-                val rsi = RSI(14).eval(table)
-                val ema = ExpMovingAverage(3).eval(rsi)
-                Pair(rsi, ema)
-            },
-            initIndex = {},
-            buckets = 3,
-            compute = { _, cache, _, index ->
-/*
-RSI(14) is low
-AND
-RSI(14) - EMA(RSI(14), 3) is positive
-
-opposite
-RSI(14) is high
-AND
-RSI(14) - EMA(RSI(14), 3) is negative
  */
-                // TODO should bucket into 3 groups
-                val rsi = cache.first[index]
-                val diff = rsi - cache.second[index]
-                if (diff > 0)
-                    rsi
-                else
-                    -rsi
-            }
-        ),
-        InputData(
-            "RSI(14) when price <> EMA(price, 50)", // Would be EMA200 for daily
-            init = { table ->
-                val rsi = RSI(14).eval(table)
-                val ema = ExpMovingAverage(50).eval(table)
-                Triple(rsi, ema, table.close)
-            },
-            initIndex = { },
-            buckets = 3,
-            compute = { _, cache, _, i ->
-                val rsi = cache.first[i]
-                val ema = cache.second[i]
-                val price = cache.third[i]
-                if (price < ema)
-                    -rsi
-                else
-                    rsi
-            }
-        ),
 
         // TODO should be able to calculate RSI on a FloatArray
         // Also this needs init to take both
@@ -234,7 +247,7 @@ RSI(14) - EMA(RSI(14), 3) is negative
             }
         }
 
-        val buckets = createBuckets(resultsAll, input.buckets)
+        val buckets = if (input.split != null) createBuckets(resultsAll, input.split) else createBuckets(resultsAll, input.buckets)
         runs.add(RunResult(input, buckets, 0))
     }
 

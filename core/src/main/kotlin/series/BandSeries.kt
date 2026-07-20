@@ -33,4 +33,6 @@ class BandSeries(val upper: FloatSeries, val lower: FloatSeries, private val val
     fun mid(pos: Int): Float = get(pos).mid
     fun bandwidth(pos: Int): Float = get(pos).bandwidth
     fun percent(pos: Int): Float = get(pos).percent
+
+    fun percent() = FloatSeries(this.map { it.percent }.toFloatArray())
 }
