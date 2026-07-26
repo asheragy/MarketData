@@ -2,8 +2,9 @@ package train
 
 import data.SectorETFDef
 import data.TextDataRepository
-import org.cerion.marketdata.core.indicators.RSI
-import org.cerion.marketdata.core.model.OHLCVTable
+import org.cerion.marketdata.core.indicators.*
+import org.cerion.marketdata.core.overlays.ExpMovingAverage
+import org.cerion.marketdata.core.series.FloatSeries
 
 
 /*
@@ -16,18 +17,14 @@ import org.cerion.marketdata.core.model.OHLCVTable
  */
 
 // TODO conditional output, only care about compute value if other conditions are true
-class InputData<T, U>(
-    val name: String? = null,
-    val init: ((OHLCVTable) -> T)? = null,
-    val initIndex: (((OHLCVTable) -> U))? = null,
-    val compute: ((indexCache: U, cache: T, curr: OHLCVTable, index: Int) -> Float)? = null,
-    val expr: Expr? = null,
+class InputData(
+    val expr: Expr,
     // TODO name buckets
     // TODO show counts (doesn't matter when even splits)
     val split: ((List<Pair<Float, Float>>) -> List<List<Pair<Float, Float>>>)? = null,
     val buckets: Int = 5)
 
-data class RunResult(val input: InputData<*, *>, val buckets: List<Bucket>, val lookahead: Int) {
+data class RunResult(val input: InputData, val buckets: List<Bucket>, val lookahead: Int) {
     val rankFirstBucket = buckets.first { it.rank == 1 }
     val rankLastBucket = buckets.maxBy { it.rank }
     val avgGainSpread = rankFirstBucket.averageGain - rankLastBucket.averageGain
@@ -36,7 +33,7 @@ data class RunResult(val input: InputData<*, *>, val buckets: List<Bucket>, val 
     var score = 0.0
 
     fun print() {
-        val name = if (input.expr != null)  input.expr.toString() else input.name
+        val name = input.expr.toString()
         println("LA:$lookahead S:${score.decimal2()} ${name}")
         Table.print(
             rows = buckets,
@@ -72,15 +69,15 @@ fun main() {
     val runs = mutableListOf<RunResult>()
 
     val inputs = listOf(
-        //InputData(expr = CallExpr("RSI", 3)),
-        //InputData(expr = CallExpr("RSI", 7)),
-        //InputData(expr = CallExpr("RSI", 14)),
-        //InputData(expr = CallExpr("RSI", 14) - LagExpr(CallExpr("RSI", 14), 1)),
-        //InputData(expr = CallExpr("RSI", 7) - CallExpr("RSI", 14)),
-        //InputData(expr = CallExpr("RSI", 14) / CallExpr("EMA", CallExpr("RSI", 14), NumberExpr(3))),
-        //InputData(expr = CallExpr("RSI", 14) - CallExpr("EMA", CallExpr("RSI", 14), NumberExpr(3))),
+        InputData(expr = FuncExpr(RSI(3))),
+        InputData(expr = FuncExpr(RSI(7))),
+        InputData(expr = FuncExpr(RSI(14))),
+        InputData(expr = FuncExpr(RSI(14)) - LagExpr(FuncExpr(RSI(14)), 1)),
+        InputData(expr = FuncExpr(RSI(7)) - FuncExpr(RSI(14))),
+        InputData(expr = FuncExpr(RSI(14)) - FuncExpr(index=true, RSI(14))),
+        InputData(expr = FuncExpr(RSI(14)) / FuncExpr(FuncExpr(RSI(14)), ExpMovingAverage(3))),
+        InputData(expr = FuncExpr(RSI(14)) - FuncExpr(FuncExpr(RSI(14)),  ExpMovingAverage(3))),
 
-        /*
         InputData(expr = CustomExpr("Conditional low/high diff", eval = { ctx ->
             val rsi = RSI(14).eval(ctx.table)
             val ema = ExpMovingAverage(3).eval(rsi)
@@ -107,9 +104,6 @@ fun main() {
                 listOf(pos, neg, zero)
             }),
 
-         */
-
-        /*
         InputData(
             // Would be EMA200 for daily
             expr = CustomExpr("RSI(14) when price <> EMA(price, 50)", { ctx ->
@@ -133,94 +127,35 @@ fun main() {
                 pos + neg
             }
         ),
-         */
-
         InputData(
             expr = CustomExpr("RSI 14 Bollinger Bands", { ctx ->
                 RSI(14).eval(ctx.table).bb(20, 2.0f).percent()
             })
         ),
 
-        InputData(
-            "RSI 14 Bollinger Bands",
-            init = { table -> RSI(14).eval(table).bb(20, 2.0f) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache.percent(index) }
-        ),
-        /*
-
-        InputData(
-            "RSI(stock, 14) - RSI(SPY, 14)",
-            init = { table -> RSI(14).eval(table) },
-            initIndex = { index -> RSI(14).eval(index) },
-            compute = { indexRsi, rsi, _, i -> rsi[i] - indexRsi[i]  }
-        ),
- */
+        InputData(expr = FuncExpr(TrueStrengthIndex())),
+        InputData(expr = FuncExpr(TRIX())),
+        InputData(expr = FuncExpr(Stochastic())),
+        InputData(expr = FuncExpr(PringsKnowSureThing())),
+        InputData(expr = FuncExpr(CommodityChannelIndex())),
+        InputData(expr = FuncExpr(ChaikinMoneyFlow())),
+        InputData(expr = FuncExpr(AverageDirectionalIndex())),
 
         // TODO should be able to calculate RSI on a FloatArray
         // Also this needs init to take both
         // RSI(stock / SPY, 14) // need index to calculate new closing array
-        /*
-        InputData(
-            "True Strength Index",
-            init = { table -> TrueStrengthIndex().eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] }
-        ),
-        InputData(
-            "TRIX",
-            init = { table -> TRIX().eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] }
-        ),
-        InputData(
-            "Stochastic",
-            init = { table -> Stochastic().eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] }
-        ),
-        InputData(
-            "Prings Know Sure Thing",
-            init = { table -> PringsKnowSureThing().eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] }
-        ),
-        InputData(
-            "Commodity Channel Index",
-            init = { table -> CommodityChannelIndex().eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] }
-        ),
-        InputData(
-            "Chaikin Money Flow",
-            init = { table -> ChaikinMoneyFlow().eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] }
-        ),
-        InputData(
-            "Average Directional Index",
-            init = { table -> AverageDirectionalIndex().eval(table) },
-            initIndex = {},
-            compute = { _, cache, _, index -> cache[index] }
-        )
-
-         */
-
     )
 
-    val ctxMap = dataSet.lists.map { EvalContext(it) }.associateBy { it.table.symbol }
+    val ctxMap = dataSet.lists.map { EvalContext(it, dataSet.index) }.associateBy { it.table.symbol }
 
-    for (rawInput in inputs) {
-        val input = rawInput as InputData<Any, Any>
-        val indexCache = input.initIndex?.let { it(index) }
+    for (input in inputs) {
         val resultsAll = arrayListOf<Pair<Float, Float>>()
 
         for (table in dataSet.lists) {
-            val cache = input.init?.let { it(table) }
             val resultsMap = hashMapOf<Int, ArrayList<Pair<Float, Float>>>()
             val ctx = ctxMap[table.symbol]!!
             // TODO cache is a bit less important here, useful for core computations like RSI(14) but dont need to save everything
-            val exprEval = if (input.expr != null) ctx.eval(input.expr) else null
+            val exprEval = ctx.eval(input.expr)
 
             for (lookahead in listOf(1)) {
                 val results = resultsMap.getOrPut(lookahead) { arrayListOf() }
@@ -228,12 +163,7 @@ fun main() {
                 for (i in 20 until table.size - 1 - lookahead) {
                     val p1 = index[i + lookahead].getPercentDiff(index[i])
                     val p2 = table[i + lookahead].getPercentDiff(table[i])
-
-                    val ind = if (exprEval != null) {
-                        exprEval[i]
-                    } else {
-                        input.compute?.let { it(indexCache!!, cache!!, table, i) }!!
-                    }
+                    val ind = exprEval[i]
 
                     val result = Pair(ind, p2 - p1)
                     results.add(result)

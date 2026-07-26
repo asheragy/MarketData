@@ -2,9 +2,10 @@ package train
 
 import data.SectorETFDef
 import data.TextDataRepository
+import org.cerion.marketdata.core.functions.IFunction
 import org.cerion.marketdata.core.indicators.RSI
 import org.cerion.marketdata.core.model.OHLCVTable
-import org.cerion.marketdata.core.overlays.ExpMovingAverage
+import org.cerion.marketdata.core.overlays.OverlayBase
 import org.cerion.marketdata.core.series.FloatSeries
 
 
@@ -13,9 +14,9 @@ fun main() {
     val dataSet = dataSource.get(SectorETFDef())
     val index = dataSet.index!!
 
-    val rsi: Expr = CallExpr("RSI", 2)
-    val rsi2: Expr = CallExpr("RSI", 2)
-    val ctx = EvalContext(index)
+    val rsi: Expr = FuncExpr(RSI(2))
+    val rsi2: Expr = FuncExpr(RSI(2))
+    val ctx = EvalContext(index, index)
 
     ctx.eval(rsi)
     ctx.eval(rsi2)
@@ -38,6 +39,14 @@ data class NumberExpr(val value: Number) : Expr {
     }
 }
 
+data class TargetExpr(val index: Boolean = false): Expr {
+    override fun eval(ctx: EvalContext): FloatSeries {
+        TODO("Not for direct eval")
+    }
+
+    override fun toString() = if (index) "index" else "stock"
+}
+
 data class FieldExpr(val name: String) : Expr {
     override fun eval(ctx: EvalContext): FloatSeries =
         ctx.series(name)
@@ -48,18 +57,44 @@ data class CustomExpr(val name: String, val eval: (EvalContext) -> FloatSeries) 
     override fun toString() = name
 }
 
-data class CallExpr(
-    val name: String,
-    val args: List<Expr>
-) : Expr {
-    override fun eval(ctx: EvalContext): FloatSeries =
-        ctx.call(name, args)
+// TODO index/input should be replaced by an Expr that represents what data to run the function on
+data class FuncExpr private constructor(val function: IFunction, val index: Boolean, val input: Expr? = null) : Expr {
+    constructor(function: IFunction) : this(function, false, null)
+    constructor(index: Boolean, function: IFunction, ) : this(function, index, null)
+    constructor(input: Expr, function: IFunction) : this(function, false, input)
 
-    constructor(name: String, vararg args: Number) : this(name, args.map { NumberExpr(it) })
-    constructor(name: String, vararg args: Expr) : this(name, args.asList())
+    override fun eval(ctx: EvalContext): FloatSeries {
+        val table = if (index) ctx.index else ctx.table
+
+        if (input != null)  {
+            if (function is OverlayBase<*>) {
+                val inputEval =  input.eval(ctx)
+                val result = function.eval(inputEval)
+                if (result is FloatSeries) {
+                    return result
+                }
+
+                throw RuntimeException("Function result is not FloatSeries")
+            }
+
+            throw RuntimeException("Function does not implement eval(FloatSeries)")
+        }
+
+        val result = function.eval(table)
+        if (result is FloatSeries) {
+            return result
+        }
+
+        throw RuntimeException("Function result is not FloatSeries")
+    }
 
     override fun toString(): String {
-        return "$name(${args.joinToString(", ")})"
+        val params = function.params.map { it.toString() }.toMutableList()
+        if (index)
+            params.add(0, "index")
+        if (input != null)
+            params.add(0, input.toString())
+        return "${this.function.javaClass.simpleName}(" + params.joinToString(", ") + ")"
     }
 }
 
@@ -108,11 +143,9 @@ enum class Op {
     ADD, SUB, MUL, DIV
 }
 
-
-typealias IndicatorFn = (EvalContext, List<Expr>) -> FloatSeries
-
 class EvalContext(
-    val table: OHLCVTable
+    val table: OHLCVTable,
+    val index: OHLCVTable
 ) {
     val size: Int get() = table.size
 
@@ -122,13 +155,6 @@ class EvalContext(
     // RSI14 - EMA(RSI14)
     fun eval(expr: Expr): FloatSeries =
         cache.getOrPut(expr) { expr.eval(this) }
-
-    fun call(name: String, args: List<Expr>): FloatSeries {
-        val fn = functions[name.uppercase()]
-            ?: error("Unknown function: $name")
-
-        return fn(this, args)
-    }
 
     fun series(name: String): FloatSeries {
         return when (name.uppercase()) {
@@ -141,19 +167,6 @@ class EvalContext(
         }
     }
 }
-
-val functions = mapOf<String, IndicatorFn>(
-    "RSI" to { ctx, args ->
-        val period = args[0].constantInt()
-        RSI(period).eval(ctx.table)
-    },
-
-    "EMA" to { ctx, args ->
-        val input = ctx.eval(args[0])
-        val period = args[1].constantInt()
-        ExpMovingAverage(period).eval(input)
-    }
-)
 
 fun Expr.constantInt(): Int {
     return when (this) {
