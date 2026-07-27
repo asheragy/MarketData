@@ -31,14 +31,6 @@ sealed interface Expr {
     operator fun div(other: Expr) = BinaryExpr(this, Op.DIV, other)
 }
 
-data class NumberExpr(val value: Number) : Expr {
-    override fun eval(ctx: EvalContext) = TODO() //FloatSeries(ctx.size)
-
-    override fun toString(): String {
-        return value.toString()
-    }
-}
-
 data class TargetExpr(val index: Boolean = false): Expr {
     override fun eval(ctx: EvalContext): FloatSeries {
         TODO("Not for direct eval")
@@ -165,12 +157,5 @@ class EvalContext(
             "VOLUME" -> table.volume
             else -> error("Unknown series: $name")
         }
-    }
-}
-
-fun Expr.constantInt(): Int {
-    return when (this) {
-        is NumberExpr -> value.toInt()
-        else -> error("Expected constant number")
     }
 }

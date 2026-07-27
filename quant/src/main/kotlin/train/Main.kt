@@ -77,6 +77,13 @@ fun main() {
         InputData(expr = FuncExpr(RSI(14)) - FuncExpr(index=true, RSI(14))),
         InputData(expr = FuncExpr(RSI(14)) / FuncExpr(FuncExpr(RSI(14)), ExpMovingAverage(3))),
         InputData(expr = FuncExpr(RSI(14)) - FuncExpr(FuncExpr(RSI(14)),  ExpMovingAverage(3))),
+        InputData(expr = FuncExpr(TrueStrengthIndex())),
+        InputData(expr = FuncExpr(TRIX())),
+        InputData(expr = FuncExpr(Stochastic())),
+        InputData(expr = FuncExpr(PringsKnowSureThing())),
+        InputData(expr = FuncExpr(CommodityChannelIndex())),
+        InputData(expr = FuncExpr(ChaikinMoneyFlow())),
+        InputData(expr = FuncExpr(AverageDirectionalIndex())),
 
         InputData(expr = CustomExpr("Conditional low/high diff", eval = { ctx ->
             val rsi = RSI(14).eval(ctx.table)
@@ -133,17 +140,10 @@ fun main() {
             })
         ),
 
-        InputData(expr = FuncExpr(TrueStrengthIndex())),
-        InputData(expr = FuncExpr(TRIX())),
-        InputData(expr = FuncExpr(Stochastic())),
-        InputData(expr = FuncExpr(PringsKnowSureThing())),
-        InputData(expr = FuncExpr(CommodityChannelIndex())),
-        InputData(expr = FuncExpr(ChaikinMoneyFlow())),
-        InputData(expr = FuncExpr(AverageDirectionalIndex())),
-
-        // TODO should be able to calculate RSI on a FloatArray
-        // Also this needs init to take both
-        // RSI(stock / SPY, 14) // need index to calculate new closing array
+        InputData(expr = CustomExpr("RSI(stock / SPY, 14)", eval = { ctx ->
+            val series = ctx.table.close.divide(ctx.index.close)
+            RSI(14).eval(series)
+        }))
     )
 
     val ctxMap = dataSet.lists.map { EvalContext(it, dataSet.index) }.associateBy { it.table.symbol }
