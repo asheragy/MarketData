@@ -5,6 +5,7 @@ import data.TextDataRepository
 import org.cerion.marketdata.core.indicators.*
 import org.cerion.marketdata.core.overlays.ExpMovingAverage
 import org.cerion.marketdata.core.series.FloatSeries
+import kotlin.math.absoluteValue
 
 
 /*
@@ -18,10 +19,8 @@ import org.cerion.marketdata.core.series.FloatSeries
 
 // TODO conditional output, only care about compute value if other conditions are true
 class InputData(
-    val expr: Expr,
-    // TODO name buckets
-    // TODO show counts (doesn't matter when even splits)
-    val split: ((List<Pair<Float, Float>>) -> List<List<Pair<Float, Float>>>)? = null,
+    val expr: SeriesExpr,
+    val split: ((List<Pair<Float, Float>>) -> Map<String, List<Pair<Float, Float>>>)? = null,
     val buckets: Int = 5)
 
 data class RunResult(val input: InputData, val buckets: List<Bucket>, val lookahead: Int) {
@@ -35,28 +34,41 @@ data class RunResult(val input: InputData, val buckets: List<Bucket>, val lookah
     fun print() {
         val name = input.expr.toString()
         println("LA:$lookahead S:${score.decimal2()} ${name}")
+        val columns = mutableListOf(
+            TableColumn("Indicator Range", Align.CENTER) { bucket: Bucket ->
+                bucket.rangeLabel
+            },
+            TableColumn("Avg Indicator", Align.RIGHT) { bucket: Bucket ->
+                bucket.averageInd.decimal2()
+            },
+            TableColumn("Avg Gain", Align.RIGHT) { bucket: Bucket ->
+                bucket.averageGain.decimal2()
+            },
+            TableColumn("Median Gain", Align.RIGHT) { bucket: Bucket ->
+                bucket.medianGain.decimal2()
+            },
+            TableColumn("Win Rate", Align.RIGHT) { bucket: Bucket ->
+                bucket.winRate.percent2()
+            }
+        )
+
+        if (input.split != null) {
+            columns.add(0,
+                TableColumn("Count", Align.RIGHT) { bucket: Bucket ->
+                    bucket.list.size.toString()
+                }
+            )
+        }
+
+        columns.add(
+            TableColumn("Rank", Align.CENTER) { bucket: Bucket ->
+                bucket.rank.toString()
+            }
+        )
+
         Table.print(
             rows = buckets,
-            columns = listOf(
-                TableColumn("Indicator Range", Align.CENTER) { bucket ->
-                    "${bucket.rangeStart.toDouble().decimal2()} - ${bucket.rangeEnd.toDouble().decimal2()}"
-                },
-                TableColumn("Avg Indicator", Align.RIGHT) { bucket ->
-                    bucket.averageInd.decimal2()
-                },
-                TableColumn("Avg Gain", Align.RIGHT) { bucket ->
-                    bucket.averageGain.decimal2()
-                },
-                TableColumn("Median Gain", Align.RIGHT) { bucket ->
-                    bucket.medianGain.decimal2()
-                },
-                TableColumn("Win Rate", Align.RIGHT) { bucket ->
-                    bucket.winRate.percent2()
-                },
-                TableColumn("Rank", Align.CENTER) { bucket ->
-                    bucket.rank.toString()
-                },
-            )
+            columns = columns
         )
         println()
     }
@@ -74,7 +86,7 @@ fun main() {
         InputData(expr = FuncExpr(RSI(14))),
         InputData(expr = FuncExpr(RSI(14)) - LagExpr(FuncExpr(RSI(14)), 1)),
         InputData(expr = FuncExpr(RSI(7)) - FuncExpr(RSI(14))),
-        InputData(expr = FuncExpr(RSI(14)) - FuncExpr(index=true, RSI(14))),
+        InputData(expr = FuncExpr(RSI(14)) - FuncExpr(IndexTable, RSI(14))),
         InputData(expr = FuncExpr(RSI(14)) / FuncExpr(FuncExpr(RSI(14)), ExpMovingAverage(3))),
         InputData(expr = FuncExpr(RSI(14)) - FuncExpr(FuncExpr(RSI(14)),  ExpMovingAverage(3))),
         InputData(expr = FuncExpr(TrueStrengthIndex())),
@@ -108,7 +120,7 @@ fun main() {
                 val pos = result.filter { it.first > 0 }.sortedBy { it.first }
                 val neg = result.filter { it.first < 0 }.sortedBy { it.first }
                 val zero = result.filter { it.first == 0.0f }
-                listOf(pos, neg, zero)
+                mapOf(Pair("Low RSI cross", pos), Pair("High RSI cross", neg), Pair("No match", zero))
             }),
 
         InputData(
@@ -131,7 +143,12 @@ fun main() {
             split = { result ->
                 val pos = result.filter { it.first > 0 }.sortedBy { it.first }.splitIntoExactly(2)
                 val neg = result.filter { it.first < 0 }.sortedBy { it.first }.splitIntoExactly(2)
-                pos + neg
+                mapOf(
+                    Pair("Above EMA [${pos[0].first().first.decimal2()}, ${pos[0].last().first.decimal2()}]", pos[0]),
+                    Pair("Above EMA [${pos[1].first().first.decimal2()}, ${pos[1].last().first.decimal2()}]", pos[1]),
+                    Pair("Below EMA [${neg[0].first().first.absoluteValue.decimal2()}, ${neg[0].last().first.absoluteValue.decimal2()}]", neg[0]),
+                    Pair("Below EMA [${neg[1].first().first.absoluteValue.decimal2()}, ${neg[1].last().first.absoluteValue.decimal2()}]", neg[1]),
+                )
             }
         ),
         InputData(
@@ -203,6 +220,5 @@ fun main() {
 
     runs.filter { x -> x.lookahead == 0 }.sortedBy{ it.score }.forEach { run -> run.print() }
 }
-
 
 

@@ -14,8 +14,8 @@ fun main() {
     val dataSet = dataSource.get(SectorETFDef())
     val index = dataSet.index!!
 
-    val rsi: Expr = FuncExpr(RSI(2))
-    val rsi2: Expr = FuncExpr(RSI(2))
+    val rsi: SeriesExpr = FuncExpr(RSI(2))
+    val rsi2: SeriesExpr = FuncExpr(RSI(2))
     val ctx = EvalContext(index, index)
 
     ctx.eval(rsi)
@@ -24,77 +24,94 @@ fun main() {
     println(rsi)
 }
 
-sealed interface Expr {
+sealed interface SourceExpr
+
+sealed interface TableExpr : SourceExpr {
+    fun evalTable(ctx: EvalContext): OHLCVTable
+}
+
+object StockTable : TableExpr {
+    override fun evalTable(ctx: EvalContext) = ctx.table
+    override fun toString() = "stock"
+}
+
+object IndexTable : TableExpr {
+    override fun evalTable(ctx: EvalContext) = ctx.index
+    override fun toString() = "index"
+}
+
+
+sealed interface SeriesExpr : SourceExpr {
     fun eval(ctx: EvalContext): FloatSeries
 
-    operator fun minus(other: Expr) = BinaryExpr(this, Op.SUB, other)
-    operator fun div(other: Expr) = BinaryExpr(this, Op.DIV, other)
+    operator fun minus(other: SeriesExpr) = BinaryExpr(this, Op.SUB, other)
+    operator fun div(other: SeriesExpr) = BinaryExpr(this, Op.DIV, other)
 }
 
-data class TargetExpr(val index: Boolean = false): Expr {
-    override fun eval(ctx: EvalContext): FloatSeries {
-        TODO("Not for direct eval")
-    }
-
-    override fun toString() = if (index) "index" else "stock"
-}
-
-data class FieldExpr(val name: String) : Expr {
+data class FieldExpr(val name: String) : SeriesExpr {
     override fun eval(ctx: EvalContext): FloatSeries =
         ctx.series(name)
 }
 
-data class CustomExpr(val name: String, val eval: (EvalContext) -> FloatSeries) : Expr {
+data class CustomExpr(val name: String, val eval: (EvalContext) -> FloatSeries) : SeriesExpr {
     override fun eval(ctx: EvalContext) = eval.invoke(ctx)
     override fun toString() = name
 }
 
 // TODO index/input should be replaced by an Expr that represents what data to run the function on
-data class FuncExpr private constructor(val function: IFunction, val index: Boolean, val input: Expr? = null) : Expr {
-    constructor(function: IFunction) : this(function, false, null)
-    constructor(index: Boolean, function: IFunction, ) : this(function, index, null)
-    constructor(input: Expr, function: IFunction) : this(function, false, input)
+data class FuncExpr(val function: IFunction, val source: SourceExpr = StockTable) : SeriesExpr {
+    constructor(source: SourceExpr, function: IFunction) : this(function, source)
 
     override fun eval(ctx: EvalContext): FloatSeries {
-        val table = if (index) ctx.index else ctx.table
-
-        if (input != null)  {
-            if (function is OverlayBase<*>) {
-                val inputEval =  input.eval(ctx)
-                val result = function.eval(inputEval)
+        when (source) {
+            is TableExpr -> {
+                val table = source.evalTable(ctx)
+                val result = function.eval(table)
                 if (result is FloatSeries) {
                     return result
                 }
 
                 throw RuntimeException("Function result is not FloatSeries")
+
             }
+            is SeriesExpr -> {
+                if (function is OverlayBase<*>) {
+                    val series = source.eval(ctx)
+                    val result = function.eval(series)
+                    if (result is FloatSeries) {
+                        return result
+                    }
 
-            throw RuntimeException("Function does not implement eval(FloatSeries)")
+                    throw RuntimeException("Function result is not FloatSeries")
+                }
+
+                throw RuntimeException("Function does not implement eval(FloatSeries)")
+            }
         }
-
-        val result = function.eval(table)
-        if (result is FloatSeries) {
-            return result
-        }
-
-        throw RuntimeException("Function result is not FloatSeries")
     }
 
     override fun toString(): String {
         val params = function.params.map { it.toString() }.toMutableList()
-        if (index)
-            params.add(0, "index")
-        if (input != null)
-            params.add(0, input.toString())
+
+        when (source) {
+            is TableExpr -> {
+                if (source is IndexTable)
+                    params.add(0, "index")
+            }
+            is SeriesExpr -> {
+                params.add(0, source.toString())
+            }
+        }
+
         return "${this.function.javaClass.simpleName}(" + params.joinToString(", ") + ")"
     }
 }
 
 data class BinaryExpr(
-    val left: Expr,
+    val left: SeriesExpr,
     val op: Op,
-    val right: Expr
-) : Expr {
+    val right: SeriesExpr
+) : SeriesExpr {
     override fun eval(ctx: EvalContext): FloatSeries {
         val a = ctx.eval(left)
         val b = ctx.eval(right)
@@ -121,9 +138,9 @@ data class BinaryExpr(
 
 // TODO add good unit test for this one
 data class LagExpr(
-    val source: Expr,
+    val source: SeriesExpr,
     val periods: Int
-) : Expr {
+) : SeriesExpr {
     override fun eval(ctx: EvalContext) = ctx.eval(source).offset(periods)
 
     override fun toString(): String {
@@ -141,11 +158,11 @@ class EvalContext(
 ) {
     val size: Int get() = table.size
 
-    private val cache = mutableMapOf<Expr, FloatSeries>()
+    private val cache = mutableMapOf<SeriesExpr, FloatSeries>()
 
     // TODO sub expr caching
     // RSI14 - EMA(RSI14)
-    fun eval(expr: Expr): FloatSeries =
+    fun eval(expr: SeriesExpr): FloatSeries =
         cache.getOrPut(expr) { expr.eval(this) }
 
     fun series(name: String): FloatSeries {

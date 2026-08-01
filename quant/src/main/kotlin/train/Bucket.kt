@@ -42,9 +42,10 @@ example
     )
 
  */
-data class Bucket(private val list: List<Pair<Float, Float>>) {
+data class Bucket(val list: List<Pair<Float, Float>>, val label: String? = null) {
     val rangeStart = list.first().first
     val rangeEnd = list.last().first
+    val rangeLabel = label ?: "${rangeStart.toDouble().decimal2()} - ${rangeEnd.toDouble().decimal2()}"
 
     val averageInd = list.map { it.first }.average()
     val averageGain = list.map { it.second }.average()
@@ -53,6 +54,8 @@ data class Bucket(private val list: List<Pair<Float, Float>>) {
     val winRate = 100 * wins.toDouble() / list.size
 
     var rank = 0
+
+
 }
 
 fun createBuckets(results: List<Pair<Float, Float>>, split: Int): List<Bucket> {
@@ -60,8 +63,8 @@ fun createBuckets(results: List<Pair<Float, Float>>, split: Int): List<Bucket> {
     return rankBuckets(buckets)
 }
 
-fun createBuckets(results: List<Pair<Float, Float>>, split: (List<Pair<Float, Float>>) -> List<List<Pair<Float, Float>>>): List<Bucket> {
-    val buckets = split.invoke(results).map { Bucket(it) }
+fun createBuckets(results: List<Pair<Float, Float>>, split: (List<Pair<Float, Float>>) -> Map<String, List<Pair<Float, Float>>>): List<Bucket> {
+    val buckets = split.invoke(results).entries.map { Bucket(it.value, it.key) }
     return rankBuckets(buckets)
 }
 
