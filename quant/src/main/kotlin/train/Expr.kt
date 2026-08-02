@@ -1,28 +1,10 @@
 package train
 
-import data.SectorETFDef
-import data.TextDataRepository
 import org.cerion.marketdata.core.functions.IFunction
-import org.cerion.marketdata.core.indicators.RSI
 import org.cerion.marketdata.core.model.OHLCVTable
 import org.cerion.marketdata.core.overlays.OverlayBase
 import org.cerion.marketdata.core.series.FloatSeries
 
-
-fun main() {
-    val dataSource = TextDataRepository()
-    val dataSet = dataSource.get(SectorETFDef())
-    val index = dataSet.index!!
-
-    val rsi: SeriesExpr = FuncExpr(RSI(2))
-    val rsi2: SeriesExpr = FuncExpr(RSI(2))
-    val ctx = EvalContext(index, index)
-
-    ctx.eval(rsi)
-    ctx.eval(rsi2)
-
-    println(rsi)
-}
 
 sealed interface SourceExpr
 
@@ -53,8 +35,9 @@ data class FieldExpr(val name: String) : SeriesExpr {
         ctx.series(name)
 }
 
-data class CustomExpr(val name: String, val eval: (EvalContext) -> FloatSeries) : SeriesExpr {
-    override fun eval(ctx: EvalContext) = eval.invoke(ctx)
+data class CustomExpr(val name: String, val evalFn: CustomExpr.(EvalContext) -> FloatSeries) : SeriesExpr {
+    var labels = mutableListOf<String>()
+    override fun eval(ctx: EvalContext) = evalFn(ctx)
     override fun toString() = name
 }
 

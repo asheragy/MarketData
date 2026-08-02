@@ -1,5 +1,7 @@
 package train
 
+import util.decimal2
+
 /*
 sealed interface BucketStrategy {
     data class Quantiles(
@@ -42,10 +44,11 @@ example
     )
 
  */
-data class Bucket(val list: List<Pair<Float, Float>>, val label: String? = null) {
+
+data class Bucket(val list: List<Pair<Float, Float>>, val condition: String? = null) {
     val rangeStart = list.first().first
     val rangeEnd = list.last().first
-    val rangeLabel = label ?: "${rangeStart.toDouble().decimal2()} - ${rangeEnd.toDouble().decimal2()}"
+    val rangeLabel = "${rangeStart.toDouble().decimal2()} - ${rangeEnd.toDouble().decimal2()}"
 
     val averageInd = list.map { it.first }.average()
     val averageGain = list.map { it.second }.average()
@@ -54,17 +57,27 @@ data class Bucket(val list: List<Pair<Float, Float>>, val label: String? = null)
     val winRate = 100 * wins.toDouble() / list.size
 
     var rank = 0
-
-
 }
 
-fun createBuckets(results: List<Pair<Float, Float>>, split: Int): List<Bucket> {
-    val buckets = results.sortedBy { it.first }.splitIntoExactly(split).map { Bucket(it) }
-    return rankBuckets(buckets)
-}
+fun createBuckets(resultsWithLabel: List<Triple<String, Float, Float>>, quantiles: Int): List<Bucket> {
 
-fun createBuckets(results: List<Pair<Float, Float>>, split: (List<Pair<Float, Float>>) -> Map<String, List<Pair<Float, Float>>>): List<Bucket> {
-    val buckets = split.invoke(results).entries.map { Bucket(it.value, it.key) }
+    if (resultsWithLabel.first().first.isNotEmpty()) {
+        val groups = resultsWithLabel.groupBy { it.first }
+            .mapValues { it.value.map { Pair(it.second, it.third) } }
+
+        val result = mutableListOf<Bucket>()
+        groups.forEach { group, results ->
+            val buckets = results.sortedBy { it.first }.splitIntoExactly(quantiles).map { Bucket(it, group) }
+            result.addAll(buckets)
+
+        }
+
+        return rankBuckets(result)
+    }
+
+    // TODO partially duplicated with above
+    val results = resultsWithLabel.map { Pair(it.second, it.third) }
+    val buckets = results.sortedBy { it.first }.splitIntoExactly(quantiles).map { Bucket(it) }
     return rankBuckets(buckets)
 }
 
