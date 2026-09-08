@@ -2,9 +2,10 @@ package strategy
 
 import data.DataSet
 import data.SectorIndexToETF
-import org.cerion.marketdata.core.series.FloatSeries
 import org.cerion.marketdata.core.indicators.AverageDirectionalIndex
 import org.cerion.marketdata.core.indicators.RSI
+import org.cerion.marketdata.core.indicators.UltimateOscillator
+import org.cerion.marketdata.core.series.FloatSeries
 import java.time.LocalDate
 
 class SectorStrategy(indexes: DataSet) : Strategy() {
@@ -36,6 +37,7 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
     private lateinit var adi: Map<String, FloatSeries>
     private lateinit var rsi14: Map<String, FloatSeries>
     private lateinit var rsi14index: FloatSeries
+    private lateinit var temp: Map<String, FloatSeries>
 
     override fun eval(data: DataSet, index: Int) {
         if (index == 0) {
@@ -43,6 +45,7 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
             // Init
             rsi = data.lists.associate { Pair(it.symbol, RSI(3).eval(it)) }
             rsi14 = data.lists.associate { Pair(it.symbol, RSI(14).eval(it)) }
+            temp = data.lists.associate { Pair(it.symbol, UltimateOscillator(4, 8, 16).eval(it)) }
             adi = data.lists.associate { Pair(it.symbol, AverageDirectionalIndex().eval(it)) }
             rsi14index  = RSI(14).eval(data.index!!)
         }
@@ -56,23 +59,23 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
 
             val weights = indexWeightsByDate[data.lists[0][index].date]!!.toMutableMap()
             if (index >= 10) {
-
                 data.lists.forEach { list ->
-                    val currRsi = rsi[list.symbol]!![index]
-                    if (currRsi <= 33.64 || currRsi >= 81.32) {
+                    val curr = temp[list.symbol]!![index]
+                    if (curr <= 50.45) {
                         // Good
-                        weights[list.symbol] = weights[list.symbol]!! * 1.1f
+                        weights[list.symbol] = weights[list.symbol]!! * 2f
                     }
-                    else if (currRsi in 52.97..67.64) {
+                    else if (curr >= 63.08) {
                         // neutral
 
                     }
                     else {
                         // bad
-                        weights[list.symbol] = weights[list.symbol]!! * 0.9f
+                        weights[list.symbol] = weights[list.symbol]!! * 0f
                     }
                 }
 
+                /*
                 data.lists.forEach { list ->
                     val curr = adi[list.symbol]!![index]
                     if (curr in 16.37..20.81 ||  curr in 25.30..31.48) {
@@ -87,6 +90,8 @@ class SectorStrategy(indexes: DataSet) : Strategy() {
                         weights[list.symbol] = weights[list.symbol]!! * 0.9f
                     }
                 }
+
+                 */
 
 
                 data.lists.forEach { list ->
